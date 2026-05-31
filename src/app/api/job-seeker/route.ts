@@ -1,32 +1,56 @@
 import { NextResponse } from "next/server";
 
 // Stub helper for Google Sheets integration
-async function triggerGoogleSheetsHook(fields: Record<string, string>, resumeName: string, resumeSize: number) {
-  console.log("=== TRIGGERING GOOGLE SHEETS HOOK ===");
-  console.log("Sheet ID target: NEXTGEN_CANDIDATE_REGISTRY");
-  console.log("Appended Row Data:", {
-    Timestamp: new Date().toISOString(),
-    Name: `${fields.firstName} ${fields.lastName}`,
-    Gender: fields.gender,
-    DOB: fields.dob,
-    Email: fields.email,
-    Mobile: fields.mobile,
-    City: fields.city,
-    Company: fields.currentCompany,
-    Designation: fields.designation,
-    Experience: fields.experience + " Years",
-    CTC: fields.currentCtc,
-    Degree: fields.degree,
-    Institute: fields.institute,
-    Function: fields.function,
-    Industry: fields.industry,
-    Skills: fields.skills,
-    ResumeName: resumeName,
-    ResumeSize: (resumeSize / 1024).toFixed(2) + " KB"
-  });
-  console.log("Status: Google Sheets Candidate Row Appended");
-  console.log("======================================");
-  return true;
+// Helper for Google Sheets integration via Google Apps Script Web App
+async function triggerGoogleSheetsHook(
+  fields: Record<string, string>,
+  resumeName: string,
+  resumeType: string,
+  resumeBase64: string
+) {
+  const url = process.env.GOOGLE_SHEET_WEBAPP_URL;
+  const authSecret = process.env.GOOGLE_SHEET_AUTH_SECRET;
+
+  if (!url || url.includes("placeholder")) {
+    console.warn("GOOGLE_SHEET_WEBAPP_URL is not configured or is placeholder. Skipping real Google Sheets insertion.");
+    return false;
+  }
+
+  try {
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        formType: "job-seeker",
+        authSecret,
+        data: fields,
+        files: [
+          {
+            name: resumeName,
+            type: resumeType,
+            contentBase64: resumeBase64
+          }
+        ]
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Google Sheets Web App responded with HTTP status ${response.status}`);
+    }
+
+    const result = await response.json();
+    if (!result.success) {
+      throw new Error(result.error || "Unknown error inside Apps Script");
+    }
+
+    console.log("Google Sheets Candidate Row Appended successfully for Seeker:", fields.email);
+    return true;
+  } catch (error: any) {
+    console.error("Error sending data to Google Sheets Web App:", error);
+    throw new Error("Google Sheets Integration error: " + error.message);
+  }
 }
 
 // Stub helper for email alerts (attaching resume)
@@ -99,10 +123,11 @@ export async function POST(request: Request) {
 
     // Convert file to buffer for processing or saving
     const resumeBuffer = Buffer.from(await resumeFile.arrayBuffer());
+    const resumeBase64 = resumeBuffer.toString("base64");
     console.log(`Successfully parsed resume: ${resumeFile.name} (Size: ${resumeFile.size} bytes)`);
 
     // Run integrations
-    await triggerGoogleSheetsHook(textFields, resumeFile.name, resumeFile.size);
+    await triggerGoogleSheetsHook(textFields, resumeFile.name, resumeFile.type, resumeBase64);
     await triggerEmailNotification(textFields, resumeFile);
 
     return NextResponse.json({ success: true, message: "Profile registered successfully" });

@@ -17,7 +17,7 @@ async function triggerGoogleSheetsHook(data: any) {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        formType: "recruiter",
+        formType: "book-call",
         authSecret,
         data,
       }),
@@ -32,10 +32,10 @@ async function triggerGoogleSheetsHook(data: any) {
       throw new Error(result.error || "Unknown error inside Apps Script");
     }
 
-    console.log("Google Sheets Row Appended successfully for Recruiter:", data.email);
+    console.log("Google Sheets Row Appended successfully for Booking:", data.email);
     return true;
   } catch (error: any) {
-    console.error("Error sending data to Google Sheets Web App:", error);
+    console.error("Error sending booking to Google Sheets Web App:", error);
     throw new Error("Google Sheets Integration error: " + error.message);
   }
 }
@@ -44,20 +44,21 @@ async function triggerGoogleSheetsHook(data: any) {
 async function triggerEmailNotification(data: any) {
   console.log("=== TRIGGERING SMTP EMAIL NOTIFICATION ===");
   console.log("SMTP Config: smtp.secureserver.net (Port 465)");
-  console.log("Mail From: notifications@nextgen-consulting.com");
-  console.log("Mail To: admissions@nextgen-consulting.com, search@nextgen-consulting.com");
-  console.log("Subject: [New Recruiter Query] " + data.companyName);
+  console.log("Mail From: appointments@nextgen-consulting.com");
+  console.log("Mail To: scheduling@nextgen-consulting.com");
+  console.log("Subject: [New Appointment Booked] " + data.name + " - " + data.companyName);
   console.log("Body: \n", 
     `Dear Team,\n\n`,
-    `A new recruiter lead has submitted their details:\n\n`,
+    `A new discovery consultation has been booked:\n\n`,
     `- Contact Name: ${data.name}\n`,
     `- Company: ${data.companyName}\n`,
     `- Email: ${data.email}\n`,
-    `- Mobile: ${data.mobile}\n`,
-    `- Message: ${data.message}\n\n`,
+    `- Discussion Topic: ${data.topic}\n`,
+    `- Scheduled Date: ${data.date}\n`,
+    `- Scheduled Time: ${data.time}\n\n`,
     `Please follow up immediately.`
   );
-  console.log("Status: SMTP Mail Sent Successfully (Mock ID: msg_rec_8832)");
+  console.log("Status: SMTP Mail Sent Successfully (Mock ID: msg_book_7721)");
   console.log("==========================================");
   return true;
 }
@@ -65,23 +66,23 @@ async function triggerEmailNotification(data: any) {
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { name, mobile, email, companyName, message } = body;
+    const { name, email, companyName, topic, date, time } = body;
 
     // Backend Validation
-    if (!name || !mobile || !email || !companyName || !message) {
+    if (!name || !email || !companyName || !topic || !date || !time) {
       return NextResponse.json(
-        { error: "Missing required fields on submission" },
+        { error: "Missing required booking details (make sure date and time are selected)" },
         { status: 400 }
       );
     }
 
     // Run integrations
-    await triggerGoogleSheetsHook({ name, mobile, email, companyName, message });
-    await triggerEmailNotification({ name, mobile, email, companyName, message });
+    await triggerGoogleSheetsHook({ name, email, companyName, topic, date, time });
+    await triggerEmailNotification({ name, email, companyName, topic, date, time });
 
-    return NextResponse.json({ success: true, message: "Recruiter requirement received" });
+    return NextResponse.json({ success: true, message: "Booking slot confirmed successfully" });
   } catch (error: any) {
-    console.error("API Error in Recruiter Form processing:", error);
+    console.error("API Error in Call Booking processing:", error);
     return NextResponse.json(
       { error: "Internal server error occurred: " + error.message },
       { status: 500 }

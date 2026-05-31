@@ -15,6 +15,8 @@ export default function BookDiscoveryCall() {
   });
   const [errors, setErrors] = useState<{ name?: string; email?: string; companyName?: string }>({});
   const [bookingFinished, setBookingFinished] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   // Generate next 6 business days (excluding Sunday)
   const getAvailableDates = () => {
@@ -51,8 +53,10 @@ export default function BookDiscoveryCall() {
     setErrors((prev) => ({ ...prev, [name]: "" }));
   };
 
-  const handleBook = (e: React.FormEvent) => {
+  const handleBook = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (isSubmitting) return;
+
     const newErrors: typeof errors = {};
 
     if (!formData.name.trim()) newErrors.name = "Name is required";
@@ -71,7 +75,34 @@ export default function BookDiscoveryCall() {
       return;
     }
 
-    setBookingFinished(true);
+    setIsSubmitting(true);
+    setSubmitError(null);
+
+    try {
+      const response = await fetch("/api/book-call", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          ...formData,
+          date: selectedDate,
+          time: selectedTime
+        })
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || "Failed to book appointment. Please try again.");
+      }
+
+      setBookingFinished(true);
+    } catch (err: any) {
+      setSubmitError(err.message || "Something went wrong during submission.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -266,14 +297,25 @@ export default function BookDiscoveryCall() {
                   </select>
                 </div>
 
+                {submitError && (
+                  <div className="text-rose-400 text-xs bg-rose-500/10 border border-rose-500/20 p-3.5 rounded-xl text-center font-medium animate-fade-in">
+                    {submitError}
+                  </div>
+                )}
+
                 {/* Submit button */}
                 <div className="pt-2">
                   <button
                     type="submit"
-                    className="w-full py-3.5 rounded-xl bg-brand-orange hover:bg-brand-orange-hover text-white text-sm font-semibold transition-all duration-300 cursor-pointer flex items-center justify-center gap-1.5"
+                    disabled={isSubmitting}
+                    className={`w-full py-3.5 rounded-xl text-white text-sm font-semibold transition-all duration-300 flex items-center justify-center gap-1.5 ${
+                      isSubmitting
+                        ? "bg-slate-800 border border-slate-700 text-slate-400 cursor-not-allowed"
+                        : "bg-brand-orange hover:bg-brand-orange-hover cursor-pointer"
+                    }`}
                   >
-                    <span>Confirm Booking Slot</span>
-                    <ChevronRight className="w-4 h-4" />
+                    <span>{isSubmitting ? "Confirming Booking Slot..." : "Confirm Booking Slot"}</span>
+                    {!isSubmitting && <ChevronRight className="w-4 h-4" />}
                   </button>
                 </div>
 
