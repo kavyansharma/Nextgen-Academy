@@ -36,6 +36,8 @@ export default function FresherForm() {
   const [errors, setErrors] = useState<Partial<FormFields> & { resume?: string; projectReport?: string }>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState<"idle" | "success" | "error">("idle");
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [uploadProgress, setUploadProgress] = useState(0);
 
   const resumeInputRef = useRef<HTMLInputElement>(null);
   const reportInputRef = useRef<HTMLInputElement>(null);
@@ -74,8 +76,8 @@ export default function FresherForm() {
       const ext = resume.name.split(".").pop()?.toLowerCase();
       if (!ext || !allowedExt.includes(ext)) {
         newErrors.resume = "PDF, DOC, or DOCX only";
-      } else if (resume.size > 5 * 1024 * 1024) {
-        newErrors.resume = "Under 5MB required";
+      } else if (resume.size > 10 * 1024 * 1024) {
+        newErrors.resume = "Under 10MB required";
       }
     }
 
@@ -117,12 +119,14 @@ export default function FresherForm() {
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!validate()) return;
 
     setIsSubmitting(true);
     setSubmitStatus("idle");
+    setErrorMessage(null);
+    setUploadProgress(0);
 
     const formData = new FormData();
     Object.entries(fields).forEach(([key, val]) => {
@@ -131,13 +135,21 @@ export default function FresherForm() {
     if (resume) formData.append("resume", resume);
     if (projectReport) formData.append("projectReport", projectReport);
 
-    try {
-      const response = await fetch("/api/fresher", {
-        method: "POST",
-        body: formData
-      });
+    const xhr = new XMLHttpRequest();
 
-      if (response.ok) {
+    // Track upload progress (client -> server)
+    xhr.upload.onprogress = (event) => {
+      if (event.lengthComputable) {
+        const percentComplete = Math.round((event.loaded / event.total) * 100);
+        // Cap client upload progress at 90%, the remaining 10% is server processing (Drive upload)
+        setUploadProgress(Math.min(percentComplete, 90));
+      }
+    };
+
+    xhr.onload = async () => {
+      setIsSubmitting(false);
+      if (xhr.status >= 200 && xhr.status < 300) {
+        setUploadProgress(100);
         setSubmitStatus("success");
         setResume(null);
         setProjectReport(null);
@@ -154,16 +166,26 @@ export default function FresherForm() {
           industrialProject: ""
         });
       } else {
-        const errorData = await response.json().catch(() => ({}));
-        console.error("Submission error from server:", errorData.error || response.statusText);
+        let errorMsg = "Something went wrong.";
+        try {
+          const res = JSON.parse(xhr.responseText);
+          errorMsg = res.error || errorMsg;
+        } catch {}
+        console.error("Submission error from server:", errorMsg);
+        setErrorMessage(errorMsg);
         setSubmitStatus("error");
       }
-    } catch (err) {
-      console.error("Network or client-side submission error:", err);
-      setSubmitStatus("error");
-    } finally {
+    };
+
+    xhr.onerror = () => {
       setIsSubmitting(false);
-    }
+      console.error("Network or client-side submission error.");
+      setErrorMessage("Network error occurred during submission.");
+      setSubmitStatus("error");
+    };
+
+    xhr.open("POST", "/api/fresher");
+    xhr.send(formData);
   };
 
   return (
@@ -216,9 +238,9 @@ export default function FresherForm() {
             <form onSubmit={handleSubmit} className="space-y-8">
               
               {submitStatus === "error" && (
-                <div className="p-4 rounded-xl bg-rose-500/10 border border-rose-500/20 flex items-center gap-3 text-rose-400 text-sm">
+                <div className="p-4 rounded-xl bg-rose-500/10 border border-rose-500/20 flex items-center gap-3 text-rose-400 text-sm animate-fade-in">
                   <AlertTriangle className="w-5 h-5 flex-shrink-0" />
-                  <span>Application failed. Verify file sizes are correct (Resume: 5MB, Report: 10MB).</span>
+                  <span>{errorMessage || "Application failed. Verify file sizes are correct (Resume: 10MB, Report: 10MB)."}</span>
                 </div>
               )}
 
@@ -426,7 +448,7 @@ export default function FresherForm() {
                       <span className="text-xs font-semibold text-white block truncate">
                         {resume ? resume.name : "Select Resume File"}
                       </span>
-                      <span className="text-[10px] text-brand-text-muted">PDF/DOCX under 5MB</span>
+                      <span className="text-[10px] text-brand-text-muted">PDF/DOCX under 10MB</span>
                     </div>
                     {errors.resume && <p className="text-xs text-rose-400 mt-1">{errors.resume}</p>}
                   </div>
@@ -460,7 +482,7 @@ export default function FresherForm() {
               </div>
 
               {/* Submit */}
-              <div className="pt-4">
+              <div className="pt-4 space-y-4">
                 <button
                   type="submit"
                   disabled={isSubmitting}
@@ -472,6 +494,21 @@ export default function FresherForm() {
                     <span>Submit Application</span>
                   )}
                 </button>
+
+                {isSubmitting && (
+                  <div className="space-y-2 animate-fade-in">
+                    <div className="flex justify-between text-xs text-slate-300 font-semibold">
+                      <span>{uploadProgress < 90 ? "Uploading files..." : "Saving to Google Drive & Sheets..."}</span>
+                      <span>{uploadProgress}%</span>
+                    </div>
+                    <div className="w-full bg-slate-950 rounded-full h-2 overflow-hidden border border-slate-800">
+                      <div 
+                        className="bg-gradient-to-r from-amber-400 to-orange-500 h-2 rounded-full transition-all duration-300"
+                        style={{ width: `${uploadProgress}%` }}
+                      ></div>
+                    </div>
+                  </div>
+                )}
               </div>
 
             </form>

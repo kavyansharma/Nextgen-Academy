@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
-import { handleFileUpload, sendToWebhook } from "@/utils/webhook";
+import { sendToWebhook } from "@/utils/webhook";
+import { uploadToGoogleDrive } from "@/utils/googleDrive";
 
 // Stub helper for email alerts with attachments
 async function triggerEmailNotification(
@@ -69,27 +70,57 @@ export async function POST(request: Request) {
       );
     }
 
-    // Upload to Google Drive (with local storage fallback)
-    const origin = new URL(request.url).origin;
-    const resumeLink = await handleFileUpload(resumeFile, origin);
-    const projectReportLink = await handleFileUpload(reportFile, origin);
-    console.log(`Uploaded fresher documents:\n- Resume: ${resumeLink}\n- Report: ${projectReportLink}`);
+    // 1. Upload Resume to Google Drive (under "Fresher Resumes")
+    console.log(`Uploading resume "${resumeFile.name}" to Google Drive folder "Fresher Resumes"...`);
+    let resumeLink: string;
+    try {
+      resumeLink = await uploadToGoogleDrive(resumeFile, "Fresher Resumes");
+      console.log(`Resume uploaded successfully. Google Drive URL: ${resumeLink}`);
+    } catch (uploadError: any) {
+      console.error("Resume Google Drive upload failed:", uploadError);
+      return NextResponse.json(
+        { error: `Google Drive Resume upload failed: ${uploadError.message}. Please configure credentials or try again.` },
+        { status: 500 }
+      );
+    }
+
+    // 2. Upload Project Report to Google Drive (under "Project Reports")
+    console.log(`Uploading project report "${reportFile.name}" to Google Drive folder "Project Reports"...`);
+    let projectReportLink: string;
+    try {
+      projectReportLink = await uploadToGoogleDrive(reportFile, "Project Reports");
+      console.log(`Project Report uploaded successfully. Google Drive URL: ${projectReportLink}`);
+    } catch (uploadError: any) {
+      console.error("Project Report Google Drive upload failed:", uploadError);
+      return NextResponse.json(
+        { error: `Google Drive Project Report upload failed: ${uploadError.message}. Please configure credentials or try again.` },
+        { status: 500 }
+      );
+    }
 
     // Map fields to JSON structure
     const fullName = `${textFields.firstName} ${textFields.lastName}`;
     const detailedMessage = `Gender: ${textFields.gender}, DOB: ${textFields.dob}, City: ${textFields.city}, Degree: ${textFields.degree}, Industrial Project Summary: ${textFields.industrialProject}`;
 
     // Send to Google Sheets Apps Script Webhook
-    await sendToWebhook({
-      formType: "Freshers",
-      name: fullName,
-      email: textFields.email,
-      phone: textFields.mobile,
-      company: textFields.institute,
-      message: detailedMessage,
-      resumeLink,
-      projectReportLink
-    });
+    try {
+      await sendToWebhook({
+        formType: "Freshers",
+        name: fullName,
+        email: textFields.email,
+        phone: textFields.mobile,
+        company: textFields.institute,
+        message: detailedMessage,
+        resumeLink,
+        projectReportLink
+      });
+    } catch (webhookError: any) {
+      console.error("Google Sheets webhook post failed:", webhookError);
+      return NextResponse.json(
+        { error: `Google Sheets integration failed: ${webhookError.message}` },
+        { status: 500 }
+      );
+    }
 
     // Trigger email notification
     await triggerEmailNotification(textFields, resumeFile, reportFile);

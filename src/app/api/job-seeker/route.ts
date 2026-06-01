@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
-import { handleFileUpload, sendToWebhook } from "@/utils/webhook";
+import { sendToWebhook } from "@/utils/webhook";
+import { uploadToGoogleDrive } from "@/utils/googleDrive";
 
 // Stub helper for email alerts (attaching resume)
 async function triggerEmailNotification(fields: Record<string, string>, resumeFile: File) {
@@ -69,26 +70,43 @@ export async function POST(request: Request) {
       );
     }
 
-    // Upload to Google Drive (with local storage fallback)
-    const origin = new URL(request.url).origin;
-    const resumeLink = await handleFileUpload(resumeFile, origin);
-    console.log(`Uploaded resume: ${resumeLink}`);
+    // Upload the file to Google Drive
+    console.log(`Uploading resume "${resumeFile.name}" to Google Drive folder "Job Seeker Resumes"...`);
+    let resumeLink: string;
+    try {
+      resumeLink = await uploadToGoogleDrive(resumeFile, "Job Seeker Resumes");
+      console.log(`Uploaded successfully. Google Drive URL: ${resumeLink}`);
+    } catch (uploadError: any) {
+      console.error("Google Drive upload failed:", uploadError);
+      return NextResponse.json(
+        { error: `Google Drive upload failed: ${uploadError.message}. Please configure credentials or try again.` },
+        { status: 500 }
+      );
+    }
 
     // Map fields to JSON webhook structure
     const fullName = `${textFields.firstName} ${textFields.lastName}`;
     const detailedMessage = `Gender: ${textFields.gender}, DOB: ${textFields.dob}, City: ${textFields.city}, Designation: ${textFields.designation}, Experience: ${textFields.experience} Years, Current CTC: ${textFields.currentCtc}, Degree: ${textFields.degree}, Institute: ${textFields.institute}, Function: ${textFields.function}, Industry: ${textFields.industry}, Skills: ${textFields.skills}`;
 
     // Send to Google Sheets Apps Script Webhook
-    await sendToWebhook({
-      formType: "Job Seeker",
-      name: fullName,
-      email: textFields.email,
-      phone: textFields.mobile,
-      company: textFields.currentCompany,
-      message: detailedMessage,
-      resumeLink,
-      projectReportLink: ""
-    });
+    try {
+      await sendToWebhook({
+        formType: "Job Seeker",
+        name: fullName,
+        email: textFields.email,
+        phone: textFields.mobile,
+        company: textFields.currentCompany,
+        message: detailedMessage,
+        resumeLink,
+        projectReportLink: ""
+      });
+    } catch (webhookError: any) {
+      console.error("Google Sheets webhook post failed:", webhookError);
+      return NextResponse.json(
+        { error: `Google Sheets integration failed: ${webhookError.message}` },
+        { status: 500 }
+      );
+    }
 
     // Run email notification
     await triggerEmailNotification(textFields, resumeFile);
