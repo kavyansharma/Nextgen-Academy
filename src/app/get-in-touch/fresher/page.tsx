@@ -154,9 +154,12 @@ export default function FresherForm() {
           industrialProject: ""
         });
       } else {
+        const errorData = await response.json().catch(() => ({}));
+        console.error("Submission error from server:", errorData.error || response.statusText);
         setSubmitStatus("error");
       }
     } catch (err) {
+      console.error("Network or client-side submission error:", err);
       setSubmitStatus("error");
     } finally {
       setIsSubmitting(false);

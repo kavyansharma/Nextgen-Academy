@@ -1,64 +1,5 @@
 import { NextResponse } from "next/server";
-
-// Helper for Google Sheets integration via Google Apps Script Web App
-async function triggerGoogleSheetsHook(
-  fields: Record<string, string>,
-  resumeName: string,
-  resumeType: string,
-  resumeBase64: string,
-  reportName: string,
-  reportType: string,
-  reportBase64: string
-) {
-  const url = process.env.GOOGLE_SHEET_WEBAPP_URL;
-  const authSecret = process.env.GOOGLE_SHEET_AUTH_SECRET;
-
-  if (!url || url.includes("placeholder")) {
-    console.warn("GOOGLE_SHEET_WEBAPP_URL is not configured or is placeholder. Skipping real Google Sheets insertion.");
-    return false;
-  }
-
-  try {
-    const response = await fetch(url, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        formType: "fresher",
-        authSecret,
-        data: fields,
-        files: [
-          {
-            name: resumeName,
-            type: resumeType,
-            contentBase64: resumeBase64
-          },
-          {
-            name: reportName,
-            type: reportType,
-            contentBase64: reportBase64
-          }
-        ]
-      }),
-    });
-
-    if (!response.ok) {
-      throw new Error(`Google Sheets Web App responded with HTTP status ${response.status}`);
-    }
-
-    const result = await response.json();
-    if (!result.success) {
-      throw new Error(result.error || "Unknown error inside Apps Script");
-    }
-
-    console.log("Google Sheets Academy Row Appended successfully for Fresher:", fields.email);
-    return true;
-  } catch (error: any) {
-    console.error("Error sending data to Google Sheets Web App:", error);
-    throw new Error("Google Sheets Integration error: " + error.message);
-  }
-}
+import { saveFileLocally, sendToWebhook } from "@/utils/webhook";
 
 // Stub helper for email alerts with attachments
 async function triggerEmailNotification(
@@ -128,24 +69,29 @@ export async function POST(request: Request) {
       );
     }
 
-    // Process files to buffers (e.g. for storage or email attachment)
-    const resumeBuffer = Buffer.from(await resumeFile.arrayBuffer());
-    const resumeBase64 = resumeBuffer.toString("base64");
-    const reportBuffer = Buffer.from(await reportFile.arrayBuffer());
-    const reportBase64 = reportBuffer.toString("base64");
+    // Save files locally and get public URLs
+    const origin = new URL(request.url).origin;
+    const resumeLink = await saveFileLocally(resumeFile, origin);
+    const projectReportLink = await saveFileLocally(reportFile, origin);
+    console.log(`Saved fresher documents locally:\n- Resume: ${resumeLink}\n- Report: ${projectReportLink}`);
 
-    console.log(`Successfully parsed Fresher Documents:\n- Resume: ${resumeFile.name}\n- Report: ${reportFile.name}`);
+    // Map fields to JSON structure
+    const fullName = `${textFields.firstName} ${textFields.lastName}`;
+    const detailedMessage = `Gender: ${textFields.gender}, DOB: ${textFields.dob}, City: ${textFields.city}, Degree: ${textFields.degree}, Industrial Project Summary: ${textFields.industrialProject}`;
 
-    // Trigger integrations
-    await triggerGoogleSheetsHook(
-      textFields, 
-      resumeFile.name, 
-      resumeFile.type, 
-      resumeBase64, 
-      reportFile.name, 
-      reportFile.type, 
-      reportBase64
-    );
+    // Send to Google Sheets Apps Script Webhook
+    await sendToWebhook({
+      formType: "Freshers",
+      name: fullName,
+      email: textFields.email,
+      phone: textFields.mobile,
+      company: textFields.institute,
+      message: detailedMessage,
+      resumeLink,
+      projectReportLink
+    });
+
+    // Trigger email notification
     await triggerEmailNotification(textFields, resumeFile, reportFile);
 
     return NextResponse.json({ success: true, message: "Academy enrollment application received" });

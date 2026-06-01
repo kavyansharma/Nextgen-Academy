@@ -99,6 +99,7 @@ export default function BookDiscoveryCall() {
 
       setBookingFinished(true);
     } catch (err: any) {
+      console.error("Discovery Call booking error:", err);
       setSubmitError(err.message || "Something went wrong during submission.");
     } finally {
       setIsSubmitting(false);

@@ -1,57 +1,5 @@
 import { NextResponse } from "next/server";
-
-// Stub helper for Google Sheets integration
-// Helper for Google Sheets integration via Google Apps Script Web App
-async function triggerGoogleSheetsHook(
-  fields: Record<string, string>,
-  resumeName: string,
-  resumeType: string,
-  resumeBase64: string
-) {
-  const url = process.env.GOOGLE_SHEET_WEBAPP_URL;
-  const authSecret = process.env.GOOGLE_SHEET_AUTH_SECRET;
-
-  if (!url || url.includes("placeholder")) {
-    console.warn("GOOGLE_SHEET_WEBAPP_URL is not configured or is placeholder. Skipping real Google Sheets insertion.");
-    return false;
-  }
-
-  try {
-    const response = await fetch(url, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        formType: "job-seeker",
-        authSecret,
-        data: fields,
-        files: [
-          {
-            name: resumeName,
-            type: resumeType,
-            contentBase64: resumeBase64
-          }
-        ]
-      }),
-    });
-
-    if (!response.ok) {
-      throw new Error(`Google Sheets Web App responded with HTTP status ${response.status}`);
-    }
-
-    const result = await response.json();
-    if (!result.success) {
-      throw new Error(result.error || "Unknown error inside Apps Script");
-    }
-
-    console.log("Google Sheets Candidate Row Appended successfully for Seeker:", fields.email);
-    return true;
-  } catch (error: any) {
-    console.error("Error sending data to Google Sheets Web App:", error);
-    throw new Error("Google Sheets Integration error: " + error.message);
-  }
-}
+import { saveFileLocally, sendToWebhook } from "@/utils/webhook";
 
 // Stub helper for email alerts (attaching resume)
 async function triggerEmailNotification(fields: Record<string, string>, resumeFile: File) {
@@ -121,13 +69,28 @@ export async function POST(request: Request) {
       );
     }
 
-    // Convert file to buffer for processing or saving
-    const resumeBuffer = Buffer.from(await resumeFile.arrayBuffer());
-    const resumeBase64 = resumeBuffer.toString("base64");
-    console.log(`Successfully parsed resume: ${resumeFile.name} (Size: ${resumeFile.size} bytes)`);
+    // Save the file locally and get the public URL
+    const origin = new URL(request.url).origin;
+    const resumeLink = await saveFileLocally(resumeFile, origin);
+    console.log(`Saved resume locally to: ${resumeLink}`);
 
-    // Run integrations
-    await triggerGoogleSheetsHook(textFields, resumeFile.name, resumeFile.type, resumeBase64);
+    // Map fields to JSON webhook structure
+    const fullName = `${textFields.firstName} ${textFields.lastName}`;
+    const detailedMessage = `Gender: ${textFields.gender}, DOB: ${textFields.dob}, City: ${textFields.city}, Designation: ${textFields.designation}, Experience: ${textFields.experience} Years, Current CTC: ${textFields.currentCtc}, Degree: ${textFields.degree}, Institute: ${textFields.institute}, Function: ${textFields.function}, Industry: ${textFields.industry}, Skills: ${textFields.skills}`;
+
+    // Send to Google Sheets Apps Script Webhook
+    await sendToWebhook({
+      formType: "Job Seeker",
+      name: fullName,
+      email: textFields.email,
+      phone: textFields.mobile,
+      company: textFields.currentCompany,
+      message: detailedMessage,
+      resumeLink,
+      projectReportLink: ""
+    });
+
+    // Run email notification
     await triggerEmailNotification(textFields, resumeFile);
 
     return NextResponse.json({ success: true, message: "Profile registered successfully" });

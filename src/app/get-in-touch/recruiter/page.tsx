@@ -74,9 +74,12 @@ export default function RecruiterForm() {
         setSubmitStatus("success");
         setFields({ name: "", mobile: "", email: "", companyName: "", message: "" });
       } else {
+        const errorData = await response.json().catch(() => ({}));
+        console.error("Submission error from server:", errorData.error || response.statusText);
         setSubmitStatus("error");
       }
     } catch (err) {
+      console.error("Network or client-side submission error:", err);
       setSubmitStatus("error");
     } finally {
       setIsSubmitting(false);

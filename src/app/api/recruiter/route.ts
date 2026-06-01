@@ -1,44 +1,5 @@
 import { NextResponse } from "next/server";
-
-// Helper for Google Sheets integration via Google Apps Script Web App
-async function triggerGoogleSheetsHook(data: any) {
-  const url = process.env.GOOGLE_SHEET_WEBAPP_URL;
-  const authSecret = process.env.GOOGLE_SHEET_AUTH_SECRET;
-
-  if (!url || url.includes("placeholder")) {
-    console.warn("GOOGLE_SHEET_WEBAPP_URL is not configured or is placeholder. Skipping real Google Sheets insertion.");
-    return false;
-  }
-
-  try {
-    const response = await fetch(url, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        formType: "recruiter",
-        authSecret,
-        data,
-      }),
-    });
-
-    if (!response.ok) {
-      throw new Error(`Google Sheets Web App responded with HTTP status ${response.status}`);
-    }
-
-    const result = await response.json();
-    if (!result.success) {
-      throw new Error(result.error || "Unknown error inside Apps Script");
-    }
-
-    console.log("Google Sheets Row Appended successfully for Recruiter:", data.email);
-    return true;
-  } catch (error: any) {
-    console.error("Error sending data to Google Sheets Web App:", error);
-    throw new Error("Google Sheets Integration error: " + error.message);
-  }
-}
+import { sendToWebhook } from "@/utils/webhook";
 
 // Stub helper for email alerts
 async function triggerEmailNotification(data: any) {
@@ -76,7 +37,16 @@ export async function POST(request: Request) {
     }
 
     // Run integrations
-    await triggerGoogleSheetsHook({ name, mobile, email, companyName, message });
+    await sendToWebhook({
+      formType: "Hiring",
+      name,
+      email,
+      phone: mobile,
+      company: companyName,
+      message,
+      resumeLink: "",
+      projectReportLink: ""
+    });
     await triggerEmailNotification({ name, mobile, email, companyName, message });
 
     return NextResponse.json({ success: true, message: "Recruiter requirement received" });
