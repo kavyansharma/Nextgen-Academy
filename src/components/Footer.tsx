@@ -124,14 +124,14 @@ export default function Footer() {
                 <MapPin className="w-5 h-5 text-brand-orange mt-0.5 flex-shrink-0" />
                 <span className="text-sm text-brand-text-muted leading-relaxed">
                   NextGen Academy & Consulting Corp.<br />
-                  DLF Cyber City, Building 10C,<br />
-                  Gurugram, HR - 122002, India
+                  15, Sapphire Mall, Sector 90,<br />
+                  Gurugram, India
                 </span>
               </div>
               <div className="flex items-center gap-3">
                 <Phone className="w-5 h-5 text-brand-orange flex-shrink-0" />
-                <a href="tel:+919876543210" className="text-sm text-brand-text-muted hover:text-white transition-colors duration-200">
-                  +91 98765 43210
+                <a href="tel:+919971524733" className="text-sm text-brand-text-muted hover:text-white transition-colors duration-200">
+                  +91 99715 24733
                 </a>
               </div>
               <div className="flex items-center gap-3">
