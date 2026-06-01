@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { saveFileLocally, sendToWebhook } from "@/utils/webhook";
+import { handleFileUpload, sendToWebhook } from "@/utils/webhook";
 
 // Stub helper for email alerts with attachments
 async function triggerEmailNotification(
@@ -69,11 +69,11 @@ export async function POST(request: Request) {
       );
     }
 
-    // Save files locally and get public URLs
+    // Upload to Google Drive (with local storage fallback)
     const origin = new URL(request.url).origin;
-    const resumeLink = await saveFileLocally(resumeFile, origin);
-    const projectReportLink = await saveFileLocally(reportFile, origin);
-    console.log(`Saved fresher documents locally:\n- Resume: ${resumeLink}\n- Report: ${projectReportLink}`);
+    const resumeLink = await handleFileUpload(resumeFile, origin);
+    const projectReportLink = await handleFileUpload(reportFile, origin);
+    console.log(`Uploaded fresher documents:\n- Resume: ${resumeLink}\n- Report: ${projectReportLink}`);
 
     // Map fields to JSON structure
     const fullName = `${textFields.firstName} ${textFields.lastName}`;

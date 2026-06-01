@@ -1,5 +1,6 @@
 import { writeFile, mkdir } from "fs/promises";
 import path from "path";
+import { uploadToGoogleDrive } from "@/utils/googleDrive";
 
 const WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbwM-fZSqSCPjuy6RR_nbwPuUt39YoFyH_1BKqwDR9yJo4yDfH97sTPhjVVd34Tw5X0/exec";
 
@@ -12,6 +13,17 @@ export interface WebhookPayload {
   message: string;
   resumeLink: string;
   projectReportLink: string;
+}
+
+// Function to handle file uploads by attempting Google Drive upload first, falling back to local storage
+export async function handleFileUpload(file: File, origin: string): Promise<string> {
+  try {
+    const driveLink = await uploadToGoogleDrive(file);
+    return driveLink;
+  } catch (error: any) {
+    console.warn(`[Google Drive Upload Fallback] ${error.message} - Storing locally.`);
+    return saveFileLocally(file, origin);
+  }
 }
 
 // Function to save a file locally in public/uploads/ and return its public URL
