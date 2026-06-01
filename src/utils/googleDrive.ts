@@ -19,6 +19,8 @@ async function getOrCreateFolder(drive: any, name: string, parentId?: string): P
     q: query,
     fields: "files(id)",
     spaces: "drive",
+    supportsAllDrives: true,
+    includeItemsFromAllDrives: true,
   });
 
   const files = listResponse.data.files || [];
@@ -39,6 +41,7 @@ async function getOrCreateFolder(drive: any, name: string, parentId?: string): P
   const createResponse = await drive.files.create({
     requestBody: folderMetadata,
     fields: "id",
+    supportsAllDrives: true,
   });
 
   const newFolderId = createResponse.data.id;
@@ -107,6 +110,7 @@ export async function uploadToGoogleDrive(file: File, subfolderName: string): Pr
     requestBody: fileMetadata,
     media: media,
     fields: "id, webViewLink",
+    supportsAllDrives: true,
   });
 
   const fileId = uploadResponse.data.id;
@@ -121,12 +125,14 @@ export async function uploadToGoogleDrive(file: File, subfolderName: string): Pr
       role: "reader",
       type: "anyone",
     },
+    supportsAllDrives: true,
   });
 
   // 5. Retrieve shareable webViewLink
   const getResponse = await drive.files.get({
     fileId: fileId,
     fields: "webViewLink",
+    supportsAllDrives: true,
   });
 
   const shareableUrl = getResponse.data.webViewLink;
