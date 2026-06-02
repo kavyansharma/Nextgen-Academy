@@ -10,8 +10,9 @@ export async function generateStaticParams() {
 }
 
 // Generate dynamic SEO metadata
-export async function generateMetadata({ params }: { params: { slug: string } }) {
-  const resource = resources.find((r) => r.slug === params.slug);
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  const resource = resources.find((r) => r.slug === slug);
   if (!resource) {
     return {
       title: "Resource Not Found | NextGen Academy",
@@ -30,8 +31,9 @@ export async function generateMetadata({ params }: { params: { slug: string } })
   };
 }
 
-export default async function ResourcePage({ params }: { params: { slug: string } }) {
-  const resource = resources.find((r) => r.slug === params.slug);
+export default async function ResourcePage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  const resource = resources.find((r) => r.slug === slug);
   
   if (!resource) {
     notFound();
