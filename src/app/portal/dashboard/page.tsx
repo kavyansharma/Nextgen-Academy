@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/context/AuthContext";
 import { 
@@ -11,7 +12,9 @@ import {
   Sparkles,
   Mail,
   Calendar,
-  Activity
+  Activity,
+  FolderOpen,
+  Settings
 } from "lucide-react";
 
 export default function DashboardPage() {
@@ -108,24 +111,65 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          {/* Placeholder Portal features */}
+          {/* Main Hub Section */}
           <div className="md:col-span-2 p-8 rounded-2xl bg-slate-900/60 border border-slate-800 glass flex flex-col justify-between space-y-6">
-            <div className="space-y-4">
-              <h3 className="text-xs font-bold text-slate-500 uppercase tracking-widest flex items-center gap-1.5">
-                <Activity className="w-3.5 h-3.5 text-brand-blue" />
-                <span>Portal Access</span>
-              </h3>
-              <h2 className="text-xl font-bold text-white">NextGen Learning & Consulting Hub</h2>
-              <p className="text-sm text-brand-text-muted leading-relaxed">
-                Thank you for joining NextGen Portal Phase 1. Your workspace is currently being provisioned. As a free tier member, you will soon get access to mock practice interviews, industrial case studies, and corporate workshops.
-              </p>
+            <div className="space-y-6">
+              <div className="space-y-4">
+                <h3 className="text-xs font-bold text-slate-500 uppercase tracking-widest flex items-center gap-1.5">
+                  <Activity className="w-3.5 h-3.5 text-brand-blue" />
+                  <span>Portal Hub</span>
+                </h3>
+                <h2 className="text-xl font-bold text-white">Learning & Consulting Center</h2>
+                <p className="text-sm text-brand-text-muted leading-relaxed">
+                  Welcome back! Access your training materials and consulting resources below.
+                </p>
+              </div>
+
+              {/* Action Cards Grid */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {/* Resources Button/Card */}
+                <Link 
+                  href="/portal/resources"
+                  className="p-5 rounded-xl bg-slate-950/60 border border-slate-800 hover:border-brand-orange hover:scale-[1.01] transition-all duration-300 flex flex-col justify-between space-y-4 group"
+                >
+                  <div className="space-y-2">
+                    <div className="w-9 h-9 rounded-lg bg-brand-orange/10 border border-brand-orange/20 flex items-center justify-center text-brand-orange">
+                      <FolderOpen className="w-5 h-5" />
+                    </div>
+                    <h3 className="font-bold text-white group-hover:text-brand-orange transition-colors">Academy Resources</h3>
+                    <p className="text-xs text-brand-text-muted">Access training guides, files, and resources.</p>
+                  </div>
+                  <span className="text-xs font-semibold text-brand-orange flex items-center gap-1">
+                    Open Directory &rarr;
+                  </span>
+                </Link>
+
+                {/* Admin Dashboard Button/Card (Conditional) */}
+                {user.role === "admin" && (
+                  <Link 
+                    href="/portal/admin"
+                    className="p-5 rounded-xl bg-slate-950/60 border border-slate-800 hover:border-brand-blue hover:scale-[1.01] transition-all duration-300 flex flex-col justify-between space-y-4 group"
+                  >
+                    <div className="space-y-2">
+                      <div className="w-9 h-9 rounded-lg bg-brand-blue/10 border border-brand-blue/20 flex items-center justify-center text-brand-blue">
+                        <Settings className="w-5 h-5" />
+                      </div>
+                      <h3 className="font-bold text-white group-hover:text-brand-blue transition-colors">Admin Dashboard</h3>
+                      <p className="text-xs text-brand-text-muted">Manage users, catalog items, and access levels.</p>
+                    </div>
+                    <span className="text-xs font-semibold text-brand-blue flex items-center gap-1">
+                      Open Admin Panel &rarr;
+                    </span>
+                  </Link>
+                )}
+              </div>
             </div>
 
             <div className="p-4 rounded-xl bg-slate-950/60 border border-slate-800 flex items-center gap-4 text-sm text-slate-300">
               <FolderLock className="w-8 h-8 text-brand-orange flex-shrink-0" />
               <div>
-                <span className="font-semibold text-white">Feature Release Coming Soon</span>
-                <p className="text-xs text-brand-text-muted mt-0.5">Premium academy classes, interview grading systems, and personalized dashboard tools are on their way.</p>
+                <span className="font-semibold text-white">Upcoming Features</span>
+                <p className="text-xs text-brand-text-muted mt-0.5">Mock practice interviews, live training webinars, and feedback loops are coming soon.</p>
               </div>
             </div>
           </div>
