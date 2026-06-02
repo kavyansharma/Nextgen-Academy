@@ -29,7 +29,8 @@ import {
   UserX, 
   Loader2,
   Calendar,
-  Mail
+  Mail,
+  Activity
 } from "lucide-react";
 
 interface FirestoreUser {
