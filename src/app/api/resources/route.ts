@@ -6,7 +6,7 @@ import { doc, getDoc } from "firebase/firestore";
 import { jwtVerify, createRemoteJWKSet, decodeJwt, decodeProtectedHeader } from "jose";
 
 // Google's public JSON Web Key Set (JWKS) URL for Firebase Auth
-const GOOGLE_JWKS_URL = "https://www.googleapis.com/service_accounts/v1/jwk/securetoken-system@system.gserviceaccount.com";
+const GOOGLE_JWKS_URL = "https://www.googleapis.com/service_accounts/v1/jwk/securetoken@system.gserviceaccount.com";
 const JWKS = createRemoteJWKSet(new URL(GOOGLE_JWKS_URL));
 
 /**
@@ -14,7 +14,7 @@ const JWKS = createRemoteJWKSet(new URL(GOOGLE_JWKS_URL));
  */
 async function verifyFirebaseToken(token: string): Promise<string | null> {
   const projectId = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID;
-  console.log("[DEBUG] verifyFirebaseToken: projectId exists =", !!projectId);
+  console.log("[DEBUG] Project ID being used by Admin SDK: ", projectId);
 
   try {
     const decodedHeader = decodeProtectedHeader(token);
@@ -33,19 +33,23 @@ async function verifyFirebaseToken(token: string): Promise<string | null> {
 
   if (!projectId) {
     console.error("Missing NEXT_PUBLIC_FIREBASE_PROJECT_ID env variable");
+    console.error("[DEBUG] Full Firebase Admin error message: Missing project ID configuration.");
     return null;
   }
 
   try {
+    console.log("[DEBUG] Starting verifyIdToken() execution (via jose jwtVerify)");
     const { payload } = await jwtVerify(token, JWKS, {
       audience: projectId,
       issuer: `https://securetoken.google.com/${projectId}`,
       algorithms: ["RS256"]
     });
 
+    console.log("[DEBUG] verifyIdToken() execution success. Subject UID:", payload.sub);
     return payload.sub || null; // 'sub' contains the Firebase UID
   } catch (err: any) {
     console.error("[DEBUG] verifyFirebaseToken: jose verification error message =", err.message);
+    console.error("[DEBUG] Full Firebase Admin error message:", err.message, err.stack || err);
     console.error("Firebase ID Token verification failed:", err);
     return null;
   }
@@ -62,11 +66,15 @@ export async function GET(req: NextRequest) {
 
   // 1. Extract Bearer Token from Authorization Header
   const authHeader = req.headers.get("Authorization");
+  console.log("[DEBUG] Incoming Authorization header presence:", !!authHeader);
+
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    console.warn("[DEBUG] Authorization header missing or malformed");
     return NextResponse.json({ error: "Unauthorized. Missing Authorization header." }, { status: 401 });
   }
 
   const token = authHeader.substring(7); // Remove 'Bearer ' prefix
+  console.log("[DEBUG] Token extraction success:", !!token);
 
   // 2. Verify Firebase JWT Token
   const verifiedUid = await verifyFirebaseToken(token);
