@@ -5,6 +5,17 @@
   --color-brand-orange-hover: #ea580c;
   --color-brand-blue: #0ea5e9;
   --color-brand-blue-hover: #0284c7;
+  --color-portal-bg: #0F172A;
+  --color-portal-sidebar: #111827;
+  --color-portal-card: #1E293B;
+  --color-portal-border: #334155;
+  --color-portal-primary: #2563EB;
+  --color-portal-secondary: #0EA5E9;
+  --color-portal-success: #10B981;
+  --color-portal-warning: #F59E0B;
+  --color-portal-text-primary: #F8FAFC;
+  --color-portal-text-secondary: #94A3B8;
+
   --color-brand-dark: #0b0f19;
   --color-brand-dark-light: #131b2e;
   --color-brand-border: #1e293b;

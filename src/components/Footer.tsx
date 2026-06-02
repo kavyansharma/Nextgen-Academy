@@ -1,5 +1,8 @@
+"use client";
+
 import React from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { 
   Mail, 
   Phone, 
@@ -30,6 +33,13 @@ const YoutubeIcon = (props: React.SVGProps<SVGSVGElement>) => (
 );
 
 export default function Footer() {
+  const pathname = usePathname();
+  
+  // Hide main site footer on portal pages
+  if (pathname && pathname.startsWith("/portal")) {
+    return null;
+  }
+
   const currentYear = new Date().getFullYear();
 
   const services = [

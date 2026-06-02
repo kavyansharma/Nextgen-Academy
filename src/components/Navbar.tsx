@@ -15,6 +15,12 @@ import {
 
 export default function Navbar() {
   const pathname = usePathname();
+
+  // Hide main site navigation on portal pages
+  if (pathname.startsWith("/portal")) {
+    return null;
+  }
+
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
