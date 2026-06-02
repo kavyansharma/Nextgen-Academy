@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/context/AuthContext";
-import { queryDocuments } from "@/lib/services/firestoreService";
+import { resources, Resource } from "@/data/resources";
 import { 
   Search, 
   ExternalLink, 
@@ -13,28 +13,12 @@ import {
   FolderOpen,
   Lock,
   Unlock,
-  ShieldAlert,
   Loader2
 } from "lucide-react";
-
-interface Resource {
-  id: string;
-  title: string;
-  description: string;
-  category: string;
-  accessLevel: string;
-  driveLink: string;
-  createdAt: string;
-}
 
 export default function ResourcesPage() {
   const { user, loading } = useAuth();
   const router = useRouter();
-
-  // Resources state
-  const [resources, setResources] = useState<Resource[]>([]);
-  const [fetchLoading, setFetchLoading] = useState(true);
-  const [fetchError, setFetchError] = useState<string | null>(null);
 
   // Filters state
   const [searchQuery, setSearchQuery] = useState("");
@@ -47,49 +31,17 @@ export default function ResourcesPage() {
     }
   }, [user, loading, router]);
 
-  // Fetch resources
-  useEffect(() => {
-    const fetchResources = async () => {
-      try {
-        setFetchLoading(true);
-        setFetchError(null);
-        
-        const docs = await queryDocuments("resources");
-        const formatted: Resource[] = docs.map((doc: any) => ({
-          id: doc.id,
-          title: doc.title || "",
-          description: doc.description || "",
-          category: doc.category || "General",
-          accessLevel: doc.accessLevel || "free",
-          driveLink: doc.driveLink || "#",
-          createdAt: doc.createdAt || new Date().toISOString()
-        }));
-
-        setResources(formatted);
-      } catch (err: any) {
-        console.error("Error fetching resources:", err);
-        setFetchError("Unable to fetch resources. Please check your database permissions.");
-      } finally {
-        setFetchLoading(false);
-      }
-    };
-
-    if (user) {
-      fetchResources();
-    }
-  }, [user]);
-
   // Check if current user has access to this resource level
-  const hasAccess = (accessLevel: string) => {
+  const hasAccess = (type: string) => {
     if (!user) return false;
-    const cleanLevel = accessLevel.toLowerCase().trim();
+    const cleanType = type.toLowerCase().trim();
     if (user.role === "admin") return true;
-    if (user.role === "paid") return cleanLevel === "free" || cleanLevel === "paid";
-    return cleanLevel === "free"; // Free users only see free level
+    if (user.role === "paid") return cleanType === "free" || cleanType === "paid";
+    return cleanType === "free"; // Free users only see free level
   };
 
   // Compile list of resources user can see
-  const accessibleResources = resources.filter(res => hasAccess(res.accessLevel));
+  const accessibleResources = resources.filter(res => hasAccess(res.type));
 
   // Compute unique categories from the accessible list
   const categories = ["All", ...Array.from(new Set(accessibleResources.map(res => res.category)))];
@@ -140,13 +92,6 @@ export default function ResourcesPage() {
             <span className="text-xs text-slate-300 font-medium">Role: {user.role.charAt(0).toUpperCase() + user.role.slice(1)}</span>
           </div>
         </div>
-
-        {fetchError && (
-          <div className="flex gap-3 p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-200 text-sm">
-            <ShieldAlert className="w-5 h-5 text-red-500 flex-shrink-0" />
-            <span>{fetchError}</span>
-          </div>
-        )}
 
         {/* Search & Category Filter Section */}
         <div className="space-y-4">
@@ -200,24 +145,7 @@ export default function ResourcesPage() {
         </div>
 
         {/* Resources Grid */}
-        {fetchLoading ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-            {[1, 2, 3].map((n) => (
-              <div key={n} className="bg-slate-900/60 border border-white/5 rounded-3xl p-6 glass animate-pulse space-y-6 h-64">
-                <div className="flex justify-between items-center">
-                  <div className="h-6 bg-slate-800 rounded w-20"></div>
-                  <div className="h-6 bg-slate-800 rounded w-16"></div>
-                </div>
-                <div className="space-y-3">
-                  <div className="h-6 bg-slate-800 rounded w-3/4"></div>
-                  <div className="h-4 bg-slate-800 rounded w-full"></div>
-                  <div className="h-4 bg-slate-800 rounded w-5/6"></div>
-                </div>
-                <div className="h-10 bg-slate-800 rounded-xl w-full pt-4"></div>
-              </div>
-            ))}
-          </div>
-        ) : filteredResources.length === 0 ? (
+        {filteredResources.length === 0 ? (
           /* Empty State */
           <div className="p-16 rounded-3xl bg-slate-900/60 border border-slate-800/80 text-center glass max-w-xl mx-auto space-y-6">
             <div className="inline-flex w-16 h-16 rounded-2xl bg-brand-orange/10 border border-brand-orange/20 items-center justify-center text-brand-orange">
@@ -248,11 +176,9 @@ export default function ResourcesPage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
             {filteredResources.map((res) => {
               const accessColor = 
-                res.accessLevel.toLowerCase() === "free"
+                res.type.toLowerCase() === "free"
                   ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-400"
-                  : res.accessLevel.toLowerCase() === "paid"
-                  ? "bg-amber-500/10 border-amber-500/20 text-amber-400"
-                  : "bg-rose-500/10 border-rose-500/20 text-rose-400";
+                  : "bg-amber-500/10 border-amber-500/20 text-amber-400";
 
               return (
                 <div 
@@ -269,8 +195,8 @@ export default function ResourcesPage() {
                         {res.category}
                       </span>
                       <span className={`inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border ${accessColor}`}>
-                        {res.accessLevel.toLowerCase() === "free" ? <Unlock className="w-2.5 h-2.5" /> : <Lock className="w-2.5 h-2.5" />}
-                        <span>{res.accessLevel}</span>
+                        {res.type.toLowerCase() === "free" ? <Unlock className="w-2.5 h-2.5" /> : <Lock className="w-2.5 h-2.5" />}
+                        <span>{res.type}</span>
                       </span>
                     </div>
 
@@ -290,17 +216,15 @@ export default function ResourcesPage() {
                     </p>
                   </div>
 
-                  {/* Open Link Button */}
+                  {/* Open Link Button (Redirects on-site dynamically) */}
                   <div className="pt-4 relative z-10">
-                    <a
-                      href={res.driveLink}
-                      target="_blank"
-                      rel="noopener noreferrer"
+                    <Link
+                      href={`/resources/${res.slug}`}
                       className="w-full py-3 px-4 rounded-xl bg-slate-950 hover:bg-slate-900 border border-slate-800 hover:border-brand-orange text-slate-200 font-semibold transition-all duration-300 hover:scale-[1.02] text-center flex items-center justify-center gap-2 cursor-pointer text-sm"
                     >
                       <span>Open Resource</span>
                       <ExternalLink className="w-4 h-4" />
-                    </a>
+                    </Link>
                   </div>
                 </div>
               );
