@@ -23,7 +23,8 @@ import {
   Loader2,
   ChevronRight,
   Shield,
-  AlertOctagon
+  AlertOctagon,
+  MessageSquare
 } from "lucide-react";
 
 export default function PortalLayout({ children }: { children: React.ReactNode }) {
@@ -137,16 +138,18 @@ export default function PortalLayout({ children }: { children: React.ReactNode }
     { name: "Resources", href: "/portal/resources", icon: FolderOpen },
     { name: "Courses", href: "/portal/courses", icon: BookOpen },
     { name: "Certificates", href: "/portal/certificates", icon: Award },
-    { name: "Profile", href: "/portal/profile", icon: User },
+    { name: "Community", href: "/portal/community", icon: MessageSquare },
     { name: "Support", href: "/portal/support", icon: HelpCircle },
+    { name: "Profile", href: "/portal/profile", icon: User },
+    { name: "Settings", href: "/portal/settings", icon: Settings },
   ];
 
   const adminMenuItems = [
-    { name: "Users", href: "/portal/admin/users", icon: Users },
-    { name: "Course Manager", href: "/portal/admin/courses", icon: Sliders },
-    { name: "Resource Manager", href: "/portal/admin/resources", icon: FileText },
+    { name: "User Management", href: "/portal/admin/users", icon: Users },
+    { name: "Course Management", href: "/portal/admin/courses", icon: Sliders },
+    { name: "Resource Management", href: "/portal/admin/resources", icon: FileText },
     { name: "Analytics", href: "/portal/admin/analytics", icon: BarChart3 },
-    { name: "Settings", href: "/portal/admin/settings", icon: Settings },
+    { name: "Platform Settings", href: "/portal/admin/settings", icon: Settings },
   ];
 
   const handleSignOut = async () => {
