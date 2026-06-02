@@ -3,7 +3,7 @@ import path from "path";
 import fs from "fs";
 import { db } from "@/lib/firebase";
 import { doc, getDoc } from "firebase/firestore";
-import { jwtVerify, createRemoteJWKSet } from "jose";
+import { jwtVerify, createRemoteJWKSet, decodeJwt, decodeProtectedHeader } from "jose";
 
 // Google's public JSON Web Key Set (JWKS) URL for Firebase Auth
 const GOOGLE_JWKS_URL = "https://www.googleapis.com/service_accounts/v1/jwk/securetoken-system@system.gserviceaccount.com";
@@ -14,6 +14,23 @@ const JWKS = createRemoteJWKSet(new URL(GOOGLE_JWKS_URL));
  */
 async function verifyFirebaseToken(token: string): Promise<string | null> {
   const projectId = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID;
+  console.log("[DEBUG] verifyFirebaseToken: projectId exists =", !!projectId);
+
+  try {
+    const decodedHeader = decodeProtectedHeader(token);
+    console.log("[DEBUG] verifyFirebaseToken: decoded header kid =", decodedHeader.kid);
+  } catch (err: any) {
+    console.error("[DEBUG] verifyFirebaseToken: failed to decode header:", err.message);
+  }
+
+  try {
+    const decodedPayload = decodeJwt(token);
+    console.log("[DEBUG] verifyFirebaseToken: decoded payload aud =", decodedPayload.aud);
+    console.log("[DEBUG] verifyFirebaseToken: decoded payload iss =", decodedPayload.iss);
+  } catch (err: any) {
+    console.error("[DEBUG] verifyFirebaseToken: failed to decode payload:", err.message);
+  }
+
   if (!projectId) {
     console.error("Missing NEXT_PUBLIC_FIREBASE_PROJECT_ID env variable");
     return null;
@@ -27,7 +44,8 @@ async function verifyFirebaseToken(token: string): Promise<string | null> {
     });
 
     return payload.sub || null; // 'sub' contains the Firebase UID
-  } catch (err) {
+  } catch (err: any) {
+    console.error("[DEBUG] verifyFirebaseToken: jose verification error message =", err.message);
     console.error("Firebase ID Token verification failed:", err);
     return null;
   }
