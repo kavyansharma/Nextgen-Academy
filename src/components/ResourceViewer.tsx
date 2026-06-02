@@ -6,14 +6,13 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/context/AuthContext";
 import { Resource } from "@/data/resources";
 import PurchaseCard from "@/components/PurchaseCard";
-import { 
-  ArrowLeft, 
-  FileText, 
-  Download, 
+import {
+  ArrowLeft,
+  FileText,
+  Download,
   ExternalLink,
   Unlock,
   Loader2,
-  Lock,
   AlertCircle
 } from "lucide-react";
 
@@ -25,7 +24,7 @@ export default function ResourceViewer({ resource }: ResourceViewerProps) {
   const { user, firebaseUser, loading } = useAuth();
   const router = useRouter();
 
-  // PDF Loading & blob state
+  // PDF states
   const [pdfUrl, setPdfUrl] = useState<string | null>(null);
   const [loadingPdf, setLoadingPdf] = useState(true);
   const [pdfError, setPdfError] = useState<string | null>(null);
@@ -37,10 +36,12 @@ export default function ResourceViewer({ resource }: ResourceViewerProps) {
     }
   }, [user, loading, router]);
 
-  // Gating access checks
-  const hasAccess = 
-    resource.type === "free" || 
-    user?.role === "admin" || 
+  // Gating access checks:
+  // Admin & Paid users can view all resources (both free & paid).
+  // Free users can only view free resources.
+  const hasAccess =
+    resource.type === "free" ||
+    user?.role === "admin" ||
     user?.role === "paid";
 
   // Fetch Paid PDF as Blob URL & Cleanup
@@ -55,7 +56,7 @@ export default function ResourceViewer({ resource }: ResourceViewerProps) {
         return;
       }
 
-      // If user has no access to this paid resource, do not fetch
+      // If user has no access to this paid resource or firebaseUser is not loaded, do not fetch
       if (!hasAccess || !firebaseUser) {
         setPdfUrl(null);
         setLoadingPdf(false);
@@ -93,7 +94,10 @@ export default function ResourceViewer({ resource }: ResourceViewerProps) {
       }
     };
 
-    if (user) {
+    if (user && firebaseUser) {
+      loadPdf();
+    } else if (user && resource.type === "free") {
+      // If free and firebaseUser might not be loaded yet, we can load the free resource
       loadPdf();
     }
 
@@ -123,27 +127,26 @@ export default function ResourceViewer({ resource }: ResourceViewerProps) {
       <div className="absolute bottom-1/4 right-1/4 translate-x-1/2 translate-y-1/2 w-[600px] h-[600px] bg-brand-blue/5 rounded-full blur-[140px] pointer-events-none"></div>
 
       <div className="max-w-5xl mx-auto z-10 relative space-y-8 animate-fade-in text-slate-100">
-        
+
         {/* Navigation & Header */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-800/80 pb-6">
           <div className="space-y-2">
-            <Link 
+            <Link
               href="/portal/resources"
               className="inline-flex items-center gap-1.5 text-xs font-semibold text-brand-text-muted hover:text-brand-orange transition-colors duration-200"
             >
               <ArrowLeft className="w-3.5 h-3.5" />
               <span>Back to Directory</span>
             </Link>
-            
+
             <div className="flex flex-wrap items-center gap-2 pt-1">
               <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-slate-900 text-brand-blue border border-slate-800">
                 {resource.category}
               </span>
-              <span className={`text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full border ${
-                resource.type === "free" 
-                  ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-400" 
+              <span className={`text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full border ${resource.type === "free"
+                  ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-400"
                   : "bg-amber-500/10 border-amber-500/20 text-amber-400"
-              }`}>
+                }`}>
                 {resource.type} Resource
               </span>
             </div>
@@ -165,10 +168,9 @@ export default function ResourceViewer({ resource }: ResourceViewerProps) {
         {hasAccess ? (
           /* ACCESSIBLE VIEW: EMBEDDED PDF VIEWER */
           <div className="space-y-6">
-            
             {/* Action Bar (View & downloads - rendered once loaded) */}
             {!loadingPdf && !pdfError && pdfUrl && (
-              <div className="flex flex-wrap gap-3 items-center animate-fade-in">
+              <div className="flex flex-wrap gap-3 items-center">
                 <a
                   href={pdfUrl}
                   target="_blank"
@@ -190,14 +192,14 @@ export default function ResourceViewer({ resource }: ResourceViewerProps) {
               </div>
             )}
 
-            {/* Viewer Stage */}
+            {/* Embedded Iframe PDF Viewer / Loading / Error states */}
             <div className="rounded-2xl border border-slate-800 bg-slate-950/60 overflow-hidden shadow-2xl glass p-1">
               {loadingPdf ? (
                 /* PDF loading state */
                 <div className="w-full h-[850px] rounded-xl bg-slate-950 flex items-center justify-center border border-slate-850/10">
                   <div className="text-center space-y-3">
                     <Loader2 className="w-8 h-8 border-4 border-brand-orange border-t-transparent rounded-full animate-spin mx-auto text-brand-orange" />
-                    <p className="text-sm text-brand-text-muted">Downloading document binary securely...</p>
+                    <p className="text-sm text-brand-text-muted">Downloading document securely...</p>
                   </div>
                 </div>
               ) : pdfError ? (
@@ -212,7 +214,7 @@ export default function ResourceViewer({ resource }: ResourceViewerProps) {
                   </div>
                 </div>
               ) : (
-                /* Embedded Iframe */
+                /* PDF Embedded View */
                 pdfUrl && (
                   <iframe
                     src={pdfUrl}
@@ -226,7 +228,7 @@ export default function ResourceViewer({ resource }: ResourceViewerProps) {
         ) : (
           /* LOCKED VIEW: PURCHASE CARD REQUIRED */
           <div className="py-12">
-            <PurchaseCard 
+            <PurchaseCard
               resourceId={resource.id}
               resourceTitle={resource.title}
               price={resource.price || 0}
