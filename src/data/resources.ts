@@ -27,7 +27,7 @@ export const resources: Resource[] = [
     category: "Automation",
     type: "paid",
     price: 49.99,
-    fileUrl: "/resources/industry-4-playbook.pdf"
+    fileUrl: "/api/resources?id=industry-4-playbook"
   },
   {
     id: "exec-leadership-guide",
@@ -37,6 +37,6 @@ export const resources: Resource[] = [
     category: "Leadership",
     type: "paid",
     price: 79.99,
-    fileUrl: "/resources/exec-leadership-guide.pdf"
+    fileUrl: "/api/resources?id=exec-leadership-guide"
   }
 ];
