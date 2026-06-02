@@ -41,6 +41,7 @@ export default function Navbar() {
     { name: "Services", href: "/services" },
     { name: "Industries", href: "/industries" },
     { name: "Values", href: "/values" },
+    { name: "Portal", href: "/portal" },
   ];
 
   const getInTouchItems = [
