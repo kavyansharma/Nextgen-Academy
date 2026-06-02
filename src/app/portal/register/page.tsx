@@ -63,10 +63,17 @@ export default function RegisterPage() {
 
     try {
       // 2. Check username uniqueness
-      const existingUsers = await queryDocuments(
-        "users",
-        where("username", "==", cleanUsername)
-      );
+      console.log("CHECKING_USERNAME");
+      let existingUsers = [];
+      try {
+        existingUsers = await queryDocuments(
+          "users",
+          where("username", "==", cleanUsername)
+        );
+      } catch (queryErr: any) {
+        console.error("USERNAME_CHECK_ERROR", queryErr);
+        throw queryErr;
+      }
 
       if (existingUsers.length > 0) {
         setFormError("This username is already taken. Please choose another.");
@@ -75,11 +82,12 @@ export default function RegisterPage() {
       }
 
       // 3. Register user in Firebase Auth
+      console.log("CREATING_AUTH_USER");
       const firebaseUser = await signUp(email.trim().toLowerCase(), password);
       console.log("AUTH_SUCCESS");
 
       // 4. Save user details in Firestore
-      console.log("FIRESTORE_WRITE_START");
+      console.log("CREATING_FIRESTORE_USER");
       try {
         await setDoc(doc(db, "users", firebaseUser.uid), {
           uid: firebaseUser.uid,
