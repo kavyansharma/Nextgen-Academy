@@ -12,7 +12,7 @@ import {
   DocumentData,
   QueryConstraint
 } from "firebase/firestore";
-import { db } from "../firebase";
+import { db, storage } from "../firebase";
 
 /**
  * Adds a new document to a specified collection with an auto-generated ID.
@@ -109,5 +109,37 @@ export async function queryDocuments(collectionName: string, ...constraints: Que
   } catch (error: any) {
     console.error(`Firestore queryDocuments Error in collection "${collectionName}":`, error.message);
     throw error;
+  }
+}
+
+/**
+ * Uploads a file to Firebase Storage and returns the download URL.
+ */
+export async function uploadFile(file: File, path: string): Promise<string> {
+  try {
+    const { ref, uploadBytes, getDownloadURL } = await import("firebase/storage");
+    const storageRef = ref(storage, path);
+    await uploadBytes(storageRef, file);
+    return await getDownloadURL(storageRef);
+  } catch (error: any) {
+    console.error(`Firebase Storage uploadFile Error at "${path}":`, error.message);
+    throw error;
+  }
+}
+
+/**
+ * Logs an administrative action to the audit_logs collection.
+ */
+export async function logAdminAction(adminId: string, adminEmail: string, action: string, details: string) {
+  try {
+    await addDocument("audit_logs", {
+      adminId,
+      adminEmail,
+      action,
+      details,
+      timestamp: new Date().toISOString()
+    });
+  } catch (error: any) {
+    console.error("Error logging admin action:", error.message);
   }
 }

@@ -9,6 +9,7 @@ import {
   getDocument,
   setDocument
 } from "@/lib/services/firestoreService";
+import { where } from "firebase/firestore";
 import {
   ArrowLeft,
   Clock,
@@ -18,7 +19,9 @@ import {
   FileText,
   Loader2,
   Award,
-  Video
+  Video,
+  ChevronLeft,
+  ChevronRight
 } from "lucide-react";
 
 interface Course {
@@ -34,18 +37,20 @@ interface Course {
 
 interface Lesson {
   id: string;
-  courseId: string;
   title: string;
+  description?: string;
   videoUrl: string;
   pdfUrl: string;
   order: number;
+  duration?: string;
 }
 
-interface CourseProgress {
+interface CourseProgressDoc {
   userId: string;
   courseId: string;
-  completedLessons: string[]; // List of lesson IDs completed
-  progressPercentage: number;
+  lessonId: string;
+  completed: boolean;
+  completedAt: string;
 }
 
 export default function CourseDetailsPage({ params }: { params: Promise<{ courseId: string }> }) {
@@ -58,64 +63,78 @@ export default function CourseDetailsPage({ params }: { params: Promise<{ course
   const [course, setCourse] = useState<Course | null>(null);
   const [lessons, setLessons] = useState<Lesson[]>([]);
   const [activeLesson, setActiveLesson] = useState<Lesson | null>(null);
-  const [progress, setProgress] = useState<CourseProgress | null>(null);
+  const [completedLessonIds, setCompletedLessonIds] = useState<string[]>([]);
   const [loadingData, setLoadingData] = useState(true);
+  const [isUpdatingProgress, setIsUpdatingProgress] = useState(false);
 
-  // Fetch Course details, Lessons, and Progress
-  useEffect(() => {
-    async function loadData() {
-      if (!user || !courseId) return;
-      try {
-        setLoadingData(true);
+  // Load Course, Lessons subcollection, and individual Completed Progress documents
+  const loadData = async () => {
+    if (!user || !courseId) return;
+    try {
+      setLoadingData(true);
 
-        // Fetch Course
-        const courseData = await getDocument("courses", courseId) as Course;
-        if (!courseData) {
-          router.replace("/portal/courses");
-          return;
-        }
-        setCourse(courseData);
-
-        // Fetch Lessons for this course
-        const allLessons = await queryDocuments("lessons") as Lesson[];
-        const courseLessons = allLessons
-          .filter(l => l.courseId === courseId)
-          .sort((a, b) => (a.order || 0) - (b.order || 0));
-        setLessons(courseLessons);
-
-        if (courseLessons.length > 0) {
-          setActiveLesson(courseLessons[0]);
-        }
-
-        // Fetch User Progress
-        const allProgress = await queryDocuments("course_progress") as CourseProgress[];
-        const userProgress = allProgress.find(p => p.userId === user.uid && p.courseId === courseId);
-        
-        if (userProgress) {
-          setProgress(userProgress);
-        } else {
-          // Init empty progress
-          const initProgress = {
-            userId: user.uid,
-            courseId,
-            completedLessons: [],
-            progressPercentage: 0
-          };
-          setProgress(initProgress);
-        }
-      } catch (err) {
-        console.error("Error loading course details:", err);
-      } finally {
-        setLoadingData(false);
+      // Fetch Course Details
+      const courseData = await getDocument("courses", courseId) as Course;
+      if (!courseData) {
+        router.replace("/portal/courses");
+        return;
       }
-    }
+      setCourse(courseData);
 
+      // Verify route access controls (Free user gets redirect or upgrade overlay if premium)
+      const hasAccess = user.role === "admin" || user.role === "paid" || courseData.type === "free";
+      if (!hasAccess) {
+        // Redirect to main courses page where upgrade prompt is handled
+        router.replace("/portal/courses");
+        return;
+      }
+
+      // Check and track enrollment
+      const enrollmentId = `${user.uid}_${courseId}`;
+      const enrollmentDoc = await getDocument("enrollments", enrollmentId);
+      if (!enrollmentDoc) {
+        await setDocument("enrollments", enrollmentId, {
+          userId: user.uid,
+          courseId,
+          enrolledAt: new Date().toISOString(),
+          completed: false,
+          progress: 0
+        });
+      }
+
+      // Fetch Lessons from courses/{courseId}/lessons subcollection
+      const courseLessons = await queryDocuments(`courses/${courseId}/lessons`) as Lesson[];
+      courseLessons.sort((a, b) => (a.order || 0) - (b.order || 0));
+      setLessons(courseLessons);
+
+      if (courseLessons.length > 0) {
+        setActiveLesson(courseLessons[0]);
+      }
+
+      // Fetch completions for this user and this course
+      const allProgress = await queryDocuments(
+        "course_progress",
+        where("userId", "==", user.uid)
+      ) as CourseProgressDoc[];
+      const myProgress = allProgress.filter(
+        p => p.courseId === courseId && p.completed === true
+      );
+      setCompletedLessonIds(myProgress.map(p => p.lessonId));
+
+    } catch (err) {
+      console.error("Error loading course syllabus player:", err);
+    } finally {
+      setLoadingData(false);
+    }
+  };
+
+  useEffect(() => {
     if (user && courseId) {
       loadData();
     }
   }, [user, courseId]);
 
-  if (!user) return null;
+  if (!user || !course) return null;
 
   if (loadingData) {
     return (
@@ -128,40 +147,63 @@ export default function CourseDetailsPage({ params }: { params: Promise<{ course
     );
   }
 
-  if (!course) return null;
+  const isCompleted = (lessonId: string) => completedLessonIds.includes(lessonId);
+  const progressPercentage = lessons.length > 0 ? Math.round((completedLessonIds.length / lessons.length) * 100) : 0;
 
-  const isLessonCompleted = (lessonId: string) => {
-    if (!progress) return false;
-    return progress.completedLessons.includes(lessonId);
+  // Toggle completion document in Firestore
+  const handleToggleComplete = async (lessonId: string) => {
+    if (isUpdatingProgress) return;
+    setIsUpdatingProgress(true);
+
+    const isCurrentlyCompleted = completedLessonIds.includes(lessonId);
+    const docId = `${user.uid}_${courseId}_${lessonId}`;
+
+    try {
+      await setDocument("course_progress", docId, {
+        userId: user.uid,
+        courseId,
+        lessonId,
+        completed: !isCurrentlyCompleted,
+        completedAt: new Date().toISOString()
+      });
+
+      // Update state in memory and compute new progress percent
+      let updatedCompletions = [];
+      if (isCurrentlyCompleted) {
+        updatedCompletions = completedLessonIds.filter(id => id !== lessonId);
+      } else {
+        updatedCompletions = [...completedLessonIds, lessonId];
+      }
+      setCompletedLessonIds(updatedCompletions);
+
+      const progressPercent = lessons.length > 0 ? Math.round((updatedCompletions.length / lessons.length) * 100) : 0;
+      await setDocument("enrollments", `${user.uid}_${courseId}`, {
+        userId: user.uid,
+        courseId,
+        progress: progressPercent,
+        completed: progressPercent === 100
+      });
+    } catch (err) {
+      console.error("Error toggling lesson progress:", err);
+    } finally {
+      setIsUpdatingProgress(false);
+    }
   };
 
-  // Toggle lesson complete state
-  const handleToggleComplete = async (lessonId: string) => {
-    if (!progress || lessons.length === 0) return;
+  // Next/Previous Navigation
+  const activeIndex = lessons.findIndex(l => l.id === activeLesson?.id);
+  const hasNext = activeIndex >= 0 && activeIndex < lessons.length - 1;
+  const hasPrev = activeIndex > 0;
 
-    let updatedCompleted = [...progress.completedLessons];
-    if (updatedCompleted.includes(lessonId)) {
-      updatedCompleted = updatedCompleted.filter(id => id !== lessonId);
-    } else {
-      updatedCompleted.push(lessonId);
+  const handleNext = () => {
+    if (hasNext) {
+      setActiveLesson(lessons[activeIndex + 1]);
     }
+  };
 
-    const percentage = Math.round((updatedCompleted.length / lessons.length) * 100);
-
-    const newProgress = {
-      ...progress,
-      completedLessons: updatedCompleted,
-      progressPercentage: percentage
-    };
-
-    // Save to Firestore using a composite ID or searching
-    // Since setDocument needs collection + docId, let's use `${user.uid}_${courseId}` as the unique doc ID!
-    // This is a very clean and standard way to merge progress records.
-    try {
-      await setDocument("course_progress", `${user.uid}_${courseId}`, newProgress);
-      setProgress(newProgress);
-    } catch (err) {
-      console.error("Error saving progress to Firestore:", err);
+  const handlePrev = () => {
+    if (hasPrev) {
+      setActiveLesson(lessons[activeIndex - 1]);
     }
   };
 
@@ -178,15 +220,20 @@ export default function CourseDetailsPage({ params }: { params: Promise<{ course
         </Link>
       </div>
 
-      {/* Banner / Header */}
+      {/* Course Banner */}
       <div className="p-6 sm:p-8 rounded-3xl bg-portal-card border border-portal-border/60 shadow-xl overflow-hidden relative group">
         <div className="absolute top-0 right-0 w-80 h-80 bg-portal-primary/5 rounded-full blur-[80px] pointer-events-none"></div>
 
         <div className="flex flex-col md:flex-row gap-6 justify-between items-start md:items-center relative z-10">
           <div className="space-y-3">
-            <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full bg-slate-900/60 text-portal-secondary border border-portal-border/50">
-              {course.category}
-            </span>
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full bg-slate-900/60 text-portal-secondary border border-portal-border/50">
+                {course.category}
+              </span>
+              <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full bg-portal-primary/10 border border-portal-primary/20 text-portal-primary">
+                {course.type} Course
+              </span>
+            </div>
             <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">{course.title}</h1>
             
             <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-portal-text-secondary">
@@ -202,24 +249,24 @@ export default function CourseDetailsPage({ params }: { params: Promise<{ course
             </div>
           </div>
 
-          {/* Progress Bar overall */}
+          {/* Progress Bar */}
           <div className="w-full md:w-64 space-y-2 bg-slate-900/40 p-4 rounded-2xl border border-portal-border/40">
             <div className="flex justify-between items-center text-xs">
               <span className="text-portal-text-secondary font-bold">Course Completed</span>
-              <span className="text-white font-extrabold">{progress?.progressPercentage || 0}%</span>
+              <span className="text-white font-extrabold">{progressPercentage}%</span>
             </div>
-            <div className="w-full h-2 bg-slate-950 rounded-full border border-portal-border/30 overflow-hidden">
+            <div className="w-full h-2 bg-slate-955 rounded-full border border-portal-border/30 overflow-hidden">
               <div
                 className="h-full bg-gradient-to-r from-portal-primary to-portal-secondary rounded-full transition-all duration-500"
-                style={{ width: `${progress?.progressPercentage || 0}%` }}
+                style={{ width: `${progressPercentage}%` }}
               ></div>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Completion congratulations banner */}
-      {progress?.progressPercentage === 100 && (
+      {/* Completion Banner */}
+      {progressPercentage === 100 && (
         <div className="p-5 rounded-2xl bg-portal-success/10 border border-portal-success/20 flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left">
           <div className="flex items-center gap-3.5">
             <div className="p-2 bg-portal-success/20 rounded-xl text-portal-success flex-shrink-0">
@@ -227,7 +274,7 @@ export default function CourseDetailsPage({ params }: { params: Promise<{ course
             </div>
             <div>
               <h3 className="font-bold text-white text-md">Congratulations! You've Completed the Course!</h3>
-              <p className="text-xs text-portal-text-secondary mt-0.5">Your official print-ready certificate is now generated and active.</p>
+              <p className="text-xs text-portal-text-secondary mt-0.5">Your credentials are now active. Premium users can download the PDF certificate.</p>
             </div>
           </div>
           <Link
@@ -239,13 +286,14 @@ export default function CourseDetailsPage({ params }: { params: Promise<{ course
         </div>
       )}
 
-      {/* Video Player & Modules layout */}
+      {/* Content grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Left Column: Player & Active Lesson */}
+        
+        {/* Left: Video Player */}
         <div className="lg:col-span-2 space-y-6">
           {activeLesson ? (
             <div className="space-y-4">
-              {/* Responsive Video frame wrapper */}
+              {/* Video Player */}
               <div className="rounded-3xl border border-portal-border/60 bg-slate-950 overflow-hidden shadow-xl aspect-video relative">
                 <iframe
                   src={activeLesson.videoUrl}
@@ -256,56 +304,85 @@ export default function CourseDetailsPage({ params }: { params: Promise<{ course
                 ></iframe>
               </div>
 
-              {/* Lesson details & Action button bar */}
-              <div className="p-6 rounded-2xl bg-portal-card border border-portal-border/60 space-y-4 shadow-sm">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              {/* Lesson controls */}
+              <div className="p-6 rounded-2xl bg-portal-card border border-portal-border/60 space-y-6 shadow-sm">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-portal-border/40 pb-4">
                   <div>
-                    <h3 className="text-lg font-bold text-white">{activeLesson.title}</h3>
-                    <p className="text-xs text-portal-text-secondary mt-0.5">Module {activeLesson.order} of {lessons.length}</p>
+                    <h3 className="text-lg font-bold text-white leading-snug">{activeLesson.title}</h3>
+                    <p className="text-xs text-portal-text-secondary mt-1">{activeLesson.duration || "Self-paced"} module</p>
                   </div>
 
-                  <div className="flex items-center gap-3">
-                    {/* Mark complete trigger */}
+                  <div className="flex items-center gap-2">
+                    {/* Mark Complete */}
                     <button
                       onClick={() => handleToggleComplete(activeLesson.id)}
+                      disabled={isUpdatingProgress}
                       className={`px-5 py-2.5 rounded-xl font-bold text-xs flex items-center gap-2 cursor-pointer border transition-all ${
-                        isLessonCompleted(activeLesson.id)
+                        isCompleted(activeLesson.id)
                           ? "bg-slate-900 border-portal-success/40 text-portal-success"
                           : "bg-portal-primary hover:bg-portal-primary/90 border-portal-primary text-white shadow-md shadow-portal-primary/10"
-                      }`}
+                      } disabled:opacity-50`}
                     >
                       <CheckCircle2 className="w-4 h-4" />
-                      <span>{isLessonCompleted(activeLesson.id) ? "Completed" : "Mark as Complete"}</span>
+                      <span>{isCompleted(activeLesson.id) ? "Completed" : "Mark Complete"}</span>
                     </button>
 
-                    {/* PDF materials download */}
+                    {/* PDF Materials */}
                     {activeLesson.pdfUrl && (
                       <a
                         href={activeLesson.pdfUrl}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="p-2.5 rounded-xl bg-slate-900 border border-portal-border hover:border-portal-secondary text-portal-text-secondary hover:text-white transition-all"
-                        title="Download Learning Materials"
+                        title="Download Lesson PDF"
                       >
                         <FileText className="w-4.5 h-4.5" />
                       </a>
                     )}
                   </div>
                 </div>
+
+                {activeLesson.description && (
+                  <div className="text-xs text-portal-text-secondary leading-relaxed bg-slate-950/20 p-4 rounded-xl border border-portal-border/30">
+                    <p className="font-semibold text-white mb-1">Module Overview</p>
+                    {activeLesson.description}
+                  </div>
+                )}
+
+                {/* Next/Prev Action Buttons */}
+                <div className="flex justify-between items-center pt-2">
+                  <button
+                    onClick={handlePrev}
+                    disabled={!hasPrev}
+                    className="px-4 py-2.5 rounded-xl border border-portal-border hover:bg-slate-900 text-xs font-bold text-portal-text-secondary hover:text-white transition-all disabled:opacity-30 disabled:hover:bg-transparent flex items-center gap-1 cursor-pointer"
+                  >
+                    <ChevronLeft className="w-4 h-4" />
+                    <span>Previous Lesson</span>
+                  </button>
+
+                  <button
+                    onClick={handleNext}
+                    disabled={!hasNext}
+                    className="px-4 py-2.5 rounded-xl border border-portal-border hover:bg-slate-900 text-xs font-bold text-portal-text-secondary hover:text-white transition-all disabled:opacity-30 disabled:hover:bg-transparent flex items-center gap-1 cursor-pointer"
+                  >
+                    <span>Next Lesson</span>
+                    <ChevronRight className="w-4 h-4" />
+                  </button>
+                </div>
               </div>
             </div>
           ) : (
             <div className="p-16 rounded-3xl bg-portal-card border border-portal-border/60 text-center space-y-4">
-              <Play className="w-12 h-12 text-slate-650 mx-auto" />
+              <Play className="w-12 h-12 text-slate-700 mx-auto" />
               <div>
                 <p className="font-bold text-white">No Lessons Seeded</p>
-                <p className="text-xs text-portal-text-secondary mt-1">This course currently does not have any modules published.</p>
+                <p className="text-xs text-portal-text-secondary mt-1">This course syllabus is currently empty.</p>
               </div>
             </div>
           )}
         </div>
 
-        {/* Right Column: Syllabus & Modules List */}
+        {/* Right: Lesson sidebar list */}
         <div className="space-y-4">
           <h3 className="text-sm font-bold uppercase tracking-wider text-portal-text-secondary">Course Syllabus</h3>
 
@@ -313,37 +390,40 @@ export default function CourseDetailsPage({ params }: { params: Promise<{ course
             <div className="p-4 bg-slate-950 border-b border-portal-border/60 flex items-center justify-between">
               <span className="text-xs font-bold text-white uppercase tracking-wider">Lessons Progress</span>
               <span className="text-xs font-semibold text-portal-text-secondary">
-                {progress?.completedLessons.length || 0} / {lessons.length} Modules
+                {completedLessonIds.length} / {lessons.length} Modules
               </span>
             </div>
 
-            <div className="divide-y divide-portal-border/40 max-h-[480px] overflow-y-auto">
+            <div className="divide-y divide-portal-border/30 max-h-[480px] overflow-y-auto">
               {lessons.map((lesson) => {
                 const isActive = activeLesson?.id === lesson.id;
-                const isCompleted = isLessonCompleted(lesson.id);
+                const isCompletedLesson = isCompleted(lesson.id);
 
                 return (
                   <button
                     key={lesson.id}
                     onClick={() => setActiveLesson(lesson)}
-                    className={`w-full text-left p-4 flex items-start gap-3.5 transition-colors cursor-pointer ${
-                      isActive ? "bg-slate-900/60" : "hover:bg-slate-900/20"
+                    className={`w-full text-left p-4.5 flex items-start gap-3.5 transition-colors cursor-pointer ${
+                      isActive ? "bg-slate-900/60 border-l-2 border-portal-primary" : "hover:bg-slate-900/20"
                     }`}
                   >
                     <div className="mt-0.5 flex-shrink-0">
-                      {isCompleted ? (
+                      {isCompletedLesson ? (
                         <CheckCircle2 className="w-4.5 h-4.5 text-portal-success" />
                       ) : isActive ? (
                         <Video className="w-4.5 h-4.5 text-portal-primary animate-pulse" />
                       ) : (
-                        <Play className="w-4.5 h-4.5 text-slate-600" />
+                        <Play className="w-4.5 h-4.5 text-slate-650" />
                       )}
                     </div>
 
                     <div className="flex-1 min-w-0">
-                      <p className={`text-xs font-semibold truncate ${isActive ? "text-portal-primary" : "text-portal-text-secondary"}`}>
-                        Module {lesson.order}
-                      </p>
+                      <div className="flex justify-between items-center">
+                        <span className={`text-[10px] font-bold uppercase ${isActive ? "text-portal-primary" : "text-portal-text-secondary"}`}>
+                          Module {lesson.order}
+                        </span>
+                        {lesson.duration && <span className="text-[9px] text-portal-text-secondary">{lesson.duration}</span>}
+                      </div>
                       <h4 className={`text-xs font-bold truncate mt-0.5 ${isActive ? "text-white" : "text-slate-300"}`}>
                         {lesson.title}
                       </h4>
@@ -354,6 +434,7 @@ export default function CourseDetailsPage({ params }: { params: Promise<{ course
             </div>
           </div>
         </div>
+
       </div>
     </div>
   );

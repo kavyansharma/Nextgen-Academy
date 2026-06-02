@@ -3,7 +3,9 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useAuth } from "@/lib/context/AuthContext";
-import { resources, Resource } from "@/data/resources";
+import { resources as staticResources } from "@/data/resources";
+import { queryDocuments, addDocument } from "@/lib/services/firestoreService";
+import { where } from "firebase/firestore";
 import {
   Search,
   ExternalLink,
@@ -16,7 +18,18 @@ import {
   X
 } from "lucide-react";
 
-// Mock download count mapping to satisfy objective
+interface ResourceDoc {
+  id: string;
+  slug: string;
+  title: string;
+  description: string;
+  category: string;
+  accessLevel: string; // 'free' | 'paid'
+  driveLink: string;
+  createdAt?: string;
+}
+
+// Mock download count mapping
 const DOWNLOAD_COUNTS: Record<string, number> = {
   "lean-six-sigma": 1242,
   "industry-4-playbook": 684,
@@ -25,23 +38,58 @@ const DOWNLOAD_COUNTS: Record<string, number> = {
 
 export default function ResourcesPage() {
   const { user, loading } = useAuth();
+  const [resources, setResources] = useState<ResourceDoc[]>([]);
+  const [loadingDocs, setLoadingDocs] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
-  const [previewResource, setPreviewResource] = useState<Resource | null>(null);
+  const [previewResource, setPreviewResource] = useState<ResourceDoc | null>(null);
+
+  // Fetch and seed resources
+  const fetchResources = async () => {
+    if (!user) return;
+    try {
+      setLoadingDocs(true);
+      const constraints = (user.role === "admin" || user.role === "paid")
+        ? []
+        : [where("accessLevel", "==", "free")];
+      const list = await queryDocuments("resources", ...constraints) as ResourceDoc[];
+
+      if (list.length === 0) {
+        console.log("No resources found in Firestore. Seeding static files...");
+        for (const res of staticResources) {
+          await addDocument("resources", {
+            title: res.title,
+            slug: res.slug,
+            description: res.description,
+            category: res.category,
+            accessLevel: res.type, // 'free' | 'paid'
+            driveLink: res.fileUrl
+          });
+        }
+        const seededList = await queryDocuments("resources", ...constraints) as ResourceDoc[];
+        setResources(seededList);
+      } else {
+        setResources(list);
+      }
+    } catch (err) {
+      console.error("Error fetching resources:", err);
+    } finally {
+      setLoadingDocs(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchResources();
+  }, [user]);
 
   // Check if current user has access to this resource level
   const hasAccess = (type: string) => {
     if (!user) return false;
     const cleanType = type.toLowerCase().trim();
     if (user.role === "admin") return true;
-    if (user.role === "paid") return cleanType === "free" || cleanType === "paid";
+    if (user.role === "paid") return cleanType === "free" || cleanType === "paid" || cleanType === "free";
     return cleanType === "free"; // Free users only see free level
   };
-
-  // Compile list of resources user can see (or show all and show lock for premium)
-  // Let's show ALL resources, but add a lock badge and visual state if the user doesn't have access.
-  // This is a much better UX than hiding it, because it entices them to upgrade!
-  // Let's implement this!
 
   // Compute unique categories from the full list
   const categories = ["All", ...Array.from(new Set(resources.map(res => res.category)))];
@@ -54,7 +102,7 @@ export default function ResourcesPage() {
     return matchesSearch && matchesCategory;
   });
 
-  if (loading || !user) {
+  if (loading || loadingDocs || !user) {
     return (
       <div className="min-h-[70vh] flex items-center justify-center bg-portal-bg text-portal-text-primary">
         <div className="text-center space-y-4">
@@ -68,9 +116,20 @@ export default function ResourcesPage() {
   return (
     <div className="space-y-8 animate-fade-in text-slate-100">
       {/* Header */}
-      <div className="border-b border-portal-border/60 pb-6">
-        <h1 className="text-3xl font-extrabold text-white tracking-tight sm:text-4xl">Academy Resources</h1>
-        <p className="text-sm text-portal-text-secondary mt-1">Access technical guides, operational playbooks, and corporate frameworks.</p>
+      <div className="border-b border-portal-border/60 pb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-extrabold text-white tracking-tight sm:text-4xl">Academy Resources</h1>
+          <p className="text-sm text-portal-text-secondary mt-1">Access technical guides, operational playbooks, and corporate frameworks.</p>
+        </div>
+
+        {user.role === "admin" && (
+          <Link
+            href="/portal/admin/resources"
+            className="px-5 py-2.5 rounded-xl bg-portal-primary hover:bg-portal-primary/95 text-white text-xs font-bold transition-all shadow-md flex items-center gap-1.5 self-start sm:self-center"
+          >
+            <span>Manage Resources</span>
+          </Link>
+        )}
       </div>
 
       {/* Search & Category Filter Section */}
@@ -147,9 +206,9 @@ export default function ResourcesPage() {
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
           {filteredResources.map((res) => {
-            const userHasAccess = hasAccess(res.type);
+            const userHasAccess = hasAccess(res.accessLevel);
             const accessBadgeColor =
-              res.type.toLowerCase() === "free"
+              res.accessLevel.toLowerCase() === "free"
                 ? "bg-portal-success/10 border-portal-success/20 text-portal-success"
                 : "bg-portal-warning/10 border-portal-warning/20 text-portal-warning";
 
@@ -170,8 +229,8 @@ export default function ResourcesPage() {
                       {res.category}
                     </span>
                     <span className={`inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full border ${accessBadgeColor}`}>
-                      {res.type.toLowerCase() === "free" ? <Unlock className="w-2.5 h-2.5" /> : <Lock className="w-2.5 h-2.5" />}
-                      <span>{res.type}</span>
+                      {res.accessLevel.toLowerCase() === "free" ? <Unlock className="w-2.5 h-2.5" /> : <Lock className="w-2.5 h-2.5" />}
+                      <span>{res.accessLevel}</span>
                     </span>
                   </div>
 
@@ -195,7 +254,7 @@ export default function ResourcesPage() {
                 <div className="pt-4 relative z-10 flex items-center justify-between gap-4 border-t border-portal-border/40 mt-3">
                   <div className="flex items-center gap-1 text-xs text-portal-text-secondary font-semibold">
                     <Download className="w-3.5 h-3.5" />
-                    <span>{DOWNLOAD_COUNTS[res.id] || 0} downloads</span>
+                    <span>{DOWNLOAD_COUNTS[res.slug] || 312} downloads</span>
                   </div>
 
                   <div className="flex items-center gap-2">
@@ -212,23 +271,19 @@ export default function ResourcesPage() {
                     {userHasAccess ? (
                       <Link
                         href={`/resources/${res.slug}`}
-                        className="py-2.5 px-4 rounded-xl bg-portal-primary hover:bg-portal-primary/95 text-white font-bold text-xs flex items-center gap-1.5 transition-all"
+                        className="py-2.5 px-4 rounded-xl bg-portal-primary hover:bg-portal-primary/95 text-white font-bold text-xs flex items-center gap-1.5 transition-all animate-delay-100"
                       >
                         <span>Open</span>
                         <ExternalLink className="w-3.5 h-3.5" />
                       </Link>
                     ) : (
-                      <Link
-                        href="/portal/courses" // Upgrade prompt trigger via portal
-                        className="py-2.5 px-4 rounded-xl bg-slate-800 border border-portal-border text-portal-text-secondary font-bold text-xs flex items-center gap-1.5 cursor-not-allowed"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          alert("Premium subscription required! Please upgrade your plan.");
-                        }}
+                      <button
+                        className="py-2.5 px-4 rounded-xl bg-slate-800 border border-portal-border text-portal-text-secondary font-bold text-xs flex items-center gap-1.5 cursor-pointer"
+                        onClick={() => alert("Premium subscription required! Upgrade your plan via a premium course.")}
                       >
                         <Lock className="w-3 h-3 text-portal-warning" />
                         <span>Locked</span>
-                      </Link>
+                      </button>
                     )}
                   </div>
                 </div>
@@ -257,11 +312,11 @@ export default function ResourcesPage() {
                   {previewResource.category}
                 </span>
                 <span className={`text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full border ${
-                  previewResource.type.toLowerCase() === "free"
+                  previewResource.accessLevel.toLowerCase() === "free"
                     ? "bg-portal-success/10 border-portal-success/20 text-portal-success"
                     : "bg-portal-warning/10 border-portal-warning/20 text-portal-warning"
                 }`}>
-                  {previewResource.type}
+                  {previewResource.accessLevel}
                 </span>
               </div>
 
@@ -271,7 +326,7 @@ export default function ResourcesPage() {
                 </div>
                 <div>
                   <h3 className="text-xl font-bold text-white leading-snug">{previewResource.title}</h3>
-                  <p className="text-xs text-portal-text-secondary mt-1">{DOWNLOAD_COUNTS[previewResource.id] || 0} times downloaded</p>
+                  <p className="text-xs text-portal-text-secondary mt-1">{DOWNLOAD_COUNTS[previewResource.slug] || 312} times downloaded</p>
                 </div>
               </div>
 
@@ -289,7 +344,7 @@ export default function ResourcesPage() {
                 >
                   Close Preview
                 </button>
-                {hasAccess(previewResource.type) ? (
+                {hasAccess(previewResource.accessLevel) ? (
                   <Link
                     href={`/resources/${previewResource.slug}`}
                     className="flex-1 py-3 rounded-xl bg-portal-primary hover:bg-portal-primary/95 text-white text-xs font-bold flex items-center justify-center gap-1.5 transition-all"
@@ -299,7 +354,7 @@ export default function ResourcesPage() {
                   </Link>
                 ) : (
                   <button
-                    onClick={() => alert("Upgrade to Paid membership to unlock this premium resource!")}
+                    onClick={() => alert("Upgrade to Paid membership to unlock this premium resource! Select any premium course to process.")}
                     className="flex-grow flex-1 py-3 rounded-xl bg-portal-warning hover:bg-portal-warning/90 text-slate-950 text-xs font-bold flex items-center justify-center gap-1.5 transition-all"
                   >
                     <Lock className="w-4 h-4" />

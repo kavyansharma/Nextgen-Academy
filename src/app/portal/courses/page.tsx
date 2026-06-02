@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { useAuth } from "@/lib/context/AuthContext";
 import { queryDocuments, addDocument, updateDocument } from "@/lib/services/firestoreService";
+import { where } from "firebase/firestore";
 import {
   BookOpen,
   Lock,
@@ -46,7 +47,10 @@ export default function CoursesPage() {
     if (!user) return;
     try {
       setLoadingCourses(true);
-      const list = await queryDocuments("courses") as Course[];
+      const constraints = (user.role === "admin" || user.role === "paid")
+        ? []
+        : [where("type", "==", "free")];
+      const list = await queryDocuments("courses", ...constraints) as Course[];
       
       if (list.length === 0) {
         console.log("No courses found in Firestore. Auto-seeding default courses catalog...");
@@ -131,38 +135,41 @@ export default function CoursesPage() {
         for (const c of defaultCourses) {
           const courseId = await addDocument("courses", c);
           
-          // Seed 3 mockup lessons per course
+          // Seed 3 mockup lessons per course under courses/{courseId}/lessons subcollection
           const defaultLessons = [
             {
-              courseId,
               title: "Module 1: Introduction & Foundational Concepts",
+              description: "This lesson provides an overview and foundational insights of the course subject material.",
               videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ",
               pdfUrl: "/resources/lean-six-sigma.pdf",
-              order: 1
+              order: 1,
+              duration: "45 mins"
             },
             {
-              courseId,
               title: "Module 2: Structural Methodologies & Key Frameworks",
+              description: "This lesson details structural frameworks and methodologies used in modern business cases.",
               videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ",
               pdfUrl: "/resources/lean-six-sigma.pdf",
-              order: 2
+              order: 2,
+              duration: "1 hour"
             },
             {
-              courseId,
               title: "Module 3: Industry Case Studies & Implementation Guides",
+              description: "This lesson shares practical industrial case studies and deployment instructions.",
               videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ",
               pdfUrl: "/resources/lean-six-sigma.pdf",
-              order: 3
+              order: 3,
+              duration: "1.5 hours"
             }
           ];
 
           for (const l of defaultLessons) {
-            await addDocument("lessons", l);
+            await addDocument(`courses/${courseId}/lessons`, l);
           }
         }
 
         // Re-fetch
-        const updatedList = await queryDocuments("courses") as Course[];
+        const updatedList = await queryDocuments("courses", ...constraints) as Course[];
         setCourses(updatedList);
       } else {
         setCourses(list);

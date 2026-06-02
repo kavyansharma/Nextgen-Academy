@@ -8,7 +8,9 @@ import {
   queryDocuments,
   addDocument,
   updateDocument,
-  deleteDocument
+  deleteDocument,
+  uploadFile,
+  logAdminAction
 } from "@/lib/services/firestoreService";
 import {
   ArrowLeft,
@@ -34,6 +36,7 @@ interface Course {
   type: "free" | "premium";
   duration?: string;
   instructor?: string;
+  lessonsCount?: number;
   createdAt: string;
 }
 
@@ -97,17 +100,19 @@ export default function AdminCoursesPage() {
     }
   }, [user, loading, router]);
 
-  // Fetch all courses and lessons
+  // Lessons loading and file upload states
+  const [lessonsTrigger, setLessonsTrigger] = useState(0);
+  const [loadingLessons, setLoadingLessons] = useState(false);
+  const [uploadingThumbnail, setUploadingThumbnail] = useState(false);
+  const [uploadingPdf, setUploadingPdf] = useState(false);
+
+  // Fetch all courses
   const loadData = async () => {
     if (!user || user.role !== "admin") return;
     try {
       setLoadingData(true);
-      const [allCourses, allLessons] = await Promise.all([
-        queryDocuments("courses"),
-        queryDocuments("lessons")
-      ]);
+      const allCourses = await queryDocuments("courses");
       setCourses(allCourses as Course[]);
-      setLessons(allLessons as Lesson[]);
 
       // Update selected course reference if it is active
       if (selectedCourse) {
@@ -122,6 +127,27 @@ export default function AdminCoursesPage() {
     }
   };
 
+  // Fetch lessons for the selected course dynamically
+  useEffect(() => {
+    async function fetchLessons() {
+      if (!selectedCourse || !user || user.role !== "admin") {
+        setLessons([]);
+        return;
+      }
+      try {
+        setLoadingLessons(true);
+        const fetched = await queryDocuments(`courses/${selectedCourse.id}/lessons`) as Lesson[];
+        fetched.sort((a, b) => (a.order || 0) - (b.order || 0));
+        setLessons(fetched);
+      } catch (err) {
+        console.error("Error loading subcollection lessons:", err);
+      } finally {
+        setLoadingLessons(false);
+      }
+    }
+    fetchLessons();
+  }, [selectedCourse, user, lessonsTrigger]);
+
   useEffect(() => {
     loadData();
   }, [user]);
@@ -135,21 +161,23 @@ export default function AdminCoursesPage() {
   const handleAddCourse = async (e: React.FormEvent) => {
     e.preventDefault();
     setFormError(null);
-    if (!title.trim() || !description.trim() || !thumbnail.trim() || !category.trim()) {
+    if (!title.trim() || !description.trim() || !thumbnail.trim() || !category.trim() || !user) {
       setFormError("All fields are required.");
       return;
     }
     setSubmittingCourse(true);
     try {
-      await addDocument("courses", {
+      const courseId = await addDocument("courses", {
         title: title.trim(),
         description: description.trim(),
         thumbnail: thumbnail.trim(),
         category: category.trim(),
         type,
         duration: duration.trim() || "Self-paced",
-        instructor: instructor.trim() || "Expert Faculty"
+        instructor: instructor.trim() || "Expert Faculty",
+        lessonsCount: 0
       });
+      await logAdminAction(user.uid, user.email || "", "CREATE_COURSE", `Created course: ${title.trim()} (${type}) with ID ${courseId}`);
       showToast("success", "Course successfully added!");
       setIsAddCourseOpen(false);
       // Reset
@@ -184,7 +212,7 @@ export default function AdminCoursesPage() {
   const handleEditCourse = async (e: React.FormEvent) => {
     e.preventDefault();
     setFormError(null);
-    if (!courseToEdit) return;
+    if (!courseToEdit || !user) return;
 
     if (!title.trim() || !description.trim() || !thumbnail.trim() || !category.trim()) {
       setFormError("All fields are required.");
@@ -201,6 +229,7 @@ export default function AdminCoursesPage() {
         duration: duration.trim() || "Self-paced",
         instructor: instructor.trim() || "Expert Faculty"
       });
+      await logAdminAction(user.uid, user.email || "", "UPDATE_COURSE", `Updated course metadata for: ${title.trim()} (${courseToEdit.id})`);
       showToast("success", "Course updated successfully!");
       setCourseToEdit(null);
       loadData();
@@ -213,15 +242,16 @@ export default function AdminCoursesPage() {
   };
 
   const handleDeleteCourse = async (cId: string) => {
-    if (!confirm("Are you sure you want to delete this course? All associated lessons will also be deleted.")) return;
+    if (!confirm("Are you sure you want to delete this course? All associated lessons will also be deleted.") || !user) return;
     try {
-      await deleteDocument("courses", cId);
-
-      // Delete associated lessons
-      const courseLessons = lessons.filter(l => l.courseId === cId);
+      // Delete associated lessons from subcollection courses/{cId}/lessons
+      const courseLessons = await queryDocuments(`courses/${cId}/lessons`) as Lesson[];
       for (const l of courseLessons) {
-        await deleteDocument("lessons", l.id);
+        await deleteDocument(`courses/${cId}/lessons`, l.id);
       }
+
+      await deleteDocument("courses", cId);
+      await logAdminAction(user.uid, user.email || "", "DELETE_COURSE", `Deleted course: ${cId} and its ${courseLessons.length} subcollection lessons`);
 
       showToast("success", "Course and lessons deleted.");
       if (selectedCourse?.id === cId) {
@@ -238,7 +268,7 @@ export default function AdminCoursesPage() {
   const handleAddLesson = async (e: React.FormEvent) => {
     e.preventDefault();
     setLessonError(null);
-    if (!selectedCourse) return;
+    if (!selectedCourse || !user) return;
 
     if (!lessonTitle.trim() || !videoUrl.trim()) {
       setLessonError("Module Title and Video URL are required.");
@@ -246,20 +276,31 @@ export default function AdminCoursesPage() {
     }
     setSubmittingLesson(true);
     try {
-      await addDocument("lessons", {
+      const lessonId = await addDocument(`courses/${selectedCourse.id}/lessons`, {
         courseId: selectedCourse.id,
         title: lessonTitle.trim(),
         videoUrl: videoUrl.trim(),
         pdfUrl: pdfUrl.trim(),
         order: Number(order) || 1
       });
+      
+      // Update course's lessons count metadata
+      const newLessonsCount = (selectedCourse.lessonsCount || 0) + 1;
+      await updateDocument("courses", selectedCourse.id, {
+        lessonsCount: newLessonsCount
+      });
+
+      await logAdminAction(user.uid, user.email || "", "CREATE_LESSON", `Created lesson: ${lessonTitle.trim()} (order: ${order}) under course ID ${selectedCourse.id} (Lesson Doc ID ${lessonId})`);
       showToast("success", "Lesson added successfully!");
       setIsAddLessonOpen(false);
       // Reset
       setLessonTitle("");
       setVideoUrl("");
       setPdfUrl("");
-      setOrder(lessons.filter(l => l.courseId === selectedCourse.id).length + 2);
+      setOrder(lessons.length + 2);
+      
+      // Trigger lessons list reload and courses list reload
+      setLessonsTrigger(prev => prev + 1);
       loadData();
     } catch (err) {
       console.error("Error adding lesson:", err);
@@ -281,7 +322,7 @@ export default function AdminCoursesPage() {
   const handleEditLesson = async (e: React.FormEvent) => {
     e.preventDefault();
     setLessonError(null);
-    if (!lessonToEdit) return;
+    if (!lessonToEdit || !selectedCourse || !user) return;
 
     if (!lessonTitle.trim() || !videoUrl.trim()) {
       setLessonError("Module Title and Video URL are required.");
@@ -289,15 +330,16 @@ export default function AdminCoursesPage() {
     }
     setSubmittingLesson(true);
     try {
-      await updateDocument("lessons", lessonToEdit.id, {
+      await updateDocument(`courses/${selectedCourse.id}/lessons`, lessonToEdit.id, {
         title: lessonTitle.trim(),
         videoUrl: videoUrl.trim(),
         pdfUrl: pdfUrl.trim(),
         order: Number(order) || 1
       });
+      await logAdminAction(user.uid, user.email || "", "UPDATE_LESSON", `Updated lesson ID ${lessonToEdit.id} metadata under course ${selectedCourse.id}`);
       showToast("success", "Lesson updated!");
       setLessonToEdit(null);
-      loadData();
+      setLessonsTrigger(prev => prev + 1);
     } catch (err) {
       console.error("Error updating lesson:", err);
       setLessonError("Failed to update lesson.");
@@ -307,10 +349,19 @@ export default function AdminCoursesPage() {
   };
 
   const handleDeleteLesson = async (lId: string) => {
-    if (!confirm("Delete this lesson?")) return;
+    if (!confirm("Delete this lesson?") || !selectedCourse || !user) return;
     try {
-      await deleteDocument("lessons", lId);
+      await deleteDocument(`courses/${selectedCourse.id}/lessons`, lId);
+
+      // Update course's lessons count metadata
+      const newLessonsCount = Math.max(0, (selectedCourse.lessonsCount || 0) - 1);
+      await updateDocument("courses", selectedCourse.id, {
+        lessonsCount: newLessonsCount
+      });
+
+      await logAdminAction(user.uid, user.email || "", "DELETE_LESSON", `Deleted lesson ID ${lId} from course ${selectedCourse.id}`);
       showToast("success", "Lesson deleted.");
+      setLessonsTrigger(prev => prev + 1);
       loadData();
     } catch (err) {
       console.error("Error deleting lesson:", err);
@@ -428,7 +479,7 @@ export default function AdminCoursesPage() {
                   {/* Footer actions */}
                   <div className="flex items-center justify-between border-t border-portal-border/40 pt-4 mt-2">
                     <span className="text-[10px] text-portal-text-secondary font-semibold">
-                      {lessons.filter(l => l.courseId === c.id).length} Lessons
+                      {c.lessonsCount || 0} Lessons
                     </span>
 
                     <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
@@ -464,7 +515,7 @@ export default function AdminCoursesPage() {
                   setLessonTitle("");
                   setVideoUrl("");
                   setPdfUrl("");
-                  setOrder(lessons.filter(l => l.courseId === selectedCourse.id).length + 1);
+                  setOrder(lessons.length + 1);
                   setLessonError(null);
                   setIsAddLessonOpen(true);
                 }}
@@ -484,13 +535,12 @@ export default function AdminCoursesPage() {
               </div>
 
               <div className="divide-y divide-portal-border/30 max-h-[480px] overflow-y-auto">
-                {lessons.filter(l => l.courseId === selectedCourse.id).length === 0 ? (
+                {lessons.length === 0 ? (
                   <div className="p-12 text-center text-portal-text-secondary text-xs">
                     <span>No lessons published. Click 'Add Lesson' to begin.</span>
                   </div>
                 ) : (
                   lessons
-                    .filter(l => l.courseId === selectedCourse.id)
                     .sort((a, b) => (a.order || 0) - (b.order || 0))
                     .map((lesson) => (
                       <div key={lesson.id} className="p-4 flex items-center justify-between gap-4 bg-slate-900/10 hover:bg-slate-900/30">
@@ -630,14 +680,39 @@ export default function AdminCoursesPage() {
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-portal-text-secondary uppercase mb-1.5">Thumbnail Image URL</label>
-                <input
-                  type="text"
-                  value={thumbnail}
-                  onChange={(e) => setThumbnail(e.target.value)}
-                  placeholder="https://images.unsplash.com/..."
-                  className="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-portal-border/60 text-white focus:outline-none focus:border-portal-primary text-sm"
-                />
+                <label className="block text-xs font-bold text-portal-text-secondary uppercase mb-1.5">Thumbnail Image</label>
+                <div className="flex gap-3">
+                  <input
+                    type="text"
+                    value={thumbnail}
+                    onChange={(e) => setThumbnail(e.target.value)}
+                    placeholder="Image URL or upload a file..."
+                    className="flex-1 px-4 py-2.5 rounded-xl bg-slate-950 border border-portal-border/60 text-white focus:outline-none focus:border-portal-primary text-sm"
+                  />
+                  <label className="px-4 py-2.5 rounded-xl bg-slate-900 border border-portal-border hover:border-portal-primary text-xs font-bold text-portal-primary flex items-center justify-center cursor-pointer transition-all hover:bg-slate-850">
+                    {uploadingThumbnail ? <Loader2 className="w-4 h-4 animate-spin" /> : "Upload File"}
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={async (e) => {
+                        const file = e.target.files?.[0];
+                        if (!file) return;
+                        try {
+                          setUploadingThumbnail(true);
+                          const downloadUrl = await uploadFile(file, `thumbnails/${Date.now()}_${file.name}`);
+                          setThumbnail(downloadUrl);
+                          showToast("success", "Thumbnail uploaded successfully!");
+                        } catch (err: any) {
+                          console.error("Error uploading thumbnail:", err);
+                          showToast("error", "Failed to upload thumbnail.");
+                        } finally {
+                          setUploadingThumbnail(false);
+                        }
+                      }}
+                    />
+                  </label>
+                </div>
               </div>
             </div>
 
@@ -726,14 +801,39 @@ export default function AdminCoursesPage() {
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-portal-text-secondary uppercase mb-1.5">Downloadable PDF Materials URL (Optional)</label>
-                <input
-                  type="text"
-                  value={pdfUrl}
-                  onChange={(e) => setPdfUrl(e.target.value)}
-                  placeholder="/resources/lean-six-sigma.pdf"
-                  className="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-portal-border/60 text-white focus:outline-none focus:border-portal-primary text-sm"
-                />
+                <label className="block text-xs font-bold text-portal-text-secondary uppercase mb-1.5">Downloadable PDF Materials (Optional)</label>
+                <div className="flex gap-3">
+                  <input
+                    type="text"
+                    value={pdfUrl}
+                    onChange={(e) => setPdfUrl(e.target.value)}
+                    placeholder="PDF URL or upload a file..."
+                    className="flex-1 px-4 py-2.5 rounded-xl bg-slate-950 border border-portal-border/60 text-white focus:outline-none focus:border-portal-primary text-sm"
+                  />
+                  <label className="px-4 py-2.5 rounded-xl bg-slate-900 border border-portal-border hover:border-portal-primary text-xs font-bold text-portal-primary flex items-center justify-center cursor-pointer transition-all hover:bg-slate-850">
+                    {uploadingPdf ? <Loader2 className="w-4 h-4 animate-spin" /> : "Upload PDF"}
+                    <input
+                      type="file"
+                      accept="application/pdf"
+                      className="hidden"
+                      onChange={async (e) => {
+                        const file = e.target.files?.[0];
+                        if (!file) return;
+                        try {
+                          setUploadingPdf(true);
+                          const downloadUrl = await uploadFile(file, `lessons/pdfs/${Date.now()}_${file.name}`);
+                          setPdfUrl(downloadUrl);
+                          showToast("success", "Lesson PDF uploaded successfully!");
+                        } catch (err: any) {
+                          console.error("Error uploading PDF:", err);
+                          showToast("error", "Failed to upload PDF.");
+                        } finally {
+                          setUploadingPdf(false);
+                        }
+                      }}
+                    />
+                  </label>
+                </div>
               </div>
             </div>
 

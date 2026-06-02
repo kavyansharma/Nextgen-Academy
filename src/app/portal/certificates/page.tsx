@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { useAuth } from "@/lib/context/AuthContext";
 import { queryDocuments } from "@/lib/services/firestoreService";
+import { where } from "firebase/firestore";
 import {
   Award,
   Download,
@@ -13,7 +14,8 @@ import {
   Shield,
   Loader2,
   X,
-  Sparkles
+  Sparkles,
+  Lock
 } from "lucide-react";
 
 interface Course {
@@ -23,11 +25,12 @@ interface Course {
   instructor?: string;
 }
 
-interface CourseProgress {
+interface CourseProgressDoc {
   userId: string;
   courseId: string;
-  progressPercentage: number;
-  updatedAt?: string;
+  lessonId: string;
+  completed: boolean;
+  completedAt: string;
 }
 
 export default function CertificatesPage() {
@@ -41,26 +44,56 @@ export default function CertificatesPage() {
       if (!user) return;
       try {
         setLoading(true);
+        const progressConstraints = user.role === "admin"
+          ? []
+          : [where("userId", "==", user.uid)];
+
+        const courseConstraints = (user.role === "admin" || user.role === "paid")
+          ? []
+          : [where("type", "==", "free")];
+
         const [progressList, coursesList] = await Promise.all([
-          queryDocuments("course_progress"),
-          queryDocuments("courses")
+          queryDocuments("course_progress", ...progressConstraints) as Promise<CourseProgressDoc[]>,
+          queryDocuments("courses", ...courseConstraints) as Promise<Course[]>
         ]);
 
-        const myProgress = progressList.filter((p: any) => p.userId === user.uid && p.progressPercentage === 100);
+        // Filter progress for this user
+        const myProgress = progressList.filter(p => p.userId === user.uid && p.completed === true);
         
-        const mapped = myProgress.map((p: any) => {
-          const course = coursesList.find((c: any) => c.id === p.courseId) as Course;
-          return {
-            id: p.courseId,
-            title: course?.title || "Unknown Course",
-            category: course?.category || "General",
-            instructor: course?.instructor || "Sarah Jenkins",
-            completedAt: p.updatedAt || new Date().toISOString(),
-            credentialId: `NG-${user.uid.substring(0, 5).toUpperCase()}-${p.courseId.substring(0, 5).toUpperCase()}`
-          };
+        // Group by courseId
+        const completionsMap: Record<string, string[]> = {};
+        myProgress.forEach(p => {
+          if (!completionsMap[p.courseId]) {
+            completionsMap[p.courseId] = [];
+          }
+          if (!completionsMap[p.courseId].includes(p.lessonId)) {
+            completionsMap[p.courseId].push(p.lessonId);
+          }
         });
 
-        setCompletedCourses(mapped);
+        // Determine if course is 100% completed
+        const completed: any[] = [];
+        for (const courseId of Object.keys(completionsMap)) {
+          const course = coursesList.find(c => c.id === courseId);
+          if (!course) continue;
+
+          // Fetch lessons in subcollection courses/{courseId}/lessons
+          const courseLessons = await queryDocuments(`courses/${courseId}/lessons`);
+          const totalLessons = courseLessons.length;
+
+          if (totalLessons > 0 && completionsMap[courseId].length === totalLessons) {
+            completed.push({
+              id: course.id,
+              title: course.title,
+              category: course.category,
+              instructor: course.instructor || "Sarah Jenkins",
+              completedAt: new Date().toISOString(), // Mock issuance date
+              credentialId: `NG-${user.uid.substring(0, 5).toUpperCase()}-${course.id.substring(0, 5).toUpperCase()}`
+            });
+          }
+        }
+
+        setCompletedCourses(completed);
       } catch (err) {
         console.error("Error loading certificates:", err);
       } finally {
@@ -85,6 +118,8 @@ export default function CertificatesPage() {
       </div>
     );
   }
+
+  const isPremiumUser = user.role === "admin" || user.role === "paid";
 
   return (
     <div className="space-y-8 animate-fade-in text-slate-100">
@@ -149,7 +184,7 @@ export default function CertificatesPage() {
                   onClick={() => setActiveCert(cert)}
                   className="px-4 py-2 rounded-xl bg-slate-900 border border-portal-border hover:border-portal-warning text-xs font-bold text-slate-200 hover:text-white transition-all cursor-pointer flex items-center gap-1"
                 >
-                  <span>View</span>
+                  <span>{isPremiumUser ? "Claim & Download" : "Preview Lock"}</span>
                   <ExternalLink className="w-3.5 h-3.5" />
                 </button>
               </div>
@@ -219,20 +254,37 @@ export default function CertificatesPage() {
 
             {/* Actions for Certificate */}
             <div className="flex gap-4">
-              <button
-                onClick={() => window.print()}
-                className="flex-1 py-3 rounded-xl border border-portal-border hover:bg-slate-800 text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer"
-              >
-                <Printer className="w-4 h-4" />
-                <span>Print Credentials</span>
-              </button>
-              <button
-                onClick={() => alert("Certificate downloaded successfully! (Mocked PDF export)")}
-                className="flex-1 py-3 rounded-xl bg-portal-primary hover:bg-portal-primary/95 text-white text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer"
-              >
-                <Download className="w-4 h-4" />
-                <span>Export PDF</span>
-              </button>
+              {isPremiumUser ? (
+                <>
+                  <button
+                    onClick={() => window.print()}
+                    className="flex-grow flex-1 py-3.5 rounded-xl border border-portal-border hover:bg-slate-800 text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+                  >
+                    <Printer className="w-4 h-4" />
+                    <span>Print Credentials</span>
+                  </button>
+                  <button
+                    onClick={() => alert("Certificate downloaded successfully! (Mocked PDF export)")}
+                    className="flex-grow flex-1 py-3.5 rounded-xl bg-portal-primary hover:bg-portal-primary/95 text-white text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-md"
+                  >
+                    <Download className="w-4 h-4" />
+                    <span>Export PDF</span>
+                  </button>
+                </>
+              ) : (
+                <div className="w-full p-4 bg-slate-900 border border-portal-warning/30 rounded-2xl flex items-center justify-between gap-4">
+                  <div className="flex items-center gap-3 text-xs text-portal-text-secondary">
+                    <Lock className="w-4 h-4 text-portal-warning" />
+                    <span>Premium account required to download verified certificate PDF files.</span>
+                  </div>
+                  <button
+                    onClick={() => alert("Select a Premium Course in the catalog and click 'Upgrade Membership' to unlock certificate downloads.")}
+                    className="px-4 py-2.5 rounded-xl bg-portal-warning hover:bg-portal-warning/90 text-slate-950 text-xs font-bold transition-all cursor-pointer whitespace-nowrap"
+                  >
+                    Unlock Certificate
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         </div>

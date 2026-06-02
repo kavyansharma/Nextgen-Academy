@@ -25,13 +25,16 @@ if (missingKeys.length > 0) {
   console.log("Firebase configuration environment variables are fully populated.");
 }
 
+import { getStorage } from "firebase/storage";
+
 // Initialize Firebase (safely checks if app already initialized on hot-reloads/SSR)
 const app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
 
 const auth = getAuth(app);
 const db = getFirestore(app);
+const storage = getStorage(app);
 
 console.log("Firestore database instance created successfully:", !!db);
 
-export { app, auth, db };
+export { app, auth, db, storage };
 export default app;

@@ -1,0 +1,73 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function getUserData() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+    }
+
+    function getUserRole() {
+      return getUserData().role;
+    }
+
+    function isAdmin() {
+      return isAuthenticated() && getUserRole() == 'admin';
+    }
+
+    function isPaidOrAdmin() {
+      return isAuthenticated() && (getUserRole() == 'paid' || getUserRole() == 'admin');
+    }
+
+    // users collection: Users can only read/update their own profile, Admins can manage all.
+    match /users/{userId} {
+      allow read, update, create: if isAuthenticated() && (request.auth.uid == userId || isAdmin());
+      allow delete: if isAdmin();
+    }
+
+    // courses collection
+    match /courses/{courseId} {
+      // Free courses readable by all authenticated users, Premium readable only by paid users and admins.
+      allow read: if isAuthenticated() && (resource.data.type == 'free' || isPaidOrAdmin());
+      allow write: if isAdmin();
+
+      // Nested lessons subcollection
+      match /lessons/{lessonId} {
+        // Lessons inherit access restriction of parent course (checked via parent get)
+        allow read: if isAuthenticated() && (get(/databases/$(database)/documents/courses/$(courseId)).data.type == 'free' || isPaidOrAdmin());
+        allow write: if isAdmin();
+      }
+    }
+
+    // course_progress collection: Users can read/write their own progress, Admins can read all.
+    match /course_progress/{progressId} {
+      allow read: if isAuthenticated() && (resource.data.userId == request.auth.uid || isAdmin());
+      allow create: if isAuthenticated() && (request.resource.data.userId == request.auth.uid || isAdmin());
+      allow update: if isAuthenticated() && (resource.data.userId == request.auth.uid && request.resource.data.userId == request.auth.uid || isAdmin());
+      allow delete: if isAuthenticated() && (resource.data.userId == request.auth.uid || isAdmin());
+    }
+
+    // resources collection: Premium resources restricted to paid/admin users.
+    match /resources/{resourceId} {
+      allow read: if isAuthenticated() && (resource.data.accessLevel == 'free' || isPaidOrAdmin());
+      allow write: if isAdmin();
+    }
+
+    // enrollments collection: Users can manage their own enrollment, Admins can read all.
+    match /enrollments/{enrollmentId} {
+      allow read: if isAuthenticated() && (resource.data.userId == request.auth.uid || isAdmin());
+      allow create: if isAuthenticated() && (request.resource.data.userId == request.auth.uid || isAdmin());
+      allow update: if isAuthenticated() && (resource.data.userId == request.auth.uid && request.resource.data.userId == request.auth.uid || isAdmin());
+      allow delete: if isAdmin();
+    }
+
+    // audit_logs collection: Only admins can manage.
+    match /audit_logs/{logId} {
+      allow read, write: if isAdmin();
+    }
+  }
+}
