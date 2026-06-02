@@ -5,8 +5,9 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/context/AuthContext";
 import { signUp } from "@/lib/services/authService";
-import { setDocument, queryDocuments } from "@/lib/services/firestoreService";
-import { where } from "firebase/firestore";
+import { queryDocuments } from "@/lib/services/firestoreService";
+import { where, doc, setDoc } from "firebase/firestore";
+import { db } from "@/lib/firebase";
 import { UserPlus, ShieldAlert, CheckCircle2 } from "lucide-react";
 
 export default function RegisterPage() {
@@ -75,16 +76,24 @@ export default function RegisterPage() {
 
       // 3. Register user in Firebase Auth
       const firebaseUser = await signUp(email.trim().toLowerCase(), password);
+      console.log("AUTH_SUCCESS");
 
       // 4. Save user details in Firestore
-      await setDocument("users", firebaseUser.uid, {
-        uid: firebaseUser.uid,
-        fullName: fullName.trim(),
-        username: cleanUsername,
-        email: email.trim().toLowerCase(),
-        role: "free",
-        createdAt: new Date().toISOString()
-      });
+      console.log("FIRESTORE_WRITE_START");
+      try {
+        await setDoc(doc(db, "users", firebaseUser.uid), {
+          uid: firebaseUser.uid,
+          fullName: fullName.trim(),
+          username: cleanUsername,
+          email: email.trim().toLowerCase(),
+          role: "free",
+          createdAt: new Date().toISOString()
+        });
+        console.log("FIRESTORE_WRITE_SUCCESS");
+      } catch (writeErr: any) {
+        console.error("FIRESTORE_WRITE_ERROR", writeErr);
+        throw writeErr;
+      }
 
       setSuccess(true);
       
