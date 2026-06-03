@@ -29,7 +29,8 @@ import {
   MessageSquare,
   Bell,
   Mail,
-  Database
+  Database,
+  CreditCard
 } from "lucide-react";
 
 interface NotificationItem {
@@ -39,11 +40,28 @@ interface NotificationItem {
   message: string;
   type: string;
   read: boolean;
-  createdAt?: any;
+  createdAt?: { toDate?: () => Date } | Date | string | null;
+}
+
+function getNotificationDate(createdAt: unknown): string {
+  if (!createdAt) return "";
+  if (typeof createdAt === "object" && "toDate" in createdAt) {
+    const toDate = (createdAt as { toDate: () => unknown }).toDate;
+    if (typeof toDate === "function") {
+      const d = toDate();
+      if (d instanceof Date) {
+        return d.toLocaleDateString();
+      }
+    }
+  }
+  if (typeof createdAt === "string" || createdAt instanceof Date) {
+    return new Date(createdAt as string | Date).toLocaleDateString();
+  }
+  return "";
 }
 
 export default function PortalLayout({ children }: { children: React.ReactNode }) {
-  const { user, loading, logout, refreshUser } = useAuth();
+  const { user, loading, logout } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -55,6 +73,32 @@ export default function PortalLayout({ children }: { children: React.ReactNode }
   const [showNotifications, setShowNotifications] = useState(false);
 
   const isAuthPage = pathname === "/portal/login" || pathname === "/portal/register";
+
+  const [subPlan, setSubPlan] = useState<string | null>(null);
+
+  // Load subscription plan details
+  useEffect(() => {
+    async function fetchSub() {
+      if (!user) return;
+      try {
+        const subDoc = await getDocument("subscriptions", user.uid);
+        if (subDoc && subDoc.status === "active") {
+          setSubPlan(subDoc.plan);
+        } else {
+          setSubPlan(null);
+        }
+      } catch (err) {
+        console.error("Failed to load subscription in layout:", err);
+      }
+    }
+    const run = async () => {
+      await Promise.resolve();
+      if (user && !isAuthPage) {
+        fetchSub();
+      }
+    };
+    run();
+  }, [user, isAuthPage]);
 
   // Check suspension status dynamically from Firestore users collection
   useEffect(() => {
@@ -219,6 +263,38 @@ export default function PortalLayout({ children }: { children: React.ReactNode }
 
   if (!user) return null;
 
+  let subLabel = "FREE MEMBER";
+  let badgeColor = "bg-portal-success/10 border-portal-success/20 text-portal-success";
+  let subDesc = "Free Learning Tier";
+
+  if (user.role === "admin") {
+    subLabel = "ADMIN ACCESS";
+    badgeColor = "bg-portal-primary/10 border-portal-primary/20 text-portal-primary";
+    subDesc = "Admin Access";
+  } else if (user.role === "paid" || subPlan) {
+    if (subPlan === "premium_monthly") {
+      subLabel = "PREMIUM MONTHLY";
+      badgeColor = "bg-emerald-500/10 border-emerald-500/20 text-emerald-400";
+      subDesc = "Monthly Subscription";
+    } else if (subPlan === "premium_yearly" || subPlan === "premium") {
+      subLabel = "PREMIUM YEARLY";
+      badgeColor = "bg-emerald-500/10 border-emerald-500/20 text-emerald-400";
+      subDesc = "Yearly Subscription";
+    } else if (subPlan === "corporate") {
+      subLabel = "CORPORATE";
+      badgeColor = "bg-purple-500/10 border-purple-500/20 text-purple-400";
+      subDesc = "Enterprise Tier";
+    } else {
+      subLabel = "PREMIUM MEMBER";
+      badgeColor = "bg-emerald-500/10 border-emerald-500/20 text-emerald-400";
+      subDesc = "Premium Tier";
+    }
+  } else {
+    subLabel = "FREE MEMBER";
+    badgeColor = "bg-slate-800/40 border-slate-700/60 text-slate-400";
+    subDesc = "Free Member";
+  }
+
   // Sidebar menus definition
   const generalMenuItems = [
     { name: "Dashboard", href: "/portal/dashboard", icon: LayoutDashboard },
@@ -228,6 +304,13 @@ export default function PortalLayout({ children }: { children: React.ReactNode }
     { name: "Community", href: "/portal/community", icon: MessageSquare },
     { name: "Support", href: "/portal/support", icon: HelpCircle },
     { name: "Profile", href: "/portal/profile", icon: User },
+    {
+      name: "Payment Details",
+      href: "/portal/payments",
+      icon: CreditCard,
+      subtitle: "Plans, Payments & Invoices",
+      isNew: true
+    },
     { name: "Settings", href: "/portal/settings", icon: Settings },
   ];
 
@@ -280,9 +363,21 @@ export default function PortalLayout({ children }: { children: React.ReactNode }
               >
                 <div className="flex items-center gap-3">
                   <Icon className={`w-4.5 h-4.5 transition-colors ${isActive ? "text-portal-primary" : "text-portal-text-secondary group-hover:text-white"}`} />
-                  <span>{item.name}</span>
+                  {item.subtitle ? (
+                    <div className="flex flex-col text-left">
+                      <span className="leading-tight">{item.name}</span>
+                      <span className="text-[9px] text-slate-500 group-hover:text-slate-400 transition-colors font-medium mt-0.5">{item.subtitle}</span>
+                    </div>
+                  ) : (
+                    <span>{item.name}</span>
+                  )}
                 </div>
-                {isActive && <ChevronRight className="w-3.5 h-3.5 text-portal-primary animate-pulse" />}
+                <div className="flex items-center gap-2">
+                  {item.isNew && (
+                    <span className="px-1.5 py-0.5 rounded bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 text-[8px] font-bold tracking-wider uppercase">NEW</span>
+                  )}
+                  {isActive && <ChevronRight className="w-3.5 h-3.5 text-portal-primary animate-pulse" />}
+                </div>
               </Link>
             );
           })}
@@ -325,17 +420,11 @@ export default function PortalLayout({ children }: { children: React.ReactNode }
           <div className="flex-1 min-w-0">
             <p className="text-sm font-bold text-white truncate leading-tight">{user.fullName}</p>
             <div className="flex flex-wrap items-center gap-1.5 mt-1">
-              <span className={`px-2 py-0.5 rounded text-[8px] font-bold uppercase border ${
-                user.role === "admin"
-                  ? "bg-portal-primary/10 border-portal-primary/20 text-portal-primary"
-                  : user.role === "paid"
-                  ? "bg-portal-secondary/10 border-portal-secondary/20 text-portal-secondary"
-                  : "bg-portal-success/10 border-portal-success/20 text-portal-success"
-              }`}>
-                {user.role}
+              <span className={`px-2 py-0.5 rounded text-[8px] font-bold uppercase border ${badgeColor}`}>
+                {subLabel}
               </span>
               <span className="text-[9px] text-portal-text-secondary truncate">
-                {user.role === "admin" ? "Admin Access" : user.role === "paid" ? "Premium Tier" : "Free Member"}
+                {subDesc}
               </span>
             </div>
           </div>
@@ -393,7 +482,7 @@ export default function PortalLayout({ children }: { children: React.ReactNode }
                   {notif.message}
                 </p>
                 <span className="text-[9px] text-slate-500 font-mono mt-1 block">
-                  {new Date(notif.createdAt?.toDate ? notif.createdAt.toDate() : notif.createdAt).toLocaleDateString()}
+                  {getNotificationDate(notif.createdAt)}
                 </span>
               </div>
               {!notif.read && (

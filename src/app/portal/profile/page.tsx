@@ -1,7 +1,8 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useAuth } from "@/lib/context/AuthContext";
+import { getDocument } from "@/lib/services/firestoreService";
 import {
   User,
   Mail,
@@ -15,10 +16,46 @@ import {
 export default function ProfilePage() {
   const { user } = useAuth();
   const [isSaved, setIsSaved] = useState(false);
+  const [subPlan, setSubPlan] = useState<string | null>(null);
+
+  useEffect(() => {
+    async function fetchSub() {
+      if (!user) return;
+      try {
+        const subDoc = await getDocument("subscriptions", user.uid);
+        if (subDoc && subDoc.status === "active") {
+          setSubPlan(subDoc.plan);
+        }
+      } catch (err) {
+        console.error("Failed to load subscription in profile:", err);
+      }
+    }
+    fetchSub();
+  }, [user]);
 
   if (!user) return null;
 
-  const formattedRole = user.role.charAt(0).toUpperCase() + user.role.slice(1);
+  let subLabel = "FREE MEMBER";
+  let badgeColor = "bg-slate-800/40 border-slate-700/60 text-slate-400";
+
+  if (user.role === "admin") {
+    subLabel = "ADMIN ACCESS";
+    badgeColor = "bg-portal-primary/10 border-portal-primary/20 text-portal-primary";
+  } else if (user.role === "paid" || subPlan) {
+    if (subPlan === "premium_monthly") {
+      subLabel = "PREMIUM MONTHLY";
+      badgeColor = "bg-emerald-500/10 border-emerald-500/20 text-emerald-400";
+    } else if (subPlan === "premium_yearly" || subPlan === "premium") {
+      subLabel = "PREMIUM YEARLY";
+      badgeColor = "bg-emerald-500/10 border-emerald-500/20 text-emerald-400";
+    } else if (subPlan === "corporate") {
+      subLabel = "CORPORATE";
+      badgeColor = "bg-purple-500/10 border-purple-500/20 text-purple-400";
+    } else {
+      subLabel = "PREMIUM MEMBER";
+      badgeColor = "bg-emerald-500/10 border-emerald-500/20 text-emerald-400";
+    }
+  }
 
   const handleMockSave = (e: React.FormEvent) => {
     e.preventDefault();
@@ -27,7 +64,7 @@ export default function ProfilePage() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto space-y-8 animate-fade-in text-slate-100">
+    <div className="max-w-4xl mx-auto space-y-8 animate-fade-in text-slate-100 font-sans">
       {/* Header */}
       <div className="border-b border-portal-border/60 pb-6">
         <h1 className="text-3xl font-extrabold text-white tracking-tight sm:text-4xl">Account Profile</h1>
@@ -63,9 +100,9 @@ export default function ProfilePage() {
 
           <div className="border-t border-portal-border/40 pt-4 flex items-center justify-between">
             <span className="text-[10px] uppercase font-bold text-portal-text-secondary tracking-wide">Subscription</span>
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-portal-primary/10 border border-portal-primary/20 text-portal-primary text-[10px] font-bold uppercase tracking-wider">
+            <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full border text-[9px] font-extrabold uppercase tracking-wider ${badgeColor}`}>
               <Shield className="w-3 h-3" />
-              <span>{formattedRole} User</span>
+              <span>{subLabel}</span>
             </span>
           </div>
         </div>
