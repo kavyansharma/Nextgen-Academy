@@ -78,7 +78,7 @@ service cloud.firestore {
 
     // subscriptions collection: Readable by owner or admin; writeable by admin.
     match /subscriptions/{subscriptionId} {
-      allow read: if isAuthenticated() && (subscriptionId == request.auth.uid || resource.data.userId == request.auth.uid || isAdmin());
+      allow read: if isAuthenticated() && (subscriptionId == request.auth.uid || isAdmin());
       allow write: if isAdmin();
     }
 

@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect, useCallback, useMemo } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/context/AuthContext";
 import { queryDocuments, getDocument } from "@/lib/services/firestoreService";
 import { where } from "firebase/firestore";
@@ -78,7 +77,6 @@ type SortOrder = "asc" | "desc";
 
 export default function PaymentDetailsPage() {
   const { user, firebaseUser, refreshUser } = useAuth();
-  const router = useRouter();
 
   // Component States
   const [subscription, setSubscription] = useState<Subscription | null>(null);
@@ -137,12 +135,10 @@ export default function PaymentDetailsPage() {
       await Promise.resolve();
       if (user) {
         loadData();
-      } else {
-        router.replace("/portal/login");
       }
     };
     run();
-  }, [user, loadData, router]);
+  }, [user, loadData]);
 
   // Handle Sort Toggle
   const handleSort = (field: SortField) => {
