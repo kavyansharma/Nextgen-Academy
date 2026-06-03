@@ -2,12 +2,9 @@
 
 import React, { useState } from "react";
 import {
-  Settings,
   Bell,
   Lock,
-  Eye,
   CheckCircle2,
-  Sliders,
   Palette
 } from "lucide-react";
 

@@ -111,6 +111,21 @@ export default function ResourceViewer({ resource }: ResourceViewerProps) {
     };
   }, [resource, user, firebaseUser, hasAccess]);
 
+  useEffect(() => {
+    if (user && hasAccess && resource) {
+      import("@/lib/services/activityService").then(({ trackResourceView }) => {
+        trackResourceView(user.uid, resource.slug, resource.title);
+      });
+      import("@/lib/analytics").then(({ trackEvent }) => {
+        trackEvent({
+          action: "resource_download",
+          category: "resources",
+          label: resource.title
+        });
+      });
+    }
+  }, [user, hasAccess, resource]);
+
   if (loading || !user) {
     return (
       <div className="min-h-[80vh] flex items-center justify-center bg-brand-dark">

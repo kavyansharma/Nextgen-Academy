@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/context/AuthContext";
@@ -61,7 +61,12 @@ export default function AdminUsersPage() {
     }
   }, [user, loading, router]);
 
-  const fetchUsers = async () => {
+  const showToast = useCallback((type: "success" | "error", message: string) => {
+    setToast({ type, message });
+    setTimeout(() => setToast(null), 3000);
+  }, []);
+
+  const fetchUsers = useCallback(async () => {
     if (!user || user.role !== "admin") return;
     try {
       setFetchLoading(true);
@@ -82,16 +87,15 @@ export default function AdminUsersPage() {
     } finally {
       setFetchLoading(false);
     }
-  };
+  }, [user, showToast]);
 
   useEffect(() => {
-    fetchUsers();
-  }, [user]);
-
-  const showToast = (type: "success" | "error", message: string) => {
-    setToast({ type, message });
-    setTimeout(() => setToast(null), 3000);
-  };
+    const run = async () => {
+      await Promise.resolve();
+      fetchUsers();
+    };
+    run();
+  }, [fetchUsers]);
 
   // Modify User Role
   const handleUpdateRole = async (targetUid: string, newRole: string) => {
@@ -265,7 +269,7 @@ export default function AdminUsersPage() {
           <div className="p-12 text-center text-portal-text-secondary space-y-2">
             <XCircle className="w-12 h-12 text-slate-650 mx-auto" />
             <p className="font-bold text-white">No Users Found</p>
-            <p className="text-sm">We couldn't find any users matching your query parameters.</p>
+            <p className="text-sm">We couldn&apos;t find any users matching your query parameters.</p>
           </div>
         ) : (
           <table className="w-full text-left border-collapse text-sm">

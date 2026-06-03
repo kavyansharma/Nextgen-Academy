@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/context/AuthContext";
@@ -9,7 +9,8 @@ import {
   getDocument,
   setDocument,
   logAdminAction,
-  deleteDocument
+  deleteDocument,
+  uploadFile
 } from "@/lib/services/firestoreService";
 import {
   Settings,
@@ -57,6 +58,59 @@ export default function AdminSettingsPage() {
   const [isSaving, setIsSaving] = useState(false);
   const [toast, setToast] = useState<{ type: "success" | "error"; message: string } | null>(null);
 
+  // Certificate Assets States
+  const [backgroundUrl, setBackgroundUrl] = useState<string | null>(null);
+  const [signatureUrl, setSignatureUrl] = useState<string | null>(null);
+  const [sealUrl, setSealUrl] = useState<string | null>(null);
+  const [isUploadingBackground, setIsUploadingBackground] = useState(false);
+  const [isUploadingSignature, setIsUploadingSignature] = useState(false);
+  const [isUploadingSeal, setIsUploadingSeal] = useState(false);
+
+  const showToast = useCallback((type: "success" | "error", message: string) => {
+    setToast({ type, message });
+    setTimeout(() => setToast(null), 3000);
+  }, []);
+
+  // File upload handler
+  const handleUploadAsset = async (e: React.ChangeEvent<HTMLInputElement>, type: "background" | "signature" | "seal") => {
+    const file = e.target.files?.[0];
+    if (!file || !user) return;
+    
+    const setter = type === "background" ? setIsUploadingBackground : type === "signature" ? setIsUploadingSignature : setIsUploadingSeal;
+    setter(true);
+
+    try {
+      const path = `certificates/assets/${type}_${Date.now()}_${file.name}`;
+      const url = await uploadFile(file, path);
+      
+      const currentDoc = await getDocument("settings", "certificate_assets") || {};
+      const updatedData = {
+        ...currentDoc,
+        [type]: url,
+        updatedAt: new Date().toISOString()
+      };
+
+      await setDocument("settings", "certificate_assets", updatedData);
+      
+      if (type === "background") setBackgroundUrl(url);
+      else if (type === "signature") setSignatureUrl(url);
+      else if (type === "seal") setSealUrl(url);
+
+      await logAdminAction(
+        user.uid,
+        user.email || "",
+        "UPLOAD_CERTIFICATE_ASSET",
+        `Uploaded certificate custom asset: ${type}`
+      );
+      showToast("success", `Certificate ${type} asset uploaded and applied!`);
+    } catch (err) {
+      console.error(`Error uploading ${type}:`, err);
+      showToast("error", `Failed to upload ${type}.`);
+    } finally {
+      setter(false);
+    }
+  };
+
   // Access check
   useEffect(() => {
     if (!loading) {
@@ -69,7 +123,7 @@ export default function AdminSettingsPage() {
   }, [user, loading, router]);
 
   // Load Settings & Audit Trail
-  const loadPlatformSettings = async () => {
+  const loadPlatformSettings = useCallback(async () => {
     if (!user || user.role !== "admin") return;
     try {
       setLoadingData(true);
@@ -90,6 +144,14 @@ export default function AdminSettingsPage() {
         });
       }
 
+      // Load custom certificate assets
+      const certData = await getDocument("settings", "certificate_assets") as any;
+      if (certData) {
+        setBackgroundUrl(certData.background || null);
+        setSignatureUrl(certData.signature || null);
+        setSealUrl(certData.seal || null);
+      }
+
       // Load all logs
       const logsList = await queryDocuments("audit_logs") as AuditLog[];
       logsList.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
@@ -101,16 +163,15 @@ export default function AdminSettingsPage() {
     } finally {
       setLoadingData(false);
     }
-  };
+  }, [user, showToast]);
 
   useEffect(() => {
-    loadPlatformSettings();
-  }, [user]);
-
-  const showToast = (type: "success" | "error", message: string) => {
-    setToast({ type, message });
-    setTimeout(() => setToast(null), 3000);
-  };
+    const run = async () => {
+      await Promise.resolve();
+      loadPlatformSettings();
+    };
+    run();
+  }, [loadPlatformSettings]);
 
   if (!user || user.role !== "admin") return null;
 
@@ -215,87 +276,184 @@ export default function AdminSettingsPage() {
         </div>
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Form settings */}
-          <form onSubmit={handleSaveSettings} className="lg:col-span-1 space-y-6">
+          {/* Left Column (LMS Flags & Certificate customizer) */}
+          <div className="lg:col-span-1 space-y-6">
+            <form onSubmit={handleSaveSettings} className="space-y-6">
+              <div className="p-6 rounded-2xl bg-portal-card border border-portal-border/60 space-y-6 shadow-sm">
+                <h3 className="text-sm font-bold uppercase tracking-wider text-portal-text-secondary flex items-center gap-2 border-b border-portal-border/40 pb-3">
+                  <Server className="w-4.5 h-4.5 text-portal-primary" />
+                  <span>Global LMS Flags</span>
+                </h3>
+
+                <div className="space-y-4">
+                  {/* Switch 1 */}
+                  <div className="flex items-center justify-between gap-4">
+                    <div>
+                      <h4 className="text-xs font-bold text-white uppercase">Maintenance Mode</h4>
+                      <p className="text-[10px] text-portal-text-secondary mt-0.5">Locks out general students and displays a lockout panel.</p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => handleToggle("maintenanceMode")}
+                      className="text-portal-text-secondary hover:text-white transition-colors"
+                    >
+                      {settings.maintenanceMode ? (
+                        <ToggleRight className="w-9 h-9 text-portal-primary" />
+                      ) : (
+                        <ToggleLeft className="w-9 h-9 text-slate-700" />
+                      )}
+                    </button>
+                  </div>
+
+                  <div className="border-t border-portal-border/30 my-3"></div>
+
+                  {/* Switch 2 */}
+                  <div className="flex items-center justify-between gap-4">
+                    <div>
+                      <h4 className="text-xs font-bold text-white uppercase">Lock Registrations</h4>
+                      <p className="text-[10px] text-portal-text-secondary mt-0.5">Disables profile creations on the public register screen.</p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => handleToggle("registrationClosed")}
+                      className="text-portal-text-secondary hover:text-white transition-colors"
+                    >
+                      {settings.registrationClosed ? (
+                        <ToggleRight className="w-9 h-9 text-portal-primary" />
+                      ) : (
+                        <ToggleLeft className="w-9 h-9 text-slate-700" />
+                      )}
+                    </button>
+                  </div>
+
+                  <div className="border-t border-portal-border/30 my-3"></div>
+
+                  {/* Switch 3 */}
+                  <div className="flex items-center justify-between gap-4">
+                    <div>
+                      <h4 className="text-xs font-bold text-white uppercase">Verbose Diagnostics</h4>
+                      <p className="text-[10px] text-portal-text-secondary mt-0.5">Enables full server-side auditing and verbose output logs.</p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => handleToggle("systemDiagnostics")}
+                      className="text-portal-text-secondary hover:text-white transition-colors"
+                    >
+                      {settings.systemDiagnostics ? (
+                        <ToggleRight className="w-9 h-9 text-portal-primary" />
+                      ) : (
+                        <ToggleLeft className="w-9 h-9 text-slate-700" />
+                      )}
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <button
+                type="submit"
+                disabled={isSaving}
+                className="w-full py-3.5 rounded-xl bg-portal-primary hover:bg-portal-primary/90 text-white text-xs font-bold transition-all shadow-md flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50"
+              >
+                {isSaving && <Loader2 className="w-4 h-4 animate-spin" />}
+                <span>Save System Settings</span>
+              </button>
+            </form>
+
+            {/* Custom Certificate Assets Panel */}
             <div className="p-6 rounded-2xl bg-portal-card border border-portal-border/60 space-y-6 shadow-sm">
               <h3 className="text-sm font-bold uppercase tracking-wider text-portal-text-secondary flex items-center gap-2 border-b border-portal-border/40 pb-3">
-                <Server className="w-4.5 h-4.5 text-portal-primary" />
-                <span>Global LMS Flags</span>
+                <Settings className="w-4.5 h-4.5 text-portal-secondary animate-spin-slow" />
+                <span>Certificate Customizer</span>
               </h3>
 
-              <div className="space-y-4">
-                {/* Switch 1 */}
-                <div className="flex items-center justify-between gap-4">
-                  <div>
-                    <h4 className="text-xs font-bold text-white uppercase">Maintenance Mode</h4>
-                    <p className="text-[10px] text-portal-text-secondary mt-0.5">Locks out general students and displays a lockout panel.</p>
+              <div className="space-y-5 text-xs text-portal-text-secondary">
+                {/* Background Uploader */}
+                <div className="space-y-2">
+                  <h4 className="font-bold text-white uppercase text-[10px]">Background Template</h4>
+                  {backgroundUrl ? (
+                    <img src={backgroundUrl} alt="Background Preview" className="h-20 w-full object-cover rounded-xl border border-portal-border/40 mb-2" />
+                  ) : (
+                    <p className="text-[10px] italic text-slate-550 mb-2">No custom background template configured.</p>
+                  )}
+                  <div className="flex items-center gap-3">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => handleUploadAsset(e, "background")}
+                      disabled={isUploadingBackground}
+                      className="hidden"
+                      id="bg-upload-input"
+                    />
+                    <label
+                      htmlFor="bg-upload-input"
+                      className="px-4 py-2 bg-slate-900 border border-portal-border hover:border-portal-primary rounded-xl font-semibold text-slate-200 hover:text-white transition-all cursor-pointer flex items-center gap-1"
+                    >
+                      {isUploadingBackground && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
+                      <span>{backgroundUrl ? "Change Background" : "Upload Background"}</span>
+                    </label>
                   </div>
-                  <button
-                    type="button"
-                    onClick={() => handleToggle("maintenanceMode")}
-                    className="text-portal-text-secondary hover:text-white transition-colors"
-                  >
-                    {settings.maintenanceMode ? (
-                      <ToggleRight className="w-9 h-9 text-portal-primary" />
-                    ) : (
-                      <ToggleLeft className="w-9 h-9 text-slate-700" />
-                    )}
-                  </button>
                 </div>
 
-                <div className="border-t border-portal-border/30 my-3"></div>
+                <div className="border-t border-portal-border/30 my-2"></div>
 
-                {/* Switch 2 */}
-                <div className="flex items-center justify-between gap-4">
-                  <div>
-                    <h4 className="text-xs font-bold text-white uppercase">Lock Registrations</h4>
-                    <p className="text-[10px] text-portal-text-secondary mt-0.5">Disables profile creations on the public register screen.</p>
+                {/* Signature Uploader */}
+                <div className="space-y-2">
+                  <h4 className="font-bold text-white uppercase text-[10px]">Authorized Signature</h4>
+                  {signatureUrl ? (
+                    <img src={signatureUrl} alt="Signature Preview" className="h-12 w-32 object-contain bg-white/5 rounded-xl border border-portal-border/40 p-1 mb-2" />
+                  ) : (
+                    <p className="text-[10px] italic text-slate-550 mb-2">No authorized signature uploaded.</p>
+                  )}
+                  <div className="flex items-center gap-3">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => handleUploadAsset(e, "signature")}
+                      disabled={isUploadingSignature}
+                      className="hidden"
+                      id="sig-upload-input"
+                    />
+                    <label
+                      htmlFor="sig-upload-input"
+                      className="px-4 py-2 bg-slate-900 border border-portal-border hover:border-portal-primary rounded-xl font-semibold text-slate-200 hover:text-white transition-all cursor-pointer flex items-center gap-1"
+                    >
+                      {isUploadingSignature && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
+                      <span>{signatureUrl ? "Change Signature" : "Upload Signature"}</span>
+                    </label>
                   </div>
-                  <button
-                    type="button"
-                    onClick={() => handleToggle("registrationClosed")}
-                    className="text-portal-text-secondary hover:text-white transition-colors"
-                  >
-                    {settings.registrationClosed ? (
-                      <ToggleRight className="w-9 h-9 text-portal-primary" />
-                    ) : (
-                      <ToggleLeft className="w-9 h-9 text-slate-700" />
-                    )}
-                  </button>
                 </div>
 
-                <div className="border-t border-portal-border/30 my-3"></div>
+                <div className="border-t border-portal-border/30 my-2"></div>
 
-                {/* Switch 3 */}
-                <div className="flex items-center justify-between gap-4">
-                  <div>
-                    <h4 className="text-xs font-bold text-white uppercase">Verbose Diagnostics</h4>
-                    <p className="text-[10px] text-portal-text-secondary mt-0.5">Enables full server-side auditing and verbose output logs.</p>
+                {/* Seal Uploader */}
+                <div className="space-y-2">
+                  <h4 className="font-bold text-white uppercase text-[10px]">Corporate Seal / Logo</h4>
+                  {sealUrl ? (
+                    <img src={sealUrl} alt="Seal Preview" className="h-16 w-16 object-contain bg-white/5 rounded-xl border border-portal-border/40 p-1 mb-2" />
+                  ) : (
+                    <p className="text-[10px] italic text-slate-550 mb-2">No corporate seal/logo uploaded.</p>
+                  )}
+                  <div className="flex items-center gap-3">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => handleUploadAsset(e, "seal")}
+                      disabled={isUploadingSeal}
+                      className="hidden"
+                      id="seal-upload-input"
+                    />
+                    <label
+                      htmlFor="seal-upload-input"
+                      className="px-4 py-2 bg-slate-900 border border-portal-border hover:border-portal-primary rounded-xl font-semibold text-slate-200 hover:text-white transition-all cursor-pointer flex items-center gap-1"
+                    >
+                      {isUploadingSeal && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
+                      <span>{sealUrl ? "Change Seal" : "Upload Seal"}</span>
+                    </label>
                   </div>
-                  <button
-                    type="button"
-                    onClick={() => handleToggle("systemDiagnostics")}
-                    className="text-portal-text-secondary hover:text-white transition-colors"
-                  >
-                    {settings.systemDiagnostics ? (
-                      <ToggleRight className="w-9 h-9 text-portal-primary" />
-                    ) : (
-                      <ToggleLeft className="w-9 h-9 text-slate-700" />
-                    )}
-                  </button>
                 </div>
               </div>
             </div>
-
-            <button
-              type="submit"
-              disabled={isSaving}
-              className="w-full py-3.5 rounded-xl bg-portal-primary hover:bg-portal-primary/90 text-white text-xs font-bold transition-all shadow-md flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50"
-            >
-              {isSaving && <Loader2 className="w-4 h-4 animate-spin" />}
-              <span>Save System Settings</span>
-            </button>
-          </form>
+          </div>
 
           {/* Audit log viewer */}
           <div className="lg:col-span-2 p-6 rounded-2xl bg-portal-card border border-portal-border/60 space-y-4 shadow-sm h-[580px] flex flex-col justify-between">

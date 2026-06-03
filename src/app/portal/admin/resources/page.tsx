@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/context/AuthContext";
@@ -87,7 +87,7 @@ export default function AdminResourcesPage() {
     setTimeout(() => setToast(null), 3000);
   };
 
-  const loadResources = async () => {
+  const loadResources = useCallback(async () => {
     if (!user || user.role !== "admin") return;
     try {
       setLoadingData(true);
@@ -99,11 +99,15 @@ export default function AdminResourcesPage() {
     } finally {
       setLoadingData(false);
     }
-  };
+  }, [user]);
 
   useEffect(() => {
-    loadResources();
-  }, [user]);
+    const run = async () => {
+      await Promise.resolve();
+      loadResources();
+    };
+    run();
+  }, [loadResources]);
 
   if (!user || user.role !== "admin") return null;
 
@@ -332,7 +336,7 @@ export default function AdminResourcesPage() {
           <div className="p-12 text-center text-portal-text-secondary space-y-2">
             <FileText className="w-12 h-12 text-slate-700 mx-auto" />
             <p className="font-bold text-white">No Resources Found</p>
-            <p className="text-sm">We couldn't find any resources matching your query.</p>
+            <p className="text-sm">We couldn&apos;t find any resources matching your query.</p>
           </div>
         ) : (
           <table className="w-full text-left border-collapse text-sm">

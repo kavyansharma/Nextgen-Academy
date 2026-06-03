@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/context/AuthContext";
@@ -32,7 +32,10 @@ import {
   Mail,
   Activity,
   CreditCard,
-  Award
+  Award,
+  MessageSquare,
+  Database,
+  BookOpen
 } from "lucide-react";
 
 interface FirestoreUser {
@@ -65,6 +68,18 @@ export default function AdminDashboardPage() {
   const [usersList, setUsersList] = useState<FirestoreUser[]>([]);
   const [resourcesList, setResourcesList] = useState<Resource[]>([]);
   const [fetchLoading, setFetchLoading] = useState(true);
+
+  // Upgrade admin dashboard metrics states
+  const [totalUsersCount, setTotalUsersCount] = useState(0);
+  const [activeUsersCount, setActiveUsersCount] = useState(0);
+  const [revenueTotal, setRevenueTotal] = useState(0);
+  const [subscriptionsCount, setSubscriptionsCount] = useState(0);
+  const [coursesCount, setCoursesCount] = useState(0);
+  const [resourcesCount, setResourcesCount] = useState(0);
+  const [certificatesCount, setCertificatesCount] = useState(0);
+  const [ticketsCount, setTicketsCount] = useState(0);
+  const [logsCount, setLogsCount] = useState(0);
+  const [recentLogs, setRecentLogs] = useState<any[]>([]);
 
   // Global Notification
   const [notification, setNotification] = useState<{ type: "success" | "error"; message: string } | null>(null);
@@ -109,13 +124,38 @@ export default function AdminDashboardPage() {
     }
   }, [user, loading, router]);
 
+  // Helper for notification
+  const showNotification = (type: "success" | "error", message: string) => {
+    setNotification({ type, message });
+    setTimeout(() => {
+      setNotification(null);
+    }, 4000);
+  };
+
   // Fetch Data
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     try {
       setFetchLoading(true);
-      const [fetchedUsers, fetchedResources] = await Promise.all([
+      const [
+        fetchedUsers, 
+        fetchedResources,
+        fetchedPayments,
+        fetchedSubscriptions,
+        fetchedCourses,
+        fetchedCertificates,
+        fetchedTickets,
+        fetchedLogs,
+        fetchedActivity
+      ] = await Promise.all([
         queryDocuments("users"),
-        queryDocuments("resources")
+        queryDocuments("resources"),
+        queryDocuments("payments"),
+        queryDocuments("subscriptions"),
+        queryDocuments("courses"),
+        queryDocuments("certificates"),
+        queryDocuments("support_tickets"),
+        queryDocuments("audit_logs"),
+        queryDocuments("user_activity")
       ]);
 
       const formattedUsers = fetchedUsers.map((u: any) => ({
@@ -139,27 +179,39 @@ export default function AdminDashboardPage() {
 
       setUsersList(formattedUsers);
       setResourcesList(formattedResources);
+
+      // Populate metrics
+      setTotalUsersCount(formattedUsers.length);
+      setActiveUsersCount(fetchedActivity.length);
+      const totalRev = fetchedPayments.reduce((acc: number, curr: any) => acc + (Number(curr.amount) || 0), 0);
+      setRevenueTotal(totalRev);
+      setSubscriptionsCount(fetchedSubscriptions.filter((s: any) => s.status === "active").length);
+      setCoursesCount(fetchedCourses.length);
+      setResourcesCount(formattedResources.length);
+      setCertificatesCount(fetchedCertificates.length);
+      setTicketsCount(fetchedTickets.length);
+      setLogsCount(fetchedLogs.length);
+
+      // Sort and slice recent logs
+      const sortedLogs = [...fetchedLogs].sort((a: any, b: any) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()).slice(0, 5);
+      setRecentLogs(sortedLogs);
     } catch (err) {
       console.error("Admin Fetch Error:", err);
       showNotification("error", "Failed to retrieve directory data from Firestore.");
     } finally {
       setFetchLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
-    if (user && user.role === "admin") {
-      fetchData();
-    }
-  }, [user]);
-
-  // Helper for notification
-  const showNotification = (type: "success" | "error", message: string) => {
-    setNotification({ type, message });
-    setTimeout(() => {
-      setNotification(null);
-    }, 4000);
-  };
+    const run = async () => {
+      await Promise.resolve();
+      if (user && user.role === "admin") {
+        fetchData();
+      }
+    };
+    run();
+  }, [user, fetchData]);
 
   // Helper: Valid URL check
   const isValidUrl = (urlStr: string) => {
@@ -470,14 +522,15 @@ export default function AdminDashboardPage() {
             {/* TAB 1: OVERVIEW */}
             {activeTab === "overview" && (
               <div className="space-y-8 animate-fade-in">
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
+                {/* Metrics Grid */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                   
                   {/* Total Users */}
                   <div className="p-6 rounded-2xl bg-slate-900/60 border border-white/5 shadow-2xl glass hover:border-brand-orange/20 transition-all duration-300">
                     <div className="flex justify-between items-start">
                       <div className="space-y-1">
                         <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Total Users</p>
-                        <p className="text-3xl font-extrabold text-white">{totalUsers}</p>
+                        <p className="text-3xl font-extrabold text-white">{totalUsersCount}</p>
                       </div>
                       <div className="p-2.5 rounded-xl bg-brand-orange/10 border border-brand-orange/20 text-brand-orange">
                         <Users className="w-5 h-5" />
@@ -485,54 +538,93 @@ export default function AdminDashboardPage() {
                     </div>
                   </div>
 
-                  {/* Free Users */}
+                  {/* Active Users */}
                   <div className="p-6 rounded-2xl bg-slate-900/60 border border-white/5 shadow-2xl glass hover:border-emerald-500/20 transition-all duration-300">
                     <div className="flex justify-between items-start">
                       <div className="space-y-1">
-                        <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Free Users</p>
-                        <p className="text-3xl font-extrabold text-white">{freeUsers}</p>
+                        <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Active Users</p>
+                        <p className="text-3xl font-extrabold text-white">{activeUsersCount}</p>
                       </div>
                       <div className="p-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400">
-                        <Unlock className="w-5 h-5" />
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Paid Users */}
-                  <div className="p-6 rounded-2xl bg-slate-900/60 border border-white/5 shadow-2xl glass hover:border-amber-500/20 transition-all duration-300">
-                    <div className="flex justify-between items-start">
-                      <div className="space-y-1">
-                        <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Paid Users</p>
-                        <p className="text-3xl font-extrabold text-white">{paidUsers}</p>
-                      </div>
-                      <div className="p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-400">
                         <UserCheck className="w-5 h-5" />
                       </div>
                     </div>
                   </div>
 
-                  {/* Admins */}
+                  {/* Revenue */}
+                  <div className="p-6 rounded-2xl bg-slate-900/60 border border-white/5 shadow-2xl glass hover:border-amber-500/20 transition-all duration-300">
+                    <div className="flex justify-between items-start">
+                      <div className="space-y-1">
+                        <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Total Revenue</p>
+                        <p className="text-3xl font-extrabold text-white">₹{revenueTotal}</p>
+                      </div>
+                      <div className="p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-400">
+                        <CreditCard className="w-5 h-5" />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Subscriptions */}
                   <div className="p-6 rounded-2xl bg-slate-900/60 border border-white/5 shadow-2xl glass hover:border-brand-blue/20 transition-all duration-300">
                     <div className="flex justify-between items-start">
                       <div className="space-y-1">
-                        <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Admin Users</p>
-                        <p className="text-3xl font-extrabold text-white">{adminUsers}</p>
+                        <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Active Premium</p>
+                        <p className="text-3xl font-extrabold text-white">{subscriptionsCount}</p>
                       </div>
                       <div className="p-2.5 rounded-xl bg-brand-blue/10 border border-brand-blue/20 text-brand-blue">
-                        <Shield className="w-5 h-5" />
+                        <Award className="w-5 h-5" />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Courses */}
+                  <div className="p-6 rounded-2xl bg-slate-900/60 border border-white/5 shadow-2xl glass hover:border-purple-500/20 transition-all duration-300">
+                    <div className="flex justify-between items-start">
+                      <div className="space-y-1">
+                        <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Courses</p>
+                        <p className="text-3xl font-extrabold text-white">{coursesCount}</p>
+                      </div>
+                      <div className="p-2.5 rounded-xl bg-purple-500/10 border border-purple-500/20 text-purple-400">
+                        <BookOpen className="w-5 h-5" />
                       </div>
                     </div>
                   </div>
 
                   {/* Resources */}
-                  <div className="p-6 rounded-2xl bg-slate-900/60 border border-white/5 shadow-2xl glass hover:border-purple-500/20 transition-all duration-300">
+                  <div className="p-6 rounded-2xl bg-slate-900/60 border border-white/5 shadow-2xl glass hover:border-indigo-500/20 transition-all duration-300">
                     <div className="flex justify-between items-start">
                       <div className="space-y-1">
                         <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Resources</p>
-                        <p className="text-3xl font-extrabold text-white">{totalResources}</p>
+                        <p className="text-3xl font-extrabold text-white">{resourcesCount}</p>
                       </div>
-                      <div className="p-2.5 rounded-xl bg-purple-500/10 border border-purple-500/20 text-purple-400">
+                      <div className="p-2.5 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-400">
                         <FileText className="w-5 h-5" />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Certificates */}
+                  <div className="p-6 rounded-2xl bg-slate-900/60 border border-white/5 shadow-2xl glass hover:border-rose-500/20 transition-all duration-300">
+                    <div className="flex justify-between items-start">
+                      <div className="space-y-1">
+                        <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Certificates</p>
+                        <p className="text-3xl font-extrabold text-white">{certificatesCount}</p>
+                      </div>
+                      <div className="p-2.5 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-400">
+                        <Award className="w-5 h-5" />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Support Tickets */}
+                  <div className="p-6 rounded-2xl bg-slate-900/60 border border-white/5 shadow-2xl glass hover:border-sky-500/20 transition-all duration-300">
+                    <div className="flex justify-between items-start">
+                      <div className="space-y-1">
+                        <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Support Tickets</p>
+                        <p className="text-3xl font-extrabold text-white">{ticketsCount}</p>
+                      </div>
+                      <div className="p-2.5 rounded-xl bg-sky-500/10 border border-sky-500/20 text-sky-400">
+                        <MessageSquare className="w-5 h-5" />
                       </div>
                     </div>
                   </div>
@@ -542,7 +634,7 @@ export default function AdminDashboardPage() {
                 {/* Management Operations Grid */}
                 <div className="space-y-4">
                   <h3 className="font-bold text-white text-lg tracking-tight">Administrative Consoles</h3>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                     {/* Payments Console */}
                     <Link
                       href="/portal/admin/payments"
@@ -598,15 +690,110 @@ export default function AdminDashboardPage() {
                         <p className="text-xs text-brand-text-muted mt-0.5">Publish & tag uploads</p>
                       </div>
                     </Link>
+
+                    {/* Support Desk */}
+                    <Link
+                      href="/portal/admin/support"
+                      className="p-5 rounded-2xl bg-slate-900/60 border border-white/5 shadow-md flex items-center gap-4 hover:border-sky-500/30 hover:bg-slate-900/80 transition-all duration-300 group"
+                    >
+                      <div className="p-3 rounded-xl bg-sky-500/10 border border-sky-500/20 text-sky-400 group-hover:scale-105 transition-transform">
+                        <MessageSquare className="w-5 h-5" />
+                      </div>
+                      <div>
+                        <h4 className="font-bold text-white text-sm">Support Desk</h4>
+                        <p className="text-xs text-brand-text-muted mt-0.5">Ticketing & messaging</p>
+                      </div>
+                    </Link>
+
+                    {/* Community Desk */}
+                    <Link
+                      href="/portal/admin/community"
+                      className="p-5 rounded-2xl bg-slate-900/60 border border-white/5 shadow-md flex items-center gap-4 hover:border-rose-500/30 hover:bg-slate-900/80 transition-all duration-300 group"
+                    >
+                      <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-400 group-hover:scale-105 transition-transform">
+                        <Users className="w-5 h-5" />
+                      </div>
+                      <div>
+                        <h4 className="font-bold text-white text-sm">Community Moderator</h4>
+                        <p className="text-xs text-brand-text-muted mt-0.5">Review reported posts</p>
+                      </div>
+                    </Link>
+
+                    {/* Settings & Logs */}
+                    <Link
+                      href="/portal/admin/settings"
+                      className="p-5 rounded-2xl bg-slate-900/60 border border-white/5 shadow-md flex items-center gap-4 hover:border-yellow-500/30 hover:bg-slate-900/80 transition-all duration-300 group"
+                    >
+                      <div className="p-3 rounded-xl bg-yellow-500/10 border border-yellow-500/20 text-yellow-400 group-hover:scale-105 transition-transform">
+                        <Settings className="w-5 h-5" />
+                      </div>
+                      <div>
+                        <h4 className="font-bold text-white text-sm">System Settings</h4>
+                        <p className="text-xs text-brand-text-muted mt-0.5">Platform flags & settings</p>
+                      </div>
+                    </Link>
+
+                    {/* Backup Center */}
+                    <Link
+                      href="/portal/admin/backups"
+                      className="p-5 rounded-2xl bg-slate-900/60 border border-white/5 shadow-md flex items-center gap-4 hover:border-teal-500/30 hover:bg-slate-900/80 transition-all duration-300 group"
+                    >
+                      <div className="p-3 rounded-xl bg-teal-500/10 border border-teal-500/20 text-teal-400 group-hover:scale-105 transition-transform">
+                        <Database className="w-5 h-5" />
+                      </div>
+                      <div>
+                        <h4 className="font-bold text-white text-sm">Backup Center</h4>
+                        <p className="text-xs text-brand-text-muted mt-0.5">CSV Database exports</p>
+                      </div>
+                    </Link>
+
+                    {/* Communications Center */}
+                    <Link
+                      href="/portal/admin/communications"
+                      className="p-5 rounded-2xl bg-slate-900/60 border border-white/5 shadow-md flex items-center gap-4 hover:border-indigo-500/30 hover:bg-slate-900/80 transition-all duration-300 group"
+                    >
+                      <div className="p-3 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 group-hover:scale-105 transition-transform">
+                        <Mail className="w-5 h-5" />
+                      </div>
+                      <div>
+                        <h4 className="font-bold text-white text-sm">Communications</h4>
+                        <p className="text-xs text-brand-text-muted mt-0.5">Role targeted broadcasts</p>
+                      </div>
+                    </Link>
+
                   </div>
                 </div>
 
-                {/* Overview Info Block */}
-                <div className="p-8 rounded-2xl bg-slate-900/40 border border-slate-800 text-sm space-y-4">
-                  <h3 className="font-bold text-white text-lg">System Metrics Status</h3>
-                  <p className="text-brand-text-muted leading-relaxed">
-                    The NextGen database contains {totalUsers} user directories and {totalResources} published resource catalog links. Review the user permissions, elevations, or publish new document assets directly using the tabs above.
-                  </p>
+                {/* Recent activity timeline / Audit logs */}
+                <div className="p-6 rounded-2xl bg-slate-900/40 border border-slate-800 space-y-4">
+                  <div className="flex justify-between items-center border-b border-slate-800/80 pb-3">
+                    <h3 className="font-bold text-white text-lg tracking-tight flex items-center gap-2">
+                      <Shield className="w-5 h-5 text-brand-orange animate-pulse" />
+                      <span>Recent System Activity Trail</span>
+                    </h3>
+                    <span className="text-xs text-slate-500 font-semibold">Total Logs: {logsCount}</span>
+                  </div>
+                  
+                  <div className="divide-y divide-slate-850 max-h-72 overflow-y-auto pr-2">
+                    {recentLogs.length === 0 ? (
+                      <p className="p-8 text-xs text-brand-text-muted italic text-center">No system operations recorded in database.</p>
+                    ) : (
+                      recentLogs.map((log: any) => (
+                        <div key={log.id} className="py-3 flex justify-between items-start gap-4 text-xs">
+                          <div>
+                            <span className="px-2 py-0.5 rounded text-[8px] font-bold uppercase bg-slate-950 border border-slate-800 text-brand-orange">
+                              {log.action}
+                            </span>
+                            <p className="text-slate-300 mt-1">{log.details}</p>
+                            <span className="text-[10px] text-slate-500 font-mono">@{log.adminEmail || "SYSTEM"}</span>
+                          </div>
+                          <span className="text-[10px] text-slate-500 whitespace-nowrap">
+                            {new Date(log.timestamp).toLocaleString()}
+                          </span>
+                        </div>
+                      ))
+                    )}
+                  </div>
                 </div>
               </div>
             )}
@@ -653,7 +840,7 @@ export default function AdminDashboardPage() {
                     <div className="p-12 text-center text-brand-text-muted space-y-2">
                       <UserX className="w-12 h-12 text-slate-600 mx-auto" />
                       <p className="font-bold text-white">No Users Found</p>
-                      <p className="text-sm">We couldn't find any users matching your query filter.</p>
+                      <p className="text-sm">We couldn&apos;t find any users matching your query filter.</p>
                     </div>
                   ) : (
                     <table className="w-full text-left border-collapse text-sm">
@@ -808,7 +995,7 @@ export default function AdminDashboardPage() {
                     <div className="p-12 text-center text-brand-text-muted space-y-2">
                       <FileText className="w-12 h-12 text-slate-600 mx-auto" />
                       <p className="font-bold text-white">No Resources Published</p>
-                      <p className="text-sm">We couldn't find any resources matching your search selection.</p>
+                      <p className="text-sm">We couldn&apos;t find any resources matching your search selection.</p>
                     </div>
                   ) : (
                     <table className="w-full text-left border-collapse text-sm">
@@ -944,7 +1131,7 @@ export default function AdminDashboardPage() {
               <div className="space-y-1">
                 <h3 className="text-xl font-bold text-white">Delete Catalog Resource</h3>
                 <p className="text-sm text-brand-text-muted">
-                  Are you sure you want to remove <span className="text-white font-semibold">"{resourceToDelete.title}"</span>?
+                   Are you sure you want to remove <span className="text-white font-semibold">&quot;{resourceToDelete.title}&quot;</span>?
                 </p>
               </div>
             </div>

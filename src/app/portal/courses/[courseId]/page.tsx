@@ -1,6 +1,6 @@
 "use client";
 
-import React, { use, useEffect, useState } from "react";
+import React, { use, useEffect, useState, useCallback } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/context/AuthContext";
@@ -12,6 +12,8 @@ import {
 } from "@/lib/services/firestoreService";
 import { doc, updateDoc, collection, addDoc, where } from "firebase/firestore";
 import { db } from "@/lib/firebase";
+import { trackCourseView, trackLessonView } from "@/lib/services/activityService";
+import { trackEvent } from "@/lib/analytics";
 import {
   ArrowLeft,
   Clock,
@@ -123,8 +125,30 @@ export default function CourseDetailsPage({ params }: { params: Promise<{ course
     };
   }, []);
 
+
+
+  const loadReviews = useCallback(async () => {
+    try {
+      const list = await queryDocuments("course_reviews", where("courseId", "==", courseId)) as Review[];
+      
+      // Fetch names for reviewers dynamically
+      const reviewsWithNames = await Promise.all(list.map(async (rev) => {
+        const uDoc = await getDocument("users", rev.userId);
+        return {
+          ...rev,
+          userName: uDoc?.fullName || "NextGen Student"
+        };
+      }));
+
+      reviewsWithNames.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+      setReviewsList(reviewsWithNames);
+    } catch (err) {
+      console.error("Error loading reviews:", err);
+    }
+  }, [courseId]);
+
   // Fetch Course, Lessons, Progress, and Bookmarks
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     if (!user || !courseId) return;
     try {
       setLoadingData(true);
@@ -136,6 +160,7 @@ export default function CourseDetailsPage({ params }: { params: Promise<{ course
         return;
       }
       setCourse(courseData);
+      trackCourseView(user.uid, courseId, courseData.title);
 
       // Verify Access
       const hasAccess = user.role === "admin" || user.role === "paid" || courseData.type === "free";
@@ -174,6 +199,13 @@ export default function CourseDetailsPage({ params }: { params: Promise<{ course
           details: `User enrolled in course: ${courseData.title} (ID: ${courseId})`,
           timestamp: new Date().toISOString()
         });
+
+        // GA event tracking
+        trackEvent({
+          action: "course_enrollment",
+          category: "courses",
+          label: courseData.title
+        });
       }
 
       // Fetch Lessons
@@ -203,33 +235,17 @@ export default function CourseDetailsPage({ params }: { params: Promise<{ course
     } finally {
       setLoadingData(false);
     }
-  };
-
-  const loadReviews = async () => {
-    try {
-      const list = await queryDocuments("course_reviews", where("courseId", "==", courseId)) as Review[];
-      
-      // Fetch names for reviewers dynamically
-      const reviewsWithNames = await Promise.all(list.map(async (rev) => {
-        const uDoc = await getDocument("users", rev.userId);
-        return {
-          ...rev,
-          userName: uDoc?.fullName || "NextGen Student"
-        };
-      }));
-
-      reviewsWithNames.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-      setReviewsList(reviewsWithNames);
-    } catch (err) {
-      console.error("Error loading reviews:", err);
-    }
-  };
+  }, [user, courseId, router, loadReviews]);
 
   useEffect(() => {
-    if (user && courseId) {
-      loadData();
-    }
-  }, [user, courseId]);
+    const run = async () => {
+      await Promise.resolve();
+      if (user && courseId) {
+        loadData();
+      }
+    };
+    run();
+  }, [user, courseId, loadData]);
 
   // Track active lesson change for Notes, Bookmarks & GCS resolution
   useEffect(() => {
@@ -289,6 +305,8 @@ export default function CourseDetailsPage({ params }: { params: Promise<{ course
         lastLessonId: activeLesson.id,
         lastViewedAt: new Date().toISOString()
       });
+
+      trackLessonView(user.uid, courseId, activeLesson.id, activeLesson.title);
     };
 
     loadLessonDetails();
@@ -384,6 +402,13 @@ export default function CourseDetailsPage({ params }: { params: Promise<{ course
           action: "CERTIFICATE_EARNED",
           details: `User earned certificate ${certId} for course completion.`,
           timestamp: new Date().toISOString()
+        });
+
+        // GA event tracking
+        trackEvent({
+          action: "certificate_generation",
+          category: "certificates",
+          label: course.title
         });
       }
     } catch (err) {
@@ -521,6 +546,12 @@ export default function CourseDetailsPage({ params }: { params: Promise<{ course
             });
 
             if (verifyRes.ok) {
+              trackEvent({
+                action: "payment_completion",
+                category: "payments",
+                label: course.title,
+                value: course.price || 49
+              });
               await refreshUser();
               router.refresh();
               alert("Congratulations! Membership upgraded and course unlocked.");
@@ -647,7 +678,7 @@ export default function CourseDetailsPage({ params }: { params: Promise<{ course
               <Award className="w-6 h-6 animate-bounce" />
             </div>
             <div>
-              <h3 className="font-bold text-white text-md">Congratulations! You've Completed the Course!</h3>
+              <h3 className="font-bold text-white text-md">Congratulations! You&apos;ve Completed the Course!</h3>
               <p className="text-xs text-portal-text-secondary mt-0.5">Your credentials are now active. Premium users can download the PDF certificate.</p>
             </div>
           </div>

@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { useAuth } from "@/lib/context/AuthContext";
-import { queryDocuments, setDocument } from "@/lib/services/firestoreService";
+import { queryDocuments, setDocument, getDocument } from "@/lib/services/firestoreService";
 import { where } from "firebase/firestore";
 import { jsPDF } from "jspdf";
 import {
@@ -19,6 +19,17 @@ import {
   Lock,
   CheckCircle2
 } from "lucide-react";
+
+// Image loader helper for jsPDF
+const loadImage = (src: string): Promise<HTMLImageElement> => {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.crossOrigin = "anonymous";
+    img.onload = () => resolve(img);
+    img.onerror = (e) => reject(e);
+    img.src = src;
+  });
+};
 
 interface Course {
   id: string;
@@ -53,12 +64,31 @@ export default function CertificatesPage() {
   const [loading, setLoading] = useState(true);
   const [activeCert, setActiveCert] = useState<CertificateRecord | null>(null);
   const [isExporting, setIsExporting] = useState(false);
+  const [certificateAssets, setCertificateAssets] = useState<{
+    background: string | null;
+    signature: string | null;
+    seal: string | null;
+  } | null>(null);
 
   useEffect(() => {
     async function fetchCertificates() {
       if (!user) return;
       try {
         setLoading(true);
+
+        // Fetch custom certificate assets from Firestore settings
+        try {
+          const certData = await getDocument("settings", "certificate_assets");
+          if (certData) {
+            setCertificateAssets({
+              background: certData.background || null,
+              signature: certData.signature || null,
+              seal: certData.seal || null
+            });
+          }
+        } catch (e) {
+          console.error("Failed to load certificate custom assets:", e);
+        }
 
         // Query collections
         const [progressList, coursesList, certsList] = await Promise.all([
@@ -171,7 +201,7 @@ export default function CertificatesPage() {
   const isPremiumUser = user.role === "admin" || user.role === "paid";
 
   // PDF Export using jsPDF
-  const handleExportPDF = (cert: CertificateRecord) => {
+  const handleExportPDF = async (cert: CertificateRecord) => {
     setIsExporting(true);
     try {
       const doc = new jsPDF({
@@ -180,27 +210,40 @@ export default function CertificatesPage() {
         format: "a4",
       });
 
-      // Background color (cream/off-white)
-      doc.setFillColor(252, 251, 247);
-      doc.rect(0, 0, 297, 210, "F");
+      let loadedBg = false;
+      if (certificateAssets?.background) {
+        try {
+          const bgImg = await loadImage(certificateAssets.background);
+          doc.addImage(bgImg, "JPEG", 0, 0, 297, 210);
+          loadedBg = true;
+        } catch (e) {
+          console.error("Failed to load custom background image for PDF", e);
+        }
+      }
 
-      // Gold borders
-      doc.setDrawColor(217, 119, 6); // Amber-600 gold
-      doc.setLineWidth(1.5);
-      doc.rect(8, 8, 281, 194, "D");
-      doc.setLineWidth(0.5);
-      doc.rect(10, 10, 277, 190, "D");
+      if (!loadedBg) {
+        // Background color (cream/off-white)
+        doc.setFillColor(252, 251, 247);
+        doc.rect(0, 0, 297, 210, "F");
 
-      // Corner decorations (gold lines)
-      doc.setLineWidth(0.8);
-      doc.line(12, 12, 25, 12);
-      doc.line(12, 12, 12, 25);
-      doc.line(285, 12, 272, 12);
-      doc.line(285, 12, 285, 25);
-      doc.line(12, 198, 25, 198);
-      doc.line(12, 198, 12, 185);
-      doc.line(285, 198, 272, 198);
-      doc.line(285, 198, 285, 185);
+        // Gold borders
+        doc.setDrawColor(217, 119, 6); // Amber-600 gold
+        doc.setLineWidth(1.5);
+        doc.rect(8, 8, 281, 194, "D");
+        doc.setLineWidth(0.5);
+        doc.rect(10, 10, 277, 190, "D");
+
+        // Corner decorations (gold lines)
+        doc.setLineWidth(0.8);
+        doc.line(12, 12, 25, 12);
+        doc.line(12, 12, 12, 25);
+        doc.line(285, 12, 272, 12);
+        doc.line(285, 12, 285, 25);
+        doc.line(12, 198, 25, 198);
+        doc.line(12, 198, 12, 185);
+        doc.line(285, 198, 272, 198);
+        doc.line(285, 198, 285, 185);
+      }
 
       // Logo / Header
       doc.setFont("helvetica", "bold");
@@ -248,15 +291,28 @@ export default function CertificatesPage() {
       doc.setTextColor(100, 116, 139);
       doc.text(`Instructor: ${cert.instructor || "Sarah Jenkins"}  |  Category: ${cert.category || "General"}`, 148.5, 126, { align: "center" });
 
-      // Gold seal watermark shape
-      doc.setFillColor(254, 243, 199); // amber-100
-      doc.setDrawColor(251, 191, 36); // amber-400
-      doc.setLineWidth(0.5);
-      doc.circle(148.5, 155, 12, "FD");
-      doc.setFont("helvetica", "bold");
-      doc.setFontSize(8);
-      doc.setTextColor(217, 119, 6);
-      doc.text("VERIFIED", 148.5, 156.5, { align: "center" });
+      // Gold seal watermark shape or custom seal
+      let loadedSeal = false;
+      if (certificateAssets?.seal) {
+        try {
+          const sealImg = await loadImage(certificateAssets.seal);
+          doc.addImage(sealImg, "PNG", 136.5, 143, 24, 24);
+          loadedSeal = true;
+        } catch (e) {
+          console.error("Failed to load custom seal for PDF", e);
+        }
+      }
+      
+      if (!loadedSeal) {
+        doc.setFillColor(254, 243, 199); // amber-100
+        doc.setDrawColor(251, 191, 36); // amber-400
+        doc.setLineWidth(0.5);
+        doc.circle(148.5, 155, 12, "FD");
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(8);
+        doc.setTextColor(217, 119, 6);
+        doc.text("VERIFIED", 148.5, 156.5, { align: "center" });
+      }
 
       // Signatures
       doc.setFont("times", "italic");
@@ -274,6 +330,17 @@ export default function CertificatesPage() {
       doc.setTextColor(30, 41, 59);
       doc.text("Director of Education", 242, 165, { align: "center" });
       doc.line(217, 158, 267, 158);
+
+      // Draw signature if uploaded
+      if (certificateAssets?.signature) {
+        try {
+          const sigImg = await loadImage(certificateAssets.signature);
+          doc.addImage(sigImg, "PNG", 227, 144, 30, 12);
+        } catch (e) {
+          console.error("Failed to load custom signature for PDF", e);
+        }
+      }
+
       doc.setFont("helvetica", "normal");
       doc.setFontSize(8);
       doc.setTextColor(148, 163, 184);
@@ -386,47 +453,113 @@ export default function CertificatesPage() {
             </button>
 
             {/* Print-ready Certificate Mockup Frame */}
-            <div id="print-area" className="border-8 border-double border-portal-warning/40 p-6 sm:p-12 rounded-2xl bg-slate-950 text-center relative overflow-hidden space-y-6 select-none shadow-inner">
+            <div 
+              id="print-area" 
+              className={`p-6 sm:p-12 rounded-2xl text-center relative overflow-hidden space-y-6 select-none shadow-inner ${
+                certificateAssets?.background ? "border-none animate-fade-in" : "border-8 border-double border-portal-warning/40 bg-slate-950"
+              }`}
+              style={
+                certificateAssets?.background 
+                  ? { 
+                      backgroundImage: `url(${certificateAssets.background})`, 
+                      backgroundSize: "cover", 
+                      backgroundPosition: "center",
+                    } 
+                  : {}
+              }
+            >
               {/* Background watermark */}
-              <div className="absolute inset-0 flex items-center justify-center opacity-[0.02] pointer-events-none select-none">
-                <Award className="w-[400px] h-[400px] text-portal-warning" />
-              </div>
+              {!certificateAssets?.background && (
+                <div className="absolute inset-0 flex items-center justify-center opacity-[0.02] pointer-events-none select-none">
+                  <Award className="w-[400px] h-[400px] text-portal-warning" />
+                </div>
+              )}
 
               <div className="flex items-center justify-center gap-2">
                 <Sparkles className="w-5 h-5 text-portal-warning animate-pulse" />
-                <span className="text-[10px] tracking-[0.2em] font-extrabold text-portal-warning uppercase">NextGen Academy Certificate</span>
+                <span className={`text-[10px] tracking-[0.2em] font-extrabold uppercase ${
+                  certificateAssets?.background ? "text-slate-800" : "text-portal-warning"
+                }`}>
+                  NextGen Academy Certificate
+                </span>
                 <Sparkles className="w-5 h-5 text-portal-warning animate-pulse" />
               </div>
 
               <div className="space-y-2">
-                <h2 className="text-xs font-serif italic text-portal-text-secondary">This is to certify that</h2>
-                <p className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight border-b-2 border-slate-900 pb-2 max-w-md mx-auto">
+                <h2 className={`text-xs font-serif italic ${
+                  certificateAssets?.background ? "text-slate-600" : "text-portal-text-secondary"
+                }`}>
+                  This is to certify that
+                </h2>
+                <p className={`text-2xl sm:text-3xl font-extrabold tracking-tight border-b-2 pb-2 max-w-md mx-auto ${
+                  certificateAssets?.background ? "text-amber-600 border-slate-300" : "text-white border-slate-900"
+                }`}>
                   {user.fullName}
                 </p>
               </div>
 
               <div className="space-y-2">
-                <h3 className="text-xs font-serif italic text-portal-text-secondary">has successfully completed the training course</h3>
-                <p className="text-lg sm:text-xl font-bold text-portal-secondary max-w-lg mx-auto leading-snug">
+                <h3 className={`text-xs font-serif italic ${
+                  certificateAssets?.background ? "text-slate-600" : "text-portal-text-secondary"
+                }`}>
+                  has successfully completed the training course
+                </h3>
+                <p className={`text-lg sm:text-xl font-bold max-w-lg mx-auto leading-snug ${
+                  certificateAssets?.background ? "text-slate-900" : "text-portal-secondary"
+                }`}>
                   {activeCert.courseName}
                 </p>
-                <p className="text-[10px] text-portal-text-secondary">Category: {activeCert.category} &bull; Instructor: {activeCert.instructor}</p>
+                <p className={`text-[10px] ${
+                  certificateAssets?.background ? "text-slate-500" : "text-portal-text-secondary"
+                }`}>
+                  Category: {activeCert.category} &bull; Instructor: {activeCert.instructor}
+                </p>
               </div>
 
-              <div className="flex flex-col sm:flex-row items-center justify-between gap-6 pt-6 border-t border-slate-900/60 max-w-xl mx-auto">
+              <div className={`flex flex-col sm:flex-row items-center justify-between gap-6 pt-6 max-w-xl mx-auto border-t ${
+                certificateAssets?.background ? "border-slate-350" : "border-slate-900/60"
+              }`}>
                 <div className="space-y-1">
-                  <p className="text-xs font-bold text-slate-300">{new Date(activeCert.issuedAt).toLocaleDateString()}</p>
-                  <p className="text-[9px] text-portal-text-secondary uppercase font-semibold">Date of Issuance</p>
+                  <p className={`text-xs font-bold ${
+                    certificateAssets?.background ? "text-slate-800" : "text-slate-300"
+                  }`}>
+                    {new Date(activeCert.issuedAt).toLocaleDateString()}
+                  </p>
+                  <p className={`text-[9px] uppercase font-semibold ${
+                    certificateAssets?.background ? "text-slate-500" : "text-portal-text-secondary"
+                  }`}>
+                    Date of Issuance
+                  </p>
                 </div>
+
+                {certificateAssets?.seal && (
+                  <div className="flex-shrink-0">
+                    <img src={certificateAssets.seal} alt="Seal" className="w-12 h-12 object-contain" />
+                  </div>
+                )}
                 
                 <div className="space-y-1 flex flex-col items-center">
-                  <div className="w-24 h-1 bg-portal-warning/60 mb-1"></div>
-                  <p className="text-[10px] font-bold text-white">Advisory Board</p>
-                  <p className="text-[9px] text-portal-text-secondary uppercase font-semibold">NextGen Academy Corp</p>
+                  {certificateAssets?.signature ? (
+                    <img src={certificateAssets.signature} alt="Signature" className="h-8 object-contain mb-1" />
+                  ) : (
+                    <div className="w-24 h-1 bg-portal-warning/60 mb-1"></div>
+                  )}
+                  <p className={`text-[10px] font-bold ${
+                    certificateAssets?.background ? "text-slate-800" : "text-white"
+                  }`}>
+                    Advisory Board
+                  </p>
+                  <p className={`text-[9px] uppercase font-semibold ${
+                    certificateAssets?.background ? "text-slate-500" : "text-portal-text-secondary"
+                  }`}>
+                    NextGen Academy Corp
+                  </p>
                 </div>
               </div>
 
-              <div className="text-[9px] font-mono text-portal-text-secondary pt-4">
+              <div className={`text-[9px] font-mono pt-4 ${
+                certificateAssets?.background ? "text-slate-600" : "text-portal-text-secondary"
+              }`}>
                 Verified Credential ID: {activeCert.certificateId}
               </div>
             </div>

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/context/AuthContext";
@@ -79,7 +79,7 @@ export default function AdminPaymentsPage() {
     setTimeout(() => setToast(null), 3000);
   };
 
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     if (!user || user.role !== "admin") return;
     try {
       setLoadingData(true);
@@ -102,11 +102,15 @@ export default function AdminPaymentsPage() {
     } finally {
       setLoadingData(false);
     }
-  };
+  }, [user]);
 
   useEffect(() => {
-    loadData();
-  }, [user]);
+    const run = async () => {
+      await Promise.resolve();
+      loadData();
+    };
+    run();
+  }, [loadData]);
 
   if (!user || user.role !== "admin") return null;
 
@@ -347,7 +351,7 @@ export default function AdminPaymentsPage() {
           <div className="p-12 text-center text-portal-text-secondary space-y-2">
             <CreditCard className="w-12 h-12 text-slate-700 mx-auto" />
             <p className="font-bold text-white">No Payments Logged</p>
-            <p className="text-sm">We couldn't find any transaction matches in the system.</p>
+            <p className="text-sm">We couldn&apos;t find any transaction matches in the system.</p>
           </div>
         ) : (
           <table className="w-full text-left border-collapse text-sm">

@@ -1,5 +1,6 @@
 import React from "react";
 import Link from "next/link";
+import { Metadata } from "next";
 import { 
   ArrowRight, 
   Settings, 
@@ -10,6 +11,21 @@ import {
   CheckCircle2, 
   ShieldCheck 
 } from "lucide-react";
+
+export const metadata: Metadata = {
+  title: "NextGen Academy & Consulting | Corporate Industrial Training",
+  description: "NextGen Academy & Consulting provides professional industrial training in Lean Six Sigma, Automation, Strategic Processes, and Executive Recruitment.",
+  openGraph: {
+    title: "NextGen Academy & Consulting | Corporate Industrial Training",
+    description: "Upskilling and recruiting top industrial operations talent.",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "NextGen Academy & Consulting",
+    description: "Upskilling and recruiting top industrial operations talent.",
+  },
+};
 
 export default function Home() {
   const stats = [

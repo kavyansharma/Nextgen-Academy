@@ -47,6 +47,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           role: profile.role || "free",
           createdAt: profile.createdAt || "",
         });
+        
+        // Track login activity once per session
+        const sessionKey = `logged_${fbUser.uid}`;
+        if (typeof window !== "undefined" && !sessionStorage.getItem(sessionKey)) {
+          sessionStorage.setItem(sessionKey, "true");
+          // Import dynamically to avoid SSR/circular issues if any
+          import("@/lib/services/activityService").then(({ trackLogin }) => {
+            trackLogin(fbUser.uid);
+          });
+        }
       } else {
         // Fallback if document doesn't exist yet
         setUser(null);

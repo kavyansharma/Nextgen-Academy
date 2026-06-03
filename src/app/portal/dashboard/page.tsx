@@ -3,9 +3,8 @@
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { useAuth } from "@/lib/context/AuthContext";
-import { queryDocuments, getDocument, setDocument } from "@/lib/services/firestoreService";
-import { where, orderBy, limit, collection, query, getDocs } from "firebase/firestore";
-import { db } from "@/lib/firebase";
+import { queryDocuments } from "@/lib/services/firestoreService";
+import { where } from "firebase/firestore";
 import {
   Sparkles,
   BookOpen,
@@ -66,21 +65,31 @@ interface NotificationDoc {
   createdAt: string;
 }
 
-interface RecentlyViewedDoc {
+interface EnrolledCourse extends Course {
+  progressPercentage: number;
+  completedCount: number;
+  totalCount: number;
+}
+
+interface LastViewedCourse {
   courseId: string;
-  lessonId: string;
   courseName: string;
+  lessonId: string;
   lessonTitle: string;
-  viewedAt: string;
+}
+
+interface ActivityItem {
+  type: string;
+  details: string;
+  timestamp: string;
 }
 
 export default function DashboardPage() {
   const { user } = useAuth();
   
   // Dashboard states
-  const [coursesList, setCoursesList] = useState<Course[]>([]);
   const [resourcesList, setResourcesList] = useState<Resource[]>([]);
-  const [enrolledCourses, setEnrolledCourses] = useState<any[]>([]);
+  const [enrolledCourses, setEnrolledCourses] = useState<EnrolledCourse[]>([]);
   const [completedCount, setCompletedCount] = useState(0);
   const [certificatesCount, setCertificatesCount] = useState(0);
   const [learningHours, setLearningHours] = useState("0.0");
@@ -88,12 +97,14 @@ export default function DashboardPage() {
   const [streakDays, setStreakDays] = useState(1);
   
   // Resume last viewed state
-  const [lastViewedCourse, setLastViewedCourse] = useState<any | null>(null);
+  const [lastViewedCourse, setLastViewedCourse] = useState<LastViewedCourse | null>(null);
+  const [continueCourseProgress, setContinueCourseProgress] = useState<number>(0);
   
   // Sections states
   const [recommendedCourses, setRecommendedCourses] = useState<Course[]>([]);
-  const [recentlyViewed, setRecentlyViewed] = useState<RecentlyViewedDoc[]>([]);
-  const [recentActivities, setRecentActivities] = useState<any[]>([]);
+  const [recentlyViewedCourses, setRecentlyViewedCourses] = useState<Course[]>([]);
+  const [recentlyViewedResources, setRecentlyViewedResources] = useState<Resource[]>([]);
+  const [recentActivities, setRecentActivities] = useState<ActivityItem[]>([]);
   const [latestNotifications, setLatestNotifications] = useState<NotificationDoc[]>([]);
   
   const [loading, setLoading] = useState(true);
@@ -112,18 +123,18 @@ export default function DashboardPage() {
           ? []
           : [where("accessLevel", "==", "free")];
 
-        // 1. Fetch main catalog lists
-        const [dbCourses, dbResources, dbProgress, dbCerts, dbNotifications, dbRecentViews, dbAuditLogs] = await Promise.all([
+        // Fetch user activity from activityService
+        const { getUserActivity } = await import("@/lib/services/activityService");
+
+        // 1. Fetch main catalog lists and activity data
+        const [dbCourses, dbResources, dbProgress, dbCerts, dbNotifications, activityData] = await Promise.all([
           queryDocuments("courses", ...courseConstraints) as Promise<Course[]>,
           queryDocuments("resources", ...resourceConstraints) as Promise<Resource[]>,
           queryDocuments("course_progress", where("userId", "==", user.uid)) as Promise<CourseProgressDoc[]>,
           queryDocuments("certificates", where("userId", "==", user.uid)) as Promise<Certificate[]>,
           queryDocuments("notifications", where("userId", "==", user.uid)) as Promise<NotificationDoc[]>,
-          queryDocuments("recently_viewed", where("userId", "==", user.uid)) as Promise<RecentlyViewedDoc[]>,
-          queryDocuments("audit_logs") as Promise<any[]>
+          getUserActivity(user.uid)
         ]);
-
-        setCoursesList(dbCourses);
         setResourcesList(dbResources);
         setCertificatesCount(dbCerts.length);
 
@@ -144,7 +155,7 @@ export default function DashboardPage() {
         });
 
         // 4. Map active courses list
-        const activeCoursesMapped: any[] = [];
+        const activeCoursesMapped: EnrolledCourse[] = [];
         let completedCoursesVal = 0;
 
         for (const courseId of Object.keys(progressByCourse)) {
@@ -180,23 +191,56 @@ export default function DashboardPage() {
         const unstarted = dbCourses.filter(c => !enrolledIds.includes(c.id));
         setRecommendedCourses(unstarted.slice(0, 2));
 
-        // 6. Recently Viewed Lessons
-        dbRecentViews.sort((a, b) => new Date(b.viewedAt).getTime() - new Date(a.viewedAt).getTime());
-        setRecentlyViewed(dbRecentViews.slice(0, 3));
-
-        // Get the single latest viewed course/lesson to display on Continue learning banner
-        if (dbRecentViews.length > 0) {
-          setLastViewedCourse(dbRecentViews[0]);
+        // 6. Recently Viewed Courses from user_activity
+        if (activityData && activityData.recentlyViewedCourses) {
+          const recCourses = activityData.recentlyViewedCourses
+            .map(id => dbCourses.find(c => c.id === id))
+            .filter(Boolean) as Course[];
+          setRecentlyViewedCourses(recCourses);
         }
 
-        // 7. Calculate Download counts from audit logs
-        const myDownloads = dbAuditLogs.filter(
-          log => log.action === "RESOURCE_DOWNLOAD" && log.details.includes(user.uid)
-        );
-        setDownloadCount(myDownloads.length || 3); // Seed with minimum count if none
+        // 7. Recently Viewed Resources from user_activity
+        if (activityData && activityData.recentlyViewedResources) {
+          const recResources = activityData.recentlyViewedResources
+            .map(slug => dbResources.find(r => r.slug === slug || r.id === slug))
+            .filter(Boolean) as Resource[];
+          setRecentlyViewedResources(recResources);
+        }
 
-        // 8. Streak calculation
-        // Calculate based on consecutive days of lesson completions in myCompletions
+        // Get the single latest viewed course/lesson to display on Continue learning banner
+        if (activityData && activityData.lastCourseViewed) {
+          const courseItem = dbCourses.find(c => c.id === activityData.lastCourseViewed);
+          if (courseItem) {
+            let lessonTitle = "Introduction";
+            let progressPercent = 0;
+            
+            const lessonsList = await queryDocuments(`courses/${activityData.lastCourseViewed}/lessons`);
+            if (lessonsList.length > 0) {
+              const matchedLesson = lessonsList.find(l => l.id === activityData.lastLessonViewed);
+              if (matchedLesson) {
+                lessonTitle = matchedLesson.title;
+              } else {
+                lessonTitle = lessonsList[0].title;
+              }
+              
+              const completedCountForCourse = progressByCourse[activityData.lastCourseViewed]?.length || 0;
+              progressPercent = Math.round((completedCountForCourse / lessonsList.length) * 100);
+            }
+            
+            setLastViewedCourse({
+              courseId: activityData.lastCourseViewed,
+              courseName: courseItem.title,
+              lessonId: activityData.lastLessonViewed || "",
+              lessonTitle: lessonTitle
+            });
+            setContinueCourseProgress(progressPercent);
+          }
+        }
+
+        // 8. Download counts from user_activity counters
+        setDownloadCount(activityData ? activityData.totalResourcesDownloaded : 0);
+
+        // 9. Streak calculation
         if (myCompletions.length > 0) {
           const dates = myCompletions
             .map(p => new Date(p.completedAt).toDateString())
@@ -209,7 +253,6 @@ export default function DashboardPage() {
           const today = new Date().toDateString();
           const lastActivityDate = new Date(dates[0]).toDateString();
           
-          // If last activity is today or yesterday, check streak
           const diff = Math.abs(new Date(today).getTime() - new Date(lastActivityDate).getTime());
           if (diff <= oneDay) {
             for (let i = 0; i < dates.length - 1; i++) {
@@ -227,17 +270,18 @@ export default function DashboardPage() {
           setStreakDays(0);
         }
 
-        // 9. Notifications List (Unread first, latest 3)
+        // 10. Notifications List (Unread first, latest 3)
         const sortedNotifications = [...dbNotifications].sort(
           (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
         );
         setLatestNotifications(sortedNotifications.slice(0, 3));
 
-        // 10. Recent Activity list (Enrollments, Certificates, Subscriptions)
-        const myActivityLogs = dbAuditLogs
-          .filter(log => log.details.includes(user.uid) || log.adminEmail === user.email)
-          .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
-        setRecentActivities(myActivityLogs.slice(0, 3));
+        // 11. Recent Activity list (from activityData.activityTimeline)
+        if (activityData && activityData.activityTimeline) {
+          setRecentActivities(activityData.activityTimeline.slice(0, 5));
+        } else {
+          setRecentActivities([]);
+        }
 
       } catch (err) {
         console.error("Error loading dashboard data:", err);
@@ -356,22 +400,54 @@ export default function DashboardPage() {
         {/* Left Columns (Resume, Recommended, Recently viewed) */}
         <div className="lg:col-span-2 space-y-8">
           
-          {/* Continue Learning Banner */}
-          {lastViewedCourse && (
-            <div className="p-5 rounded-2xl bg-slate-900 border border-portal-border/80 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-lg">
-              <div className="space-y-1">
-                <span className="text-[9px] uppercase font-bold text-portal-primary px-2.5 py-0.5 rounded-full bg-slate-950 border border-portal-border/40">
-                  Last Viewed Lesson
-                </span>
-                <h3 className="font-bold text-white text-md pt-1">{lastViewedCourse.lessonTitle}</h3>
-                <p className="text-xs text-portal-text-secondary">Course: {lastViewedCourse.courseName}</p>
+          {/* Continue Learning Card */}
+          {lastViewedCourse ? (
+            <div className="p-6 rounded-3xl bg-gradient-to-r from-slate-900 via-slate-850 to-slate-900 border border-portal-border/80 shadow-xl overflow-hidden relative group">
+              <div className="absolute top-0 right-0 w-60 h-60 bg-portal-primary/5 rounded-full blur-[60px] pointer-events-none"></div>
+              
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 relative z-10">
+                <div className="space-y-2.5 flex-1">
+                  <div className="flex items-center gap-2">
+                    <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full bg-slate-955/80 text-portal-primary border border-portal-border/40">
+                      Continue Learning
+                    </span>
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-bold text-white leading-tight">{lastViewedCourse.courseName}</h3>
+                    <p className="text-xs text-portal-text-secondary mt-1">
+                      Current Lesson: <span className="font-semibold text-white">{lastViewedCourse.lessonTitle}</span>
+                    </p>
+                  </div>
+                  
+                  {/* Progress bar */}
+                  <div className="space-y-1 max-w-md">
+                    <div className="flex justify-between text-[11px] font-medium">
+                      <span className="text-portal-text-secondary">Syllabus Progress</span>
+                      <span className="text-white font-bold">{continueCourseProgress}%</span>
+                    </div>
+                    <div className="w-full h-1.5 bg-slate-955 rounded-full border border-portal-border/20 overflow-hidden">
+                      <div
+                        className="h-full bg-gradient-to-r from-portal-primary to-portal-secondary rounded-full transition-all duration-500"
+                        style={{ width: `${continueCourseProgress}%` }}
+                      ></div>
+                    </div>
+                  </div>
+                </div>
+
+                <Link
+                  href={`/portal/courses/${lastViewedCourse.courseId}`}
+                  className="px-6 py-3 rounded-xl bg-portal-primary hover:bg-portal-primary/90 hover:scale-[1.02] text-xs font-bold text-white transition-all cursor-pointer shadow-lg shadow-portal-primary/10 flex items-center gap-2 whitespace-nowrap self-stretch md:self-auto justify-center"
+                >
+                  <span>Resume Lesson</span>
+                  <ArrowRight className="w-4 h-4" />
+                </Link>
               </div>
-              <Link
-                href={`/portal/courses/${lastViewedCourse.courseId}`}
-                className="px-5 py-2.5 rounded-xl bg-portal-primary hover:bg-portal-primary/95 text-xs font-bold text-white transition-all cursor-pointer shadow-md"
-              >
-                Resume Learning
-              </Link>
+            </div>
+          ) : (
+            <div className="p-6 rounded-3xl bg-slate-900 border border-portal-border/60 text-center space-y-3">
+              <BookOpen className="w-8 h-8 text-slate-550 mx-auto" />
+              <p className="text-sm font-semibold text-white">Start your learning journey</p>
+              <p className="text-xs text-portal-text-secondary">Select an enrolled course below to resume or start watching lessons.</p>
             </div>
           )}
 
@@ -440,6 +516,70 @@ export default function DashboardPage() {
               </div>
             )}
           </div>
+
+          {/* Recently Viewed Courses */}
+          {recentlyViewedCourses.length > 0 && (
+            <div className="space-y-4">
+              <h2 className="text-xl font-bold text-white tracking-tight flex items-center gap-2">
+                <Clock className="w-5 h-5 text-portal-primary" />
+                <span>Recently Viewed Courses</span>
+              </h2>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {recentlyViewedCourses.slice(0, 2).map((c) => (
+                  <div key={c.id} className="p-4 rounded-2xl bg-portal-card border border-portal-border/60 hover:border-portal-primary/30 flex flex-col justify-between h-36 shadow-sm group">
+                    <div className="space-y-1">
+                      <span className="text-[9px] font-bold uppercase px-2 py-0.5 rounded-full bg-slate-900 text-portal-secondary border border-portal-border/50">
+                        {c.category}
+                      </span>
+                      <h3 className="font-bold text-white text-sm line-clamp-1 group-hover:text-portal-primary transition-colors">{c.title}</h3>
+                      <p className="text-xs text-portal-text-secondary line-clamp-2 leading-relaxed">{c.description}</p>
+                    </div>
+                    <div className="pt-2 border-t border-portal-border/40 flex justify-end">
+                      <Link
+                        href={`/portal/courses/${c.id}`}
+                        className="text-xs font-bold text-portal-primary hover:underline flex items-center gap-1"
+                      >
+                        <span>Resume Course</span>
+                        <ArrowRight className="w-3.5 h-3.5" />
+                      </Link>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Recently Viewed Resources */}
+          {recentlyViewedResources.length > 0 && (
+            <div className="space-y-4">
+              <h2 className="text-xl font-bold text-white tracking-tight flex items-center gap-2">
+                <Bookmark className="w-5 h-5 text-portal-secondary" />
+                <span>Recently Viewed Resources</span>
+              </h2>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {recentlyViewedResources.slice(0, 2).map((r) => (
+                  <div key={r.id} className="p-4 rounded-2xl bg-portal-card border border-portal-border/60 hover:border-portal-secondary/35 flex flex-col justify-between h-36 shadow-sm group">
+                    <div className="space-y-1">
+                      <span className="text-[9px] font-bold uppercase px-2 py-0.5 rounded-full bg-slate-900 text-portal-secondary border border-portal-border/50">
+                        {r.category}
+                      </span>
+                      <h3 className="font-bold text-white text-sm line-clamp-1 group-hover:text-portal-secondary transition-colors">{r.title}</h3>
+                      <p className="text-xs text-portal-text-secondary line-clamp-2 leading-relaxed">{r.description}</p>
+                    </div>
+                    <div className="pt-2 border-t border-portal-border/40 flex justify-end">
+                      <Link
+                        href={`/resources/${r.slug}`}
+                        className="text-xs font-bold text-portal-secondary hover:underline flex items-center gap-1"
+                      >
+                        <span>View Resource</span>
+                        <ArrowRight className="w-3.5 h-3.5" />
+                      </Link>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Recommended Courses */}
           <div className="space-y-4">
@@ -524,37 +664,40 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          {/* Recent Activity Logs */}
+          {/* Recent Activity Timeline */}
           <div className="space-y-4">
             <h2 className="text-xl font-bold text-white tracking-tight flex items-center gap-2">
               <Activity className="w-5 h-5 text-portal-warning" />
-              <span>Recent activity logs</span>
+              <span>Recent Activity Timeline</span>
             </h2>
 
-            <div className="p-5 rounded-2xl bg-gradient-to-b from-portal-card to-slate-950 border border-portal-border/60 space-y-4 text-xs text-portal-text-secondary">
+            <div className="p-5 rounded-2xl bg-gradient-to-b from-portal-card to-slate-950 border border-portal-border/60 text-xs text-portal-text-secondary">
               {recentActivities.length === 0 ? (
-                <div className="space-y-3">
-                  <div className="flex gap-3 items-start">
-                    <div className="w-2 h-2 rounded-full bg-portal-success mt-1.5 flex-shrink-0"></div>
-                    <div>
-                      <p className="font-semibold text-white">System Synchronized</p>
-                      <p className="mt-0.5 text-[10px]">Database connection authenticated.</p>
-                    </div>
-                  </div>
-                </div>
+                <p className="py-4 text-xs text-portal-text-secondary italic text-center">No recent activities logged.</p>
               ) : (
-                recentActivities.map((act, idx) => (
-                  <div key={idx} className="flex gap-3 items-start">
-                    <div className="w-2 h-2 rounded-full bg-portal-secondary mt-1.5 flex-shrink-0"></div>
-                    <div>
-                      <p className="font-semibold text-white uppercase tracking-wider text-[10px]">{act.action}</p>
-                      <p className="mt-0.5 text-[11px] leading-relaxed text-slate-350">{act.details}</p>
-                      <span className="text-[9px] text-slate-650 mt-1 block">
-                        {new Date(act.timestamp).toLocaleDateString()} {new Date(act.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
-                      </span>
-                    </div>
-                  </div>
-                ))
+                <div className="space-y-6 relative before:absolute before:top-2 before:bottom-2 before:left-[11px] before:w-0.5 before:bg-slate-800 ml-1">
+                  {recentActivities.map((act, idx) => {
+                    let dotColor = "bg-portal-primary border-portal-primary";
+                    if (act.type === "login") dotColor = "bg-brand-blue border-brand-blue";
+                    else if (act.type === "course_view") dotColor = "bg-portal-primary border-portal-primary";
+                    else if (act.type === "lesson_view") dotColor = "bg-portal-secondary border-portal-secondary";
+                    else if (act.type === "resource_download") dotColor = "bg-purple-400 border-purple-400";
+
+                    return (
+                      <div key={idx} className="flex gap-4 items-start relative pl-8">
+                        <div className={`absolute left-0 top-1 w-6 h-6 rounded-full bg-slate-900 border flex items-center justify-center ${dotColor}`}>
+                          <div className={`w-2 h-2 rounded-full ${act.type === "login" ? "bg-brand-blue" : act.type === "lesson_view" ? "bg-portal-secondary" : act.type === "resource_download" ? "bg-purple-400" : "bg-portal-primary"}`} />
+                        </div>
+                        <div className="space-y-0.5 flex-1 min-w-0">
+                          <p className="font-semibold text-white text-[11px] leading-snug">{act.details}</p>
+                          <span className="text-[9px] text-slate-500 block">
+                            {new Date(act.timestamp).toLocaleDateString()} &bull; {new Date(act.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+                          </span>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
               )}
             </div>
           </div>

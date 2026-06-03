@@ -63,14 +63,21 @@ export async function POST(req: NextRequest) {
     };
     await setDoc(doc(db, "payments", paymentId), paymentDoc);
 
-    // 4. Store Subscription Document (e.g., 1 Year validity)
+    // 4. Store Subscription Document based on plan
     const startDate = new Date();
     const expiryDate = new Date();
-    expiryDate.setFullYear(startDate.getFullYear() + 1); // 1 Year subscription
+    const chosenPlan = body.plan || "premium_yearly";
+
+    if (chosenPlan === "premium_monthly") {
+      expiryDate.setMonth(startDate.getMonth() + 1);
+    } else {
+      // Default to 1 year
+      expiryDate.setFullYear(startDate.getFullYear() + 1);
+    }
 
     const subscriptionDoc = {
       userId: uid,
-      plan: "premium",
+      plan: chosenPlan,
       status: "active",
       startDate: startDate.toISOString(),
       expiryDate: expiryDate.toISOString(),

@@ -16,11 +16,6 @@ import {
 export default function Navbar() {
   const pathname = usePathname();
 
-  // Hide main site navigation on portal pages
-  if (pathname.startsWith("/portal")) {
-    return null;
-  }
-
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -38,8 +33,16 @@ export default function Navbar() {
 
   // Close mobile menu on route change
   useEffect(() => {
-    setMobileMenuOpen(false);
+    const timer = setTimeout(() => {
+      setMobileMenuOpen(false);
+    }, 0);
+    return () => clearTimeout(timer);
   }, [pathname]);
+
+  // Hide main site navigation on portal pages
+  if (pathname.startsWith("/portal")) {
+    return null;
+  }
 
   const navLinks = [
     { name: "Home", href: "/" },

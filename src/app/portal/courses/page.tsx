@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
 import { useAuth } from "@/lib/context/AuthContext";
 import { queryDocuments, addDocument, updateDocument } from "@/lib/services/firestoreService";
@@ -17,7 +17,8 @@ import {
   Sparkles,
   X,
   CreditCard,
-  CheckCircle2
+  CheckCircle2,
+  Mail
 } from "lucide-react";
 
 interface Course {
@@ -41,6 +42,7 @@ export default function CoursesPage() {
   const [upgradeCourse, setUpgradeCourse] = useState<Course | null>(null);
   const [isUpgrading, setIsUpgrading] = useState(false);
   const [upgradeSuccess, setUpgradeSuccess] = useState(false);
+  const [selectedPlanId, setSelectedPlanId] = useState<string>("premium_yearly");
 
   // Load Razorpay Script dynamically
   useEffect(() => {
@@ -54,7 +56,7 @@ export default function CoursesPage() {
   }, []);
 
   // Load courses & auto-seed if empty
-  const fetchAndSeed = async () => {
+  const fetchAndSeed = useCallback(async () => {
     if (!user) return;
     try {
       setLoadingCourses(true);
@@ -190,11 +192,15 @@ export default function CoursesPage() {
     } finally {
       setLoadingCourses(false);
     }
-  };
+  }, [user]);
 
   useEffect(() => {
-    fetchAndSeed();
-  }, [user]);
+    const run = async () => {
+      await Promise.resolve();
+      fetchAndSeed();
+    };
+    run();
+  }, [fetchAndSeed]);
 
   if (!user) return null;
 
@@ -204,11 +210,13 @@ export default function CoursesPage() {
   };
 
   // Upgrade user's tier to Paid using real Razorpay Checkout
-  const handleUpgrade = async () => {
+  const handleUpgrade = async (planId: string) => {
     if (!firebaseUser) return;
     setIsUpgrading(true);
     try {
       const idToken = await firebaseUser.getIdToken();
+      const planAmount = planId === "premium_monthly" ? 999 : 7999;
+      const planName = planId === "premium_monthly" ? "Premium Monthly" : "Premium Yearly";
 
       const res = await fetch("/api/payments/create-order", {
         method: "POST",
@@ -217,7 +225,7 @@ export default function CoursesPage() {
           Authorization: `Bearer ${idToken}`
         },
         body: JSON.stringify({
-          amount: 49, // Price of premium upgrade
+          amount: planAmount,
           currency: "INR"
         })
       });
@@ -233,7 +241,7 @@ export default function CoursesPage() {
         amount: orderData.amount,
         currency: orderData.currency,
         name: "NextGen Academy",
-        description: "Premium Lifetime Access Membership",
+        description: `${planName} Subscription`,
         order_id: orderData.id,
         handler: async (response: any) => {
           setIsUpgrading(true);
@@ -248,8 +256,9 @@ export default function CoursesPage() {
                 razorpayOrderId: response.razorpay_order_id,
                 razorpayPaymentId: response.razorpay_payment_id,
                 razorpaySignature: response.razorpay_signature,
-                amount: 49,
-                currency: "INR"
+                amount: planAmount,
+                currency: "INR",
+                plan: planId
               })
             });
 
@@ -499,46 +508,115 @@ export default function CoursesPage() {
                   <div className="w-12 h-12 rounded-xl bg-portal-warning/10 border border-portal-warning/20 flex items-center justify-center text-portal-warning mx-auto">
                     <Sparkles className="w-6 h-6 animate-pulse" />
                   </div>
-                  <h3 className="text-xl font-extrabold text-white">Unlock Premium Learning</h3>
+                  <h3 className="text-xl font-extrabold text-white font-black">Unlock Premium Learning</h3>
                   <p className="text-xs text-portal-text-secondary max-w-xs mx-auto">
-                    Upgrade to access advanced industrial courses, certifications, plant operation templates, and elite consulting resources.
+                    Choose the subscription tier that best fits your engineering or industrial skill building path.
                   </p>
                 </div>
 
-                <div className="bg-slate-950 p-4.5 rounded-2xl border border-portal-border/60 space-y-3">
-                  <div className="flex items-center gap-3 text-xs text-slate-200">
-                    <CheckCircle2 className="w-4 h-4 text-portal-success" />
-                    <span>All Premium Courses (15+ hours)</span>
-                  </div>
-                  <div className="flex items-center gap-3 text-xs text-slate-200">
-                    <CheckCircle2 className="w-4 h-4 text-portal-success" />
-                    <span>Print-Ready Certificates of Completion</span>
-                  </div>
-                  <div className="flex items-center gap-3 text-xs text-slate-200">
-                    <CheckCircle2 className="w-4 h-4 text-portal-success" />
-                    <span>Private Consulting Library & PDF files</span>
-                  </div>
+                <div className="space-y-3">
+                  <p className="text-[10px] font-bold text-white uppercase tracking-wider">Select a Plan</p>
+                  
+                  {/* Monthly Plan */}
+                  <label className={`flex items-center justify-between p-3.5 rounded-2xl border cursor-pointer transition-all ${
+                    selectedPlanId === "premium_monthly" 
+                      ? "bg-portal-primary/10 border-portal-primary" 
+                      : "bg-slate-900 border-portal-border/60 hover:border-slate-550"
+                  }`}>
+                    <div className="flex items-center gap-3">
+                      <input 
+                        type="radio" 
+                        name="plan" 
+                        checked={selectedPlanId === "premium_monthly"} 
+                        onChange={() => setSelectedPlanId("premium_monthly")} 
+                        className="text-portal-primary focus:ring-portal-primary"
+                      />
+                      <div>
+                        <p className="text-xs font-bold text-white">Premium Monthly</p>
+                        <p className="text-[10px] text-portal-text-secondary">Billed month-to-month</p>
+                      </div>
+                    </div>
+                    <span className="text-sm font-black text-white">₹999/mo</span>
+                  </label>
+
+                  {/* Yearly Plan */}
+                  <label className={`flex items-center justify-between p-3.5 rounded-2xl border cursor-pointer transition-all ${
+                    selectedPlanId === "premium_yearly" 
+                      ? "bg-portal-primary/10 border-portal-primary" 
+                      : "bg-slate-900 border-portal-border/60 hover:border-slate-550"
+                  }`}>
+                    <div className="flex items-center gap-3">
+                      <input 
+                        type="radio" 
+                        name="plan" 
+                        checked={selectedPlanId === "premium_yearly"} 
+                        onChange={() => setSelectedPlanId("premium_yearly")} 
+                        className="text-portal-primary focus:ring-portal-primary"
+                      />
+                      <div>
+                        <div className="flex items-center gap-1.5">
+                          <p className="text-xs font-bold text-white">Premium Yearly</p>
+                          <span className="bg-portal-primary/20 text-portal-primary text-[8px] font-extrabold px-1.5 py-0.5 rounded uppercase">Save 33%</span>
+                        </div>
+                        <p className="text-[10px] text-portal-text-secondary">Best value subscription</p>
+                      </div>
+                    </div>
+                    <span className="text-sm font-black text-white">₹7,999/yr</span>
+                  </label>
+
+                  {/* Corporate Plan */}
+                  <label className={`flex items-center justify-between p-3.5 rounded-2xl border cursor-pointer transition-all ${
+                    selectedPlanId === "corporate" 
+                      ? "bg-portal-primary/10 border-portal-primary" 
+                      : "bg-slate-900 border-portal-border/60 hover:border-slate-550"
+                  }`}>
+                    <div className="flex items-center gap-3">
+                      <input 
+                        type="radio" 
+                        name="plan" 
+                        checked={selectedPlanId === "corporate"} 
+                        onChange={() => setSelectedPlanId("corporate")} 
+                        className="text-portal-primary focus:ring-portal-primary"
+                      />
+                      <div>
+                        <p className="text-xs font-bold text-white">Corporate Enterprise</p>
+                        <p className="text-[10px] text-portal-text-secondary">Bulk seat licenses & SLA</p>
+                      </div>
+                    </div>
+                    <span className="text-xs font-bold text-portal-secondary">Custom</span>
+                  </label>
                 </div>
 
                 <div className="space-y-3 pt-2">
+                  {selectedPlanId === "corporate" ? (
+                    <Link
+                      href="/portal/support"
+                      className="w-full py-3.5 rounded-xl bg-portal-secondary hover:bg-portal-secondary/90 text-slate-950 font-bold text-sm shadow-lg flex items-center justify-center gap-2 cursor-pointer transition-all"
+                    >
+                      <Mail className="w-4 h-4" />
+                      <span>Contact Corporate Support</span>
+                    </Link>
+                  ) : (
+                    <button
+                      onClick={() => handleUpgrade(selectedPlanId)}
+                      disabled={isUpgrading}
+                      className="w-full py-3.5 rounded-xl bg-portal-warning hover:bg-portal-warning/90 text-slate-950 font-bold text-sm shadow-lg flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 transition-all"
+                    >
+                      {isUpgrading ? (
+                        <>
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                          <span>Upgrading Membership...</span>
+                        </>
+                      ) : (
+                        <>
+                          <CreditCard className="w-4 h-4" />
+                          <span>Upgrade Membership</span>
+                        </>
+                      )}
+                    </button>
+                  )}
                   <button
-                    onClick={handleUpgrade}
-                    disabled={isUpgrading}
-                    className="w-full py-3.5 rounded-xl bg-portal-warning hover:bg-portal-warning/90 text-slate-950 font-bold text-sm shadow-lg shadow-portal-warning/20 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
-                  >
-                    {isUpgrading ? (
-                      <>
-                        <Loader2 className="w-4 h-4 animate-spin" />
-                        <span>Upgrading Membership...</span>
-                      </>
-                    ) : (
-                      <>
-                        <CreditCard className="w-4 h-4" />
-                        <span>Upgrade Membership</span>
-                      </>
-                    )}
-                  </button>
-                  <button
+                    type="button"
                     onClick={() => setUpgradeCourse(null)}
                     disabled={isUpgrading}
                     className="w-full py-3 rounded-xl border border-portal-border hover:bg-slate-800 text-xs font-bold text-portal-text-secondary hover:text-white transition-all disabled:opacity-50"

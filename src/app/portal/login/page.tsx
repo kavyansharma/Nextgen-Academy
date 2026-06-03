@@ -142,6 +142,9 @@ export default function LoginPage() {
           <div className="space-y-1.5">
             <div className="flex justify-between items-center">
               <label className="text-xs font-semibold text-slate-300 uppercase tracking-wide">Password</label>
+              <Link href="/portal/forgot-password" className="text-xs font-semibold text-brand-blue hover:text-brand-blue-hover transition-colors duration-200">
+                Forgot Password?
+              </Link>
             </div>
             <input
               type="password"
@@ -170,7 +173,7 @@ export default function LoginPage() {
         </form>
 
         <div className="mt-8 text-center text-sm text-brand-text-muted border-t border-slate-800/80 pt-6">
-          Don't have an account?{" "}
+          Don&apos;t have an account?{" "}
           <Link href="/portal/register" className="text-brand-blue hover:text-brand-blue-hover font-semibold transition-colors duration-200">
             Register Here
           </Link>

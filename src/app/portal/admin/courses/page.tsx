@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/context/AuthContext";
@@ -106,14 +106,19 @@ export default function AdminCoursesPage() {
   const [uploadingThumbnail, setUploadingThumbnail] = useState(false);
   const [uploadingPdf, setUploadingPdf] = useState(false);
 
+  const showToast = (type: "success" | "error", message: string) => {
+    setToast({ type, message });
+    setTimeout(() => setToast(null), 3000);
+  };
+
   // Fetch all courses
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     if (!user || user.role !== "admin") return;
     try {
       setLoadingData(true);
       const allCourses = await queryDocuments("courses");
       setCourses(allCourses as Course[]);
-
+ 
       // Update selected course reference if it is active
       if (selectedCourse) {
         const updated = allCourses.find((c: any) => c.id === selectedCourse.id);
@@ -125,7 +130,7 @@ export default function AdminCoursesPage() {
     } finally {
       setLoadingData(false);
     }
-  };
+  }, [user, selectedCourse]);
 
   // Fetch lessons for the selected course dynamically
   useEffect(() => {
@@ -149,13 +154,14 @@ export default function AdminCoursesPage() {
   }, [selectedCourse, user, lessonsTrigger]);
 
   useEffect(() => {
-    loadData();
-  }, [user]);
+    const run = async () => {
+      await Promise.resolve();
+      loadData();
+    };
+    run();
+  }, [loadData]);
 
-  const showToast = (type: "success" | "error", message: string) => {
-    setToast({ type, message });
-    setTimeout(() => setToast(null), 3000);
-  };
+
 
   // Course CRUD
   const handleAddCourse = async (e: React.FormEvent) => {
@@ -537,7 +543,7 @@ export default function AdminCoursesPage() {
               <div className="divide-y divide-portal-border/30 max-h-[480px] overflow-y-auto">
                 {lessons.length === 0 ? (
                   <div className="p-12 text-center text-portal-text-secondary text-xs">
-                    <span>No lessons published. Click 'Add Lesson' to begin.</span>
+                    <span>No lessons published. Click &apos;Add Lesson&apos; to begin.</span>
                   </div>
                 ) : (
                   lessons

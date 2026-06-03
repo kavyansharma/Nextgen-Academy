@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { useAuth } from "@/lib/context/AuthContext";
 import { resources as staticResources } from "@/data/resources";
@@ -54,7 +54,7 @@ export default function ResourcesPage() {
   const [previewResource, setPreviewResource] = useState<ResourceDoc | null>(null);
 
   // Fetch and seed resources
-  const fetchResources = async () => {
+  const fetchResources = useCallback(async () => {
     if (!user) return;
     try {
       setLoadingDocs(true);
@@ -107,11 +107,15 @@ export default function ResourcesPage() {
     } finally {
       setLoadingDocs(false);
     }
-  };
+  }, [user]);
 
   useEffect(() => {
-    fetchResources();
-  }, [user]);
+    const run = async () => {
+      await Promise.resolve();
+      fetchResources();
+    };
+    run();
+  }, [fetchResources]);
 
   // Check if current user has access to this resource level
   const hasAccess = (type: string) => {
@@ -200,7 +204,7 @@ export default function ResourcesPage() {
           <span className="text-xs text-portal-text-secondary font-semibold">Sort By:</span>
           <select
             value={sortBy}
-            onChange={(e) => setSortBy(e.target.value as any)}
+            onChange={(e) => setSortBy(e.target.value as "popularity" | "title")}
             className="bg-transparent text-xs text-white font-bold focus:outline-none cursor-pointer"
           >
             <option value="popularity">Popularity (Downloads)</option>
@@ -235,7 +239,7 @@ export default function ResourcesPage() {
           <div className="space-y-2">
             <h2 className="text-2xl font-bold text-white">No Resources Found</h2>
             <p className="text-sm text-portal-text-secondary leading-relaxed">
-              We couldn't find any resources matching your search query or selected category filter.
+              We couldn&apos;t find any resources matching your search query or selected category filter.
             </p>
           </div>
           <button

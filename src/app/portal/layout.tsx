@@ -27,8 +27,20 @@ import {
   Shield,
   AlertOctagon,
   MessageSquare,
-  Bell
+  Bell,
+  Mail,
+  Database
 } from "lucide-react";
+
+interface NotificationItem {
+  id: string;
+  userId?: string;
+  title: string;
+  message: string;
+  type: string;
+  read: boolean;
+  createdAt?: any;
+}
 
 export default function PortalLayout({ children }: { children: React.ReactNode }) {
   const { user, loading, logout, refreshUser } = useAuth();
@@ -39,7 +51,7 @@ export default function PortalLayout({ children }: { children: React.ReactNode }
   const [checkingSuspension, setCheckingSuspension] = useState(true);
   
   // Notification states
-  const [notifications, setNotifications] = useState<any[]>([]);
+  const [notifications, setNotifications] = useState<NotificationItem[]>([]);
   const [showNotifications, setShowNotifications] = useState(false);
 
   const isAuthPage = pathname === "/portal/login" || pathname === "/portal/register";
@@ -65,11 +77,15 @@ export default function PortalLayout({ children }: { children: React.ReactNode }
       }
     }
 
-    if (user && !isAuthPage) {
-      checkSuspension();
-    } else {
-      setCheckingSuspension(false);
-    }
+    const run = async () => {
+      await Promise.resolve();
+      if (user && !isAuthPage) {
+        checkSuspension();
+      } else {
+        setCheckingSuspension(false);
+      }
+    };
+    run();
   }, [user, pathname, isAuthPage]);
 
   // Real-time notifications listener
@@ -83,9 +99,9 @@ export default function PortalLayout({ children }: { children: React.ReactNode }
     );
 
     const unsubscribe = onSnapshot(q, (snapshot) => {
-      const list: any[] = [];
+      const list: NotificationItem[] = [];
       snapshot.forEach((doc) => {
-        list.push({ id: doc.id, ...doc.data() });
+        list.push({ id: doc.id, ...doc.data() } as NotificationItem);
       });
       setNotifications(list);
     }, (error) => {
@@ -141,7 +157,11 @@ export default function PortalLayout({ children }: { children: React.ReactNode }
 
   // Close mobile drawer on path change
   useEffect(() => {
-    setMobileOpen(false);
+    const run = async () => {
+      await Promise.resolve();
+      setMobileOpen(false);
+    };
+    run();
   }, [pathname]);
 
   if (isAuthPage) {
@@ -212,10 +232,16 @@ export default function PortalLayout({ children }: { children: React.ReactNode }
   ];
 
   const adminMenuItems = [
-    { name: "User Management", href: "/portal/admin/users", icon: Users },
-    { name: "Course Management", href: "/portal/admin/courses", icon: Sliders },
-    { name: "Resource Management", href: "/portal/admin/resources", icon: FileText },
-    { name: "Analytics", href: "/portal/admin/analytics", icon: BarChart3 },
+    { name: "Admin Dashboard", href: "/portal/admin", icon: Shield },
+    { name: "User Directory", href: "/portal/admin/users", icon: Users },
+    { name: "Course Catalog", href: "/portal/admin/courses", icon: Sliders },
+    { name: "Resource Manager", href: "/portal/admin/resources", icon: FileText },
+    { name: "Subscription Desk", href: "/portal/admin/subscriptions", icon: Award },
+    { name: "Support Tickets", href: "/portal/admin/support", icon: HelpCircle },
+    { name: "Community Moderation", href: "/portal/admin/community", icon: MessageSquare },
+    { name: "Analytics Ledger", href: "/portal/admin/analytics", icon: BarChart3 },
+    { name: "Communications Hub", href: "/portal/admin/communications", icon: Mail },
+    { name: "Backup Center", href: "/portal/admin/backups", icon: Database },
     { name: "Platform Settings", href: "/portal/admin/settings", icon: Settings },
   ];
 
