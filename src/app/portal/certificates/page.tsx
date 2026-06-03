@@ -3,8 +3,9 @@
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { useAuth } from "@/lib/context/AuthContext";
-import { queryDocuments } from "@/lib/services/firestoreService";
+import { queryDocuments, setDocument } from "@/lib/services/firestoreService";
 import { where } from "firebase/firestore";
+import { jsPDF } from "jspdf";
 import {
   Award,
   Download,
@@ -15,7 +16,8 @@ import {
   Loader2,
   X,
   Sparkles,
-  Lock
+  Lock,
+  CheckCircle2
 } from "lucide-react";
 
 interface Course {
@@ -23,6 +25,7 @@ interface Course {
   title: string;
   category: string;
   instructor?: string;
+  type: "free" | "premium";
 }
 
 interface CourseProgressDoc {
@@ -33,36 +36,43 @@ interface CourseProgressDoc {
   completedAt: string;
 }
 
+interface CertificateRecord {
+  certificateId: string;
+  userId: string;
+  courseId: string;
+  courseName: string;
+  issuedAt: string;
+  verificationCode: string;
+  instructor?: string;
+  category?: string;
+}
+
 export default function CertificatesPage() {
   const { user } = useAuth();
-  const [completedCourses, setCompletedCourses] = useState<any[]>([]);
+  const [completedCourses, setCompletedCourses] = useState<CertificateRecord[]>([]);
   const [loading, setLoading] = useState(true);
-  const [activeCert, setActiveCert] = useState<any | null>(null);
+  const [activeCert, setActiveCert] = useState<CertificateRecord | null>(null);
+  const [isExporting, setIsExporting] = useState(false);
 
   useEffect(() => {
     async function fetchCertificates() {
       if (!user) return;
       try {
         setLoading(true);
-        const progressConstraints = user.role === "admin"
-          ? []
-          : [where("userId", "==", user.uid)];
 
-        const courseConstraints = (user.role === "admin" || user.role === "paid")
-          ? []
-          : [where("type", "==", "free")];
-
-        const [progressList, coursesList] = await Promise.all([
-          queryDocuments("course_progress", ...progressConstraints) as Promise<CourseProgressDoc[]>,
-          queryDocuments("courses", ...courseConstraints) as Promise<Course[]>
+        // Query collections
+        const [progressList, coursesList, certsList] = await Promise.all([
+          queryDocuments("course_progress", where("userId", "==", user.uid)) as Promise<CourseProgressDoc[]>,
+          queryDocuments("courses") as Promise<Course[]>,
+          queryDocuments("certificates", where("userId", "==", user.uid)) as Promise<CertificateRecord[]>
         ]);
 
-        // Filter progress for this user
-        const myProgress = progressList.filter(p => p.userId === user.uid && p.completed === true);
+        // Filter progress for completed lessons
+        const myCompletions = progressList.filter(p => p.completed === true);
         
         // Group by courseId
         const completionsMap: Record<string, string[]> = {};
-        myProgress.forEach(p => {
+        myCompletions.forEach(p => {
           if (!completionsMap[p.courseId]) {
             completionsMap[p.courseId] = [];
           }
@@ -72,7 +82,8 @@ export default function CertificatesPage() {
         });
 
         // Determine if course is 100% completed
-        const completed: any[] = [];
+        const completedList: CertificateRecord[] = [];
+        
         for (const courseId of Object.keys(completionsMap)) {
           const course = coursesList.find(c => c.id === courseId);
           if (!course) continue;
@@ -82,18 +93,56 @@ export default function CertificatesPage() {
           const totalLessons = courseLessons.length;
 
           if (totalLessons > 0 && completionsMap[courseId].length === totalLessons) {
-            completed.push({
-              id: course.id,
-              title: course.title,
-              category: course.category,
+            // Check if certificate document already exists in Firestore certsList
+            let certRecord = certsList.find(c => c.courseId === courseId);
+
+            if (!certRecord) {
+              // Auto-generate missing certificate record in Firestore
+              const certId = `NG-CERT-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
+              const verCode = `V-${Math.random().toString(36).substring(2, 7).toUpperCase()}-${Math.random().toString(36).substring(2, 7).toUpperCase()}`;
+              
+              certRecord = {
+                certificateId: certId,
+                userId: user.uid,
+                courseId: course.id,
+                courseName: course.title,
+                issuedAt: new Date().toISOString(),
+                verificationCode: verCode,
+                instructor: course.instructor || "Sarah Jenkins",
+                category: course.category
+              };
+
+              await setDocument("certificates", certId, certRecord);
+
+              // Log audit trail for user action
+              await setDocument("audit_logs", `LOG-CERT-${Date.now()}`, {
+                adminId: "SYSTEM",
+                adminEmail: user.email,
+                action: "CERTIFICATE_EARNED",
+                details: `User earned certificate ${certId} for course ${course.title}`,
+                timestamp: new Date().toISOString()
+              });
+
+              // Add notification
+              await setDocument("notifications", `NOTIF-CERT-${Date.now()}`, {
+                userId: user.uid,
+                title: "Certificate Earned!",
+                message: `Congratulations! You have completed "${course.title}" and earned your official certificate.`,
+                type: "certificate",
+                read: false,
+                createdAt: new Date().toISOString()
+              });
+            }
+
+            completedList.push({
+              ...certRecord,
               instructor: course.instructor || "Sarah Jenkins",
-              completedAt: new Date().toISOString(), // Mock issuance date
-              credentialId: `NG-${user.uid.substring(0, 5).toUpperCase()}-${course.id.substring(0, 5).toUpperCase()}`
+              category: course.category
             });
           }
         }
 
-        setCompletedCourses(completed);
+        setCompletedCourses(completedList);
       } catch (err) {
         console.error("Error loading certificates:", err);
       } finally {
@@ -120,6 +169,136 @@ export default function CertificatesPage() {
   }
 
   const isPremiumUser = user.role === "admin" || user.role === "paid";
+
+  // PDF Export using jsPDF
+  const handleExportPDF = (cert: CertificateRecord) => {
+    setIsExporting(true);
+    try {
+      const doc = new jsPDF({
+        orientation: "landscape",
+        unit: "mm",
+        format: "a4",
+      });
+
+      // Background color (cream/off-white)
+      doc.setFillColor(252, 251, 247);
+      doc.rect(0, 0, 297, 210, "F");
+
+      // Gold borders
+      doc.setDrawColor(217, 119, 6); // Amber-600 gold
+      doc.setLineWidth(1.5);
+      doc.rect(8, 8, 281, 194, "D");
+      doc.setLineWidth(0.5);
+      doc.rect(10, 10, 277, 190, "D");
+
+      // Corner decorations (gold lines)
+      doc.setLineWidth(0.8);
+      doc.line(12, 12, 25, 12);
+      doc.line(12, 12, 12, 25);
+      doc.line(285, 12, 272, 12);
+      doc.line(285, 12, 285, 25);
+      doc.line(12, 198, 25, 198);
+      doc.line(12, 198, 12, 185);
+      doc.line(285, 198, 272, 198);
+      doc.line(285, 198, 285, 185);
+
+      // Logo / Header
+      doc.setFont("helvetica", "bold");
+      doc.setTextColor(30, 41, 59); // slate-800
+      doc.setFontSize(24);
+      doc.text("NEXTGEN ACADEMY", 148.5, 35, { align: "center" });
+
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(8);
+      doc.setTextColor(100, 116, 139); // slate-500
+      doc.text("PROFESSIONAL CREDENTIAL OF ACHIEVEMENT", 148.5, 42, { align: "center", charSpace: 2 });
+
+      // Main text
+      doc.setFont("times", "italic");
+      doc.setFontSize(14);
+      doc.setTextColor(71, 85, 105); // slate-600
+      doc.text("This is to certify that", 148.5, 65, { align: "center" });
+
+      // Name
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(28);
+      doc.setTextColor(245, 158, 11); // Amber-500
+      doc.text(user.fullName, 148.5, 82, { align: "center" });
+
+      // Divider
+      doc.setDrawColor(226, 232, 240); // slate-200
+      doc.setLineWidth(0.5);
+      doc.line(78, 88, 219, 88);
+
+      // Certificate context
+      doc.setFont("times", "italic");
+      doc.setFontSize(14);
+      doc.setTextColor(71, 85, 105);
+      doc.text("has successfully completed the specialized professional course", 148.5, 102, { align: "center" });
+
+      // Course title
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(20);
+      doc.setTextColor(15, 23, 42); // slate-900
+      doc.text(cert.courseName, 148.5, 118, { align: "center" });
+
+      // Course info
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(10);
+      doc.setTextColor(100, 116, 139);
+      doc.text(`Instructor: ${cert.instructor || "Sarah Jenkins"}  |  Category: ${cert.category || "General"}`, 148.5, 126, { align: "center" });
+
+      // Gold seal watermark shape
+      doc.setFillColor(254, 243, 199); // amber-100
+      doc.setDrawColor(251, 191, 36); // amber-400
+      doc.setLineWidth(0.5);
+      doc.circle(148.5, 155, 12, "FD");
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(8);
+      doc.setTextColor(217, 119, 6);
+      doc.text("VERIFIED", 148.5, 156.5, { align: "center" });
+
+      // Signatures
+      doc.setFont("times", "italic");
+      doc.setFontSize(12);
+      doc.setTextColor(30, 41, 59);
+      doc.text("Advisory Board", 55, 165, { align: "center" });
+      doc.line(30, 158, 80, 158);
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(8);
+      doc.setTextColor(148, 163, 184);
+      doc.text("NextGen Academy Board", 55, 170, { align: "center" });
+
+      doc.setFont("times", "italic");
+      doc.setFontSize(12);
+      doc.setTextColor(30, 41, 59);
+      doc.text("Director of Education", 242, 165, { align: "center" });
+      doc.line(217, 158, 267, 158);
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(8);
+      doc.setTextColor(148, 163, 184);
+      doc.text("Academic Registry Dept.", 242, 170, { align: "center" });
+
+      // Credentials and date footer
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(8);
+      doc.setTextColor(100, 116, 139);
+      doc.text(`DATE OF ISSUANCE: ${new Date(cert.issuedAt).toLocaleDateString()}`, 30, 188);
+
+      doc.setFont("helvetica", "normal");
+      doc.text(`VERIFIABLE CREDENTIAL ID: ${cert.certificateId}`, 148.5, 188, { align: "center" });
+
+      const verificationUrl = `${window.location.origin}/certificate/verify/${cert.verificationCode}`;
+      doc.text(`VERIFY AT: ${verificationUrl}`, 267, 188, { align: "right" });
+
+      doc.save(`nextgen-certificate-${cert.certificateId}.pdf`);
+    } catch (err) {
+      console.error("PDF generation failed:", err);
+      alert("An error occurred during certificate PDF compilation.");
+    } finally {
+      setIsExporting(false);
+    }
+  };
 
   return (
     <div className="space-y-8 animate-fade-in text-slate-100">
@@ -151,7 +330,7 @@ export default function CertificatesPage() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
           {completedCourses.map((cert) => (
             <div
-              key={cert.id}
+              key={cert.certificateId}
               className="bg-portal-card border border-portal-border/60 rounded-3xl p-6 flex flex-col justify-between hover:border-portal-warning/30 hover:scale-[1.01] transition-all duration-300 relative overflow-hidden group h-72 shadow-lg"
             >
               <div className="absolute top-0 right-0 w-32 h-32 bg-portal-warning/5 rounded-full blur-2xl"></div>
@@ -162,13 +341,13 @@ export default function CertificatesPage() {
                     <Award className="w-5 h-5" />
                   </div>
                   <span className="text-[9px] font-mono text-portal-text-secondary select-all" title="Credential ID">
-                    {cert.credentialId}
+                    {cert.certificateId}
                   </span>
                 </div>
 
                 <div className="space-y-1 pt-1">
                   <h3 className="text-lg font-bold text-white group-hover:text-portal-warning transition-colors line-clamp-2 leading-snug">
-                    {cert.title}
+                    {cert.courseName}
                   </h3>
                   <p className="text-xs text-portal-text-secondary">Instructor: {cert.instructor}</p>
                 </div>
@@ -177,7 +356,7 @@ export default function CertificatesPage() {
               <div className="pt-4 border-t border-portal-border/40 mt-3 relative z-10 flex items-center justify-between gap-4">
                 <div className="flex items-center gap-1.5 text-xs text-portal-text-secondary font-semibold">
                   <Calendar className="w-3.5 h-3.5" />
-                  <span>{new Date(cert.completedAt).toLocaleDateString()}</span>
+                  <span>{new Date(cert.issuedAt).toLocaleDateString()}</span>
                 </div>
 
                 <button
@@ -207,7 +386,7 @@ export default function CertificatesPage() {
             </button>
 
             {/* Print-ready Certificate Mockup Frame */}
-            <div className="border-8 border-double border-portal-warning/40 p-6 sm:p-12 rounded-2xl bg-slate-950 text-center relative overflow-hidden space-y-6 select-none shadow-inner">
+            <div id="print-area" className="border-8 border-double border-portal-warning/40 p-6 sm:p-12 rounded-2xl bg-slate-950 text-center relative overflow-hidden space-y-6 select-none shadow-inner">
               {/* Background watermark */}
               <div className="absolute inset-0 flex items-center justify-center opacity-[0.02] pointer-events-none select-none">
                 <Award className="w-[400px] h-[400px] text-portal-warning" />
@@ -229,14 +408,14 @@ export default function CertificatesPage() {
               <div className="space-y-2">
                 <h3 className="text-xs font-serif italic text-portal-text-secondary">has successfully completed the training course</h3>
                 <p className="text-lg sm:text-xl font-bold text-portal-secondary max-w-lg mx-auto leading-snug">
-                  {activeCert.title}
+                  {activeCert.courseName}
                 </p>
                 <p className="text-[10px] text-portal-text-secondary">Category: {activeCert.category} &bull; Instructor: {activeCert.instructor}</p>
               </div>
 
               <div className="flex flex-col sm:flex-row items-center justify-between gap-6 pt-6 border-t border-slate-900/60 max-w-xl mx-auto">
                 <div className="space-y-1">
-                  <p className="text-xs font-bold text-slate-300">{new Date(activeCert.completedAt).toLocaleDateString()}</p>
+                  <p className="text-xs font-bold text-slate-300">{new Date(activeCert.issuedAt).toLocaleDateString()}</p>
                   <p className="text-[9px] text-portal-text-secondary uppercase font-semibold">Date of Issuance</p>
                 </div>
                 
@@ -248,7 +427,7 @@ export default function CertificatesPage() {
               </div>
 
               <div className="text-[9px] font-mono text-portal-text-secondary pt-4">
-                Verified Credential ID: {activeCert.credentialId}
+                Verified Credential ID: {activeCert.certificateId}
               </div>
             </div>
 
@@ -264,11 +443,21 @@ export default function CertificatesPage() {
                     <span>Print Credentials</span>
                   </button>
                   <button
-                    onClick={() => alert("Certificate downloaded successfully! (Mocked PDF export)")}
-                    className="flex-grow flex-1 py-3.5 rounded-xl bg-portal-primary hover:bg-portal-primary/95 text-white text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-md"
+                    onClick={() => handleExportPDF(activeCert)}
+                    disabled={isExporting}
+                    className="flex-grow flex-1 py-3.5 rounded-xl bg-portal-primary hover:bg-portal-primary/95 text-white text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-md disabled:opacity-50"
                   >
-                    <Download className="w-4 h-4" />
-                    <span>Export PDF</span>
+                    {isExporting ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        <span>Generating PDF...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Download className="w-4 h-4" />
+                        <span>Export PDF</span>
+                      </>
+                    )}
                   </button>
                 </>
               ) : (
@@ -278,7 +467,7 @@ export default function CertificatesPage() {
                     <span>Premium account required to download verified certificate PDF files.</span>
                   </div>
                   <button
-                    onClick={() => alert("Select a Premium Course in the catalog and click 'Upgrade Membership' to unlock certificate downloads.")}
+                    onClick={() => alert("Select a Premium Course in the catalog and click 'Unlock Premium Course' to upgrade membership.")}
                     className="px-4 py-2.5 rounded-xl bg-portal-warning hover:bg-portal-warning/90 text-slate-950 text-xs font-bold transition-all cursor-pointer whitespace-nowrap"
                   >
                     Unlock Certificate

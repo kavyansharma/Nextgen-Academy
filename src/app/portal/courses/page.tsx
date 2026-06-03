@@ -33,7 +33,7 @@ interface Course {
 }
 
 export default function CoursesPage() {
-  const { user, refreshUser } = useAuth();
+  const { user, firebaseUser, refreshUser } = useAuth();
   const [courses, setCourses] = useState<Course[]>([]);
   const [loadingCourses, setLoadingCourses] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState("All");
@@ -41,6 +41,17 @@ export default function CoursesPage() {
   const [upgradeCourse, setUpgradeCourse] = useState<Course | null>(null);
   const [isUpgrading, setIsUpgrading] = useState(false);
   const [upgradeSuccess, setUpgradeSuccess] = useState(false);
+
+  // Load Razorpay Script dynamically
+  useEffect(() => {
+    const script = document.createElement("script");
+    script.src = "https://checkout.razorpay.com/v1/checkout.js";
+    script.async = true;
+    document.body.appendChild(script);
+    return () => {
+      document.body.removeChild(script);
+    };
+  }, []);
 
   // Load courses & auto-seed if empty
   const fetchAndSeed = async () => {
@@ -192,21 +203,87 @@ export default function CoursesPage() {
     return courseType === "free";
   };
 
-  // Upgrade user's tier to Paid in Firestore
+  // Upgrade user's tier to Paid using real Razorpay Checkout
   const handleUpgrade = async () => {
+    if (!firebaseUser) return;
     setIsUpgrading(true);
     try {
-      await updateDocument("users", user.uid, { role: "paid" });
-      await refreshUser();
-      setUpgradeSuccess(true);
-      setTimeout(() => {
-        setUpgradeSuccess(false);
-        setUpgradeCourse(null);
-        fetchAndSeed();
-      }, 2000);
-    } catch (err) {
-      console.error("Upgrade error:", err);
-      alert("Failed to process payment simulation.");
+      const idToken = await firebaseUser.getIdToken();
+
+      const res = await fetch("/api/payments/create-order", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${idToken}`
+        },
+        body: JSON.stringify({
+          amount: 49, // Price of premium upgrade
+          currency: "INR"
+        })
+      });
+
+      if (!res.ok) {
+        throw new Error("Failed to initialize payment gateway order.");
+      }
+
+      const orderData = await res.json();
+
+      const options = {
+        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || "rzp_test_placeholder",
+        amount: orderData.amount,
+        currency: orderData.currency,
+        name: "NextGen Academy",
+        description: "Premium Lifetime Access Membership",
+        order_id: orderData.id,
+        handler: async (response: any) => {
+          setIsUpgrading(true);
+          try {
+            const verifyRes = await fetch("/api/payments/verify-payment", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${idToken}`
+              },
+              body: JSON.stringify({
+                razorpayOrderId: response.razorpay_order_id,
+                razorpayPaymentId: response.razorpay_payment_id,
+                razorpaySignature: response.razorpay_signature,
+                amount: 49,
+                currency: "INR"
+              })
+            });
+
+            if (verifyRes.ok) {
+              await refreshUser();
+              setUpgradeSuccess(true);
+              setTimeout(() => {
+                setUpgradeSuccess(false);
+                setUpgradeCourse(null);
+                fetchAndSeed();
+              }, 2000);
+            } else {
+              alert("Payment verification failed. Please try again.");
+            }
+          } catch (err) {
+            console.error("Verification Call Failed:", err);
+          } finally {
+            setIsUpgrading(false);
+          }
+        },
+        prefill: {
+          name: user.fullName,
+          email: user.email,
+        },
+        theme: {
+          color: "#f97316"
+        }
+      };
+
+      const rzp = new (window as any).Razorpay(options);
+      rzp.open();
+    } catch (err: any) {
+      console.error("Razorpay trigger error:", err);
+      alert(err.message || "Failed to initiate payment. Please try again.");
     } finally {
       setIsUpgrading(false);
     }

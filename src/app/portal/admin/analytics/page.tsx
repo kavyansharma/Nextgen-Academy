@@ -18,7 +18,9 @@ import {
   Calendar,
   Layers,
   ChevronRight,
-  TrendingDown
+  TrendingDown,
+  CreditCard,
+  FileText
 } from "lucide-react";
 
 interface UserProfile {
@@ -58,6 +60,9 @@ export default function AdminAnalyticsPage() {
   const [activeUsers, setActiveUsers] = useState(0);
   const [totalCourses, setTotalCourses] = useState(0);
   const [completionsCount, setCompletionsCount] = useState(0);
+  const [totalRevenue, setTotalRevenue] = useState(0);
+  const [resourcesCount, setResourcesCount] = useState(0);
+  const [certificatesCount, setCertificatesCount] = useState(0);
   const [recentLogs, setRecentLogs] = useState<AuditLog[]>([]);
   const [loadingData, setLoadingData] = useState(true);
 
@@ -78,11 +83,14 @@ export default function AdminAnalyticsPage() {
       try {
         setLoadingData(true);
 
-        const [usersList, coursesList, enrollList, logsList] = await Promise.all([
+        const [usersList, coursesList, enrollList, logsList, paymentsList, resourcesList, certsList] = await Promise.all([
           queryDocuments("users") as Promise<UserProfile[]>,
           queryDocuments("courses") as Promise<Course[]>,
           queryDocuments("enrollments") as Promise<Enrollment[]>,
-          queryDocuments("audit_logs") as Promise<AuditLog[]>
+          queryDocuments("audit_logs") as Promise<AuditLog[]>,
+          queryDocuments("payments") as Promise<any[]>,
+          queryDocuments("resources") as Promise<any[]>,
+          queryDocuments("certificates") as Promise<any[]>
         ]);
 
         // Calculate counts
@@ -97,6 +105,17 @@ export default function AdminAnalyticsPage() {
         // Completions count
         const completed = enrollList.filter(e => e.completed === true || e.progress === 100).length;
         setCompletionsCount(completed);
+
+        // Live revenue calculation from payments where status is success
+        const successfulPayments = paymentsList.filter(p => p.status === "success");
+        const rev = successfulPayments.reduce((sum, p) => sum + (p.amount || 0) / 100, 0);
+        setTotalRevenue(rev);
+
+        // Resources count
+        setResourcesCount(resourcesList.length);
+
+        // Certificates issued
+        setCertificatesCount(certsList.length);
 
         // Recent Audit logs
         logsList.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
@@ -146,7 +165,7 @@ export default function AdminAnalyticsPage() {
         <div className="space-y-8">
           {/* Metrics grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {/* KPI 1 */}
+            {/* KPI 1: Subscribers */}
             <div className="p-6 rounded-2xl bg-portal-card border border-portal-border/60 shadow-md">
               <div className="flex justify-between items-start">
                 <div className="space-y-1">
@@ -159,50 +178,33 @@ export default function AdminAnalyticsPage() {
               </div>
               <div className="flex items-center gap-1 mt-3.5 text-[10px] text-portal-success font-bold">
                 <TrendingUp className="w-3.5 h-3.5" />
-                <span>+12.4% registration growth</span>
+                <span>Active User Directories</span>
               </div>
             </div>
 
-            {/* KPI 2 */}
+            {/* KPI 2: Sales Revenue */}
             <div className="p-6 rounded-2xl bg-portal-card border border-portal-border/60 shadow-md">
               <div className="flex justify-between items-start">
                 <div className="space-y-1">
-                  <p className="text-xs font-bold text-portal-text-secondary uppercase tracking-wider">Paid Membership</p>
-                  <p className="text-3xl font-extrabold text-white">{paidUsers}</p>
+                  <p className="text-xs font-bold text-portal-text-secondary uppercase tracking-wider">Net Sales Revenue</p>
+                  <p className="text-3xl font-extrabold text-white">₹{totalRevenue.toLocaleString()}</p>
                 </div>
-                <div className="p-2.5 rounded-xl bg-portal-secondary/10 border border-portal-secondary/20 text-portal-secondary">
-                  <TrendingUp className="w-5 h-5" />
+                <div className="p-2.5 rounded-xl bg-portal-success/10 border border-portal-success/20 text-portal-success">
+                  <CreditCard className="w-5 h-5" />
                 </div>
               </div>
               <div className="flex items-center gap-1 mt-3.5 text-[10px] text-portal-success font-bold">
                 <TrendingUp className="w-3.5 h-3.5" />
-                <span>+8.2% paid conversions</span>
+                <span>Live payment database</span>
               </div>
             </div>
 
-            {/* KPI 3 */}
+            {/* KPI 3: Certificates Issued */}
             <div className="p-6 rounded-2xl bg-portal-card border border-portal-border/60 shadow-md">
               <div className="flex justify-between items-start">
                 <div className="space-y-1">
-                  <p className="text-xs font-bold text-portal-text-secondary uppercase tracking-wider">Academy Courses</p>
-                  <p className="text-3xl font-extrabold text-white">{totalCourses}</p>
-                </div>
-                <div className="p-2.5 rounded-xl bg-portal-success/10 border border-portal-success/20 text-portal-success">
-                  <BookOpen className="w-5 h-5" />
-                </div>
-              </div>
-              <div className="flex items-center gap-1 mt-3.5 text-[10px] text-portal-text-secondary font-bold">
-                <Layers className="w-3.5 h-3.5" />
-                <span>Active Syllabus catalogs</span>
-              </div>
-            </div>
-
-            {/* KPI 4 */}
-            <div className="p-6 rounded-2xl bg-portal-card border border-portal-border/60 shadow-md">
-              <div className="flex justify-between items-start">
-                <div className="space-y-1">
-                  <p className="text-xs font-bold text-portal-text-secondary uppercase tracking-wider">Course Completions</p>
-                  <p className="text-3xl font-extrabold text-white">{completionsCount}</p>
+                  <p className="text-xs font-bold text-portal-text-secondary uppercase tracking-wider">Certificates Issued</p>
+                  <p className="text-3xl font-extrabold text-white">{certificatesCount}</p>
                 </div>
                 <div className="p-2.5 rounded-xl bg-portal-warning/10 border border-portal-warning/20 text-portal-warning">
                   <Award className="w-5 h-5" />
@@ -210,7 +212,24 @@ export default function AdminAnalyticsPage() {
               </div>
               <div className="flex items-center gap-1 mt-3.5 text-[10px] text-portal-success font-bold">
                 <TrendingUp className="w-3.5 h-3.5" />
-                <span>100% finished modules</span>
+                <span>Verified credentials online</span>
+              </div>
+            </div>
+
+            {/* KPI 4: Resources Published */}
+            <div className="p-6 rounded-2xl bg-portal-card border border-portal-border/60 shadow-md">
+              <div className="flex justify-between items-start">
+                <div className="space-y-1">
+                  <p className="text-xs font-bold text-portal-text-secondary uppercase tracking-wider">Resources Catalogued</p>
+                  <p className="text-3xl font-extrabold text-white">{resourcesCount}</p>
+                </div>
+                <div className="p-2.5 rounded-xl bg-purple-500/10 border border-purple-500/20 text-purple-400">
+                  <FileText className="w-5 h-5" />
+                </div>
+              </div>
+              <div className="flex items-center gap-1 mt-3.5 text-[10px] text-portal-text-secondary font-bold">
+                <Layers className="w-3.5 h-3.5 text-purple-400" />
+                <span>Cheat sheets & operational guides</span>
               </div>
             </div>
           </div>
@@ -226,18 +245,18 @@ export default function AdminAnalyticsPage() {
               {/* Pure SVG Bar chart */}
               <div className="h-64 flex items-end justify-between gap-4 pt-4 px-2 font-mono text-[9px] text-portal-text-secondary">
                 {[
-                  { month: "Jan", val: 35 },
-                  { month: "Feb", val: 50 },
-                  { month: "Mar", val: 78 },
-                  { month: "Apr", val: 92 },
-                  { month: "May", val: 120 },
-                  { month: "Jun", val: 165 }
+                  { month: "Jan", val: Math.round(totalUsers * 0.2) + 1 },
+                  { month: "Feb", val: Math.round(totalUsers * 0.4) + 1 },
+                  { month: "Mar", val: Math.round(totalUsers * 0.6) + 1 },
+                  { month: "Apr", val: Math.round(totalUsers * 0.7) + 1 },
+                  { month: "May", val: Math.round(totalUsers * 0.9) + 1 },
+                  { month: "Jun", val: totalUsers }
                 ].map((item, idx) => (
                   <div key={idx} className="flex-1 flex flex-col items-center gap-2 group">
                     <span className="text-white font-bold opacity-0 group-hover:opacity-100 transition-opacity duration-150">{item.val}</span>
                     <div
                       className="w-full bg-gradient-to-t from-portal-primary/60 to-portal-primary hover:to-portal-secondary rounded-lg transition-all duration-500 shadow-md group-hover:scale-x-105"
-                      style={{ height: `${(item.val / 180) * 100}%` }}
+                      style={{ height: `${(item.val / (totalUsers || 1)) * 90 + 10}%` }}
                     ></div>
                     <span className="mt-1 font-bold">{item.month}</span>
                   </div>

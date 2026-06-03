@@ -30,7 +30,9 @@ import {
   Loader2,
   Calendar,
   Mail,
-  Activity
+  Activity,
+  CreditCard,
+  Award
 } from "lucide-react";
 
 interface FirestoreUser {
@@ -535,6 +537,68 @@ export default function AdminDashboardPage() {
                     </div>
                   </div>
 
+                </div>
+
+                {/* Management Operations Grid */}
+                <div className="space-y-4">
+                  <h3 className="font-bold text-white text-lg tracking-tight">Administrative Consoles</h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                    {/* Payments Console */}
+                    <Link
+                      href="/portal/admin/payments"
+                      className="p-5 rounded-2xl bg-slate-900/60 border border-white/5 shadow-md flex items-center gap-4 hover:border-brand-orange/30 hover:bg-slate-900/80 transition-all duration-300 group"
+                    >
+                      <div className="p-3 rounded-xl bg-brand-orange/10 border border-brand-orange/20 text-brand-orange group-hover:scale-105 transition-transform">
+                        <CreditCard className="w-5 h-5" />
+                      </div>
+                      <div>
+                        <h4 className="font-bold text-white text-sm">Payments Ledger</h4>
+                        <p className="text-xs text-brand-text-muted mt-0.5">Refunds & ledger audit</p>
+                      </div>
+                    </Link>
+
+                    {/* Subscriptions Console */}
+                    <Link
+                      href="/portal/admin/subscriptions"
+                      className="p-5 rounded-2xl bg-slate-900/60 border border-white/5 shadow-md flex items-center gap-4 hover:border-brand-blue/30 hover:bg-slate-900/80 transition-all duration-300 group"
+                    >
+                      <div className="p-3 rounded-xl bg-brand-blue/10 border border-brand-blue/20 text-brand-blue group-hover:scale-105 transition-transform">
+                        <Award className="w-5 h-5" />
+                      </div>
+                      <div>
+                        <h4 className="font-bold text-white text-sm">Subscription Desk</h4>
+                        <p className="text-xs text-brand-text-muted mt-0.5">Adjust expiry & cancel</p>
+                      </div>
+                    </Link>
+
+                    {/* Business Intelligence */}
+                    <Link
+                      href="/portal/admin/analytics"
+                      className="p-5 rounded-2xl bg-slate-900/60 border border-white/5 shadow-md flex items-center gap-4 hover:border-purple-500/30 hover:bg-slate-900/80 transition-all duration-300 group"
+                    >
+                      <div className="p-3 rounded-xl bg-purple-500/10 border border-purple-500/20 text-purple-400 group-hover:scale-105 transition-transform">
+                        <Activity className="w-5 h-5" />
+                      </div>
+                      <div>
+                        <h4 className="font-bold text-white text-sm">Analytics Panel</h4>
+                        <p className="text-xs text-brand-text-muted mt-0.5">Real-time KPI reports</p>
+                      </div>
+                    </Link>
+
+                    {/* Advanced Resources */}
+                    <Link
+                      href="/portal/admin/resources"
+                      className="p-5 rounded-2xl bg-slate-900/60 border border-white/5 shadow-md flex items-center gap-4 hover:border-emerald-500/30 hover:bg-slate-900/80 transition-all duration-300 group"
+                    >
+                      <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 group-hover:scale-105 transition-transform">
+                        <FileText className="w-5 h-5" />
+                      </div>
+                      <div>
+                        <h4 className="font-bold text-white text-sm">Resource Manager</h4>
+                        <p className="text-xs text-brand-text-muted mt-0.5">Publish & tag uploads</p>
+                      </div>
+                    </Link>
+                  </div>
                 </div>
 
                 {/* Overview Info Block */}

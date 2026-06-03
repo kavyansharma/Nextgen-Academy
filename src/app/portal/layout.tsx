@@ -5,6 +5,8 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "@/lib/context/AuthContext";
 import { getDocument } from "@/lib/services/firestoreService";
+import { collection, query, where, orderBy, onSnapshot, doc, updateDoc, writeBatch } from "firebase/firestore";
+import { db } from "@/lib/firebase";
 import {
   LayoutDashboard,
   FolderOpen,
@@ -24,7 +26,8 @@ import {
   ChevronRight,
   Shield,
   AlertOctagon,
-  MessageSquare
+  MessageSquare,
+  Bell
 } from "lucide-react";
 
 export default function PortalLayout({ children }: { children: React.ReactNode }) {
@@ -34,6 +37,10 @@ export default function PortalLayout({ children }: { children: React.ReactNode }
   const [mobileOpen, setMobileOpen] = useState(false);
   const [isSuspended, setIsSuspended] = useState(false);
   const [checkingSuspension, setCheckingSuspension] = useState(true);
+  
+  // Notification states
+  const [notifications, setNotifications] = useState<any[]>([]);
+  const [showNotifications, setShowNotifications] = useState(false);
 
   const isAuthPage = pathname === "/portal/login" || pathname === "/portal/register";
 
@@ -64,6 +71,66 @@ export default function PortalLayout({ children }: { children: React.ReactNode }
       setCheckingSuspension(false);
     }
   }, [user, pathname, isAuthPage]);
+
+  // Real-time notifications listener
+  useEffect(() => {
+    if (!user || isAuthPage) return;
+
+    const q = query(
+      collection(db, "notifications"),
+      where("userId", "==", user.uid),
+      orderBy("createdAt", "desc")
+    );
+
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const list: any[] = [];
+      snapshot.forEach((doc) => {
+        list.push({ id: doc.id, ...doc.data() });
+      });
+      setNotifications(list);
+    }, (error) => {
+      console.error("Notifications snapshot error:", error);
+    });
+
+    return () => unsubscribe();
+  }, [user, isAuthPage]);
+
+  const unreadCount = notifications.filter(n => !n.read).length;
+
+  const handleMarkRead = async (id: string) => {
+    try {
+      const docRef = doc(db, "notifications", id);
+      await updateDoc(docRef, { read: true });
+    } catch (err) {
+      console.error("Error marking notification read:", err);
+    }
+  };
+
+  const handleMarkAllRead = async () => {
+    try {
+      const unreadList = notifications.filter(n => !n.read);
+      if (unreadList.length === 0) return;
+      
+      const batch = writeBatch(db);
+      unreadList.forEach(n => {
+        batch.update(doc(db, "notifications", n.id), { read: true });
+      });
+      await batch.commit();
+    } catch (err) {
+      console.error("Error marking all notifications read:", err);
+    }
+  };
+
+  const getNotificationIcon = (type: string) => {
+    switch (type) {
+      case "certificate": return <Award className="w-4 h-4 text-amber-400" />;
+      case "subscription": return <Shield className="w-4 h-4 text-portal-secondary" />;
+      case "enrollment": return <Users className="w-4 h-4 text-portal-primary" />;
+      case "lesson": return <BookOpen className="w-4 h-4 text-portal-success" />;
+      case "resource": return <FolderOpen className="w-4 h-4 text-purple-400" />;
+      default: return <Bell className="w-4 h-4 text-slate-400" />;
+    }
+  };
 
   // Route protection
   useEffect(() => {
@@ -157,11 +224,8 @@ export default function PortalLayout({ children }: { children: React.ReactNode }
     router.replace("/portal/login");
   };
 
-  const formattedRole = user.role.charAt(0).toUpperCase() + user.role.slice(1);
-
   const sidebarContent = (
     <div className="flex flex-col h-full bg-portal-sidebar border-r border-portal-border/60 text-portal-text-primary">
-      {/* Brand Header */}
       <div className="flex items-center gap-3 px-6 h-20 border-b border-portal-border/40 flex-shrink-0">
         <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-portal-primary to-portal-secondary flex items-center justify-center font-bold text-xl text-white shadow-md">
           N
@@ -172,9 +236,7 @@ export default function PortalLayout({ children }: { children: React.ReactNode }
         </div>
       </div>
 
-      {/* Nav List Wrapper */}
       <div className="flex-1 overflow-y-auto px-4 py-6 space-y-6">
-        {/* General learning segment */}
         <div className="space-y-1.5">
           <p className="text-[10px] font-bold uppercase tracking-widest text-portal-text-secondary px-3 mb-2">Learning Hub</p>
           {generalMenuItems.map((item) => {
@@ -200,7 +262,6 @@ export default function PortalLayout({ children }: { children: React.ReactNode }
           })}
         </div>
 
-        {/* Admin only segment */}
         {user.role === "admin" && (
           <div className="space-y-1.5 pt-2 border-t border-portal-border/30">
             <p className="text-[10px] font-bold uppercase tracking-widest text-portal-text-secondary px-3 mb-2">Management</p>
@@ -229,10 +290,8 @@ export default function PortalLayout({ children }: { children: React.ReactNode }
         )}
       </div>
 
-      {/* User Footer Profile Block */}
       <div className="p-4 border-t border-portal-border/45 bg-slate-950/20 flex-shrink-0">
         <div className="flex items-center gap-3 mb-4 px-2">
-          {/* Avatar Icon */}
           <div className="w-10 h-10 rounded-xl bg-slate-800 border border-portal-border/80 flex items-center justify-center font-bold text-white text-md shadow-sm">
             {user.fullName.charAt(0).toUpperCase()}
           </div>
@@ -267,14 +326,66 @@ export default function PortalLayout({ children }: { children: React.ReactNode }
     </div>
   );
 
+  const notificationsDropdown = (
+    <div className="absolute right-0 mt-3 w-80 bg-portal-card border border-portal-border rounded-2xl shadow-2xl z-50 glass text-left animate-fade-in">
+      <div className="p-4 border-b border-portal-border/60 flex items-center justify-between">
+        <span className="text-xs font-extrabold text-white uppercase tracking-wider">Notifications</span>
+        {unreadCount > 0 && (
+          <button
+            onClick={handleMarkAllRead}
+            className="text-[10px] font-bold text-portal-primary hover:underline cursor-pointer"
+          >
+            Mark all read
+          </button>
+        )}
+      </div>
+      
+      <div className="max-h-72 overflow-y-auto divide-y divide-portal-border/30">
+        {notifications.length === 0 ? (
+          <div className="p-8 text-center text-xs text-portal-text-secondary">
+            No notifications yet.
+          </div>
+        ) : (
+          notifications.map((notif) => (
+            <div
+              key={notif.id}
+              onClick={() => handleMarkRead(notif.id)}
+              className={`p-4 flex items-start gap-3 transition-colors cursor-pointer ${
+                !notif.read ? "bg-slate-900/60" : "hover:bg-slate-900/20"
+              }`}
+            >
+              <div className={`p-2 rounded-xl mt-0.5 flex-shrink-0 ${
+                !notif.read ? "bg-slate-950 border border-portal-border" : "bg-slate-950/40"
+              }`}>
+                {getNotificationIcon(notif.type)}
+              </div>
+              <div className="flex-1 min-w-0">
+                <h4 className={`text-xs font-bold truncate ${!notif.read ? "text-white" : "text-slate-350"}`}>
+                  {notif.title}
+                </h4>
+                <p className="text-[11px] text-portal-text-secondary mt-0.5 leading-normal">
+                  {notif.message}
+                </p>
+                <span className="text-[9px] text-slate-500 font-mono mt-1 block">
+                  {new Date(notif.createdAt?.toDate ? notif.createdAt.toDate() : notif.createdAt).toLocaleDateString()}
+                </span>
+              </div>
+              {!notif.read && (
+                <span className="w-1.5 h-1.5 rounded-full bg-portal-primary mt-1.5 flex-shrink-0" />
+              )}
+            </div>
+          ))
+        )}
+      </div>
+    </div>
+  );
+
   return (
     <div className="min-h-screen bg-portal-bg text-portal-text-primary flex font-sans">
-      {/* Desktop Sidebar (Fixed 280px) */}
       <aside className="hidden lg:block w-[280px] fixed inset-y-0 left-0 z-20 flex-shrink-0">
         {sidebarContent}
       </aside>
 
-      {/* Mobile Top Navbar Header */}
       <div className="lg:hidden fixed top-0 left-0 right-0 h-16 bg-portal-sidebar border-b border-portal-border/40 px-4 flex items-center justify-between z-30">
         <div className="flex items-center gap-2">
           <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-portal-primary to-portal-secondary flex items-center justify-center font-bold text-md text-white">
@@ -282,15 +393,36 @@ export default function PortalLayout({ children }: { children: React.ReactNode }
           </div>
           <span className="font-extrabold text-sm tracking-tight text-white">NextGen Portal</span>
         </div>
-        <button
-          onClick={() => setMobileOpen(!mobileOpen)}
-          className="p-2 rounded-lg text-portal-text-secondary hover:text-white hover:bg-slate-800"
-        >
-          {mobileOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-        </button>
+        
+        <div className="flex items-center gap-2">
+          <div className="relative">
+            <button
+              onClick={() => setShowNotifications(!showNotifications)}
+              className="p-2 rounded-lg text-portal-text-secondary hover:text-white cursor-pointer relative"
+            >
+              <Bell className="w-5 h-5" />
+              {unreadCount > 0 && (
+                <span className="absolute top-1 right-1 w-2 h-2 bg-portal-primary rounded-full" />
+              )}
+            </button>
+            {showNotifications && (
+              <>
+                <div className="fixed inset-0 z-45" onClick={() => setShowNotifications(false)} />
+                <div className="relative z-50">
+                  {notificationsDropdown}
+                </div>
+              </>
+            )}
+          </div>
+          <button
+            onClick={() => setMobileOpen(!mobileOpen)}
+            className="p-2 rounded-lg text-portal-text-secondary hover:text-white"
+          >
+            {mobileOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+          </button>
+        </div>
       </div>
 
-      {/* Mobile Sidebar overlay */}
       {mobileOpen && (
         <>
           <div
@@ -303,8 +435,35 @@ export default function PortalLayout({ children }: { children: React.ReactNode }
         </>
       )}
 
-      {/* Main Content Area: padding left 280px on desktop */}
       <div className="flex-1 lg:pl-[280px] flex flex-col min-h-screen">
+        <header className="hidden lg:flex h-20 border-b border-portal-border/40 px-8 items-center justify-between bg-portal-sidebar/20 backdrop-blur-md sticky top-0 z-30 flex-shrink-0">
+          <div className="text-xs text-portal-text-secondary">
+            Console: <span className="font-bold text-white uppercase tracking-wider">{user.role} Tier</span>
+          </div>
+          
+          <div className="flex items-center gap-4">
+            <div className="relative">
+              <button
+                onClick={() => setShowNotifications(!showNotifications)}
+                className="p-2.5 rounded-xl bg-slate-900 border border-portal-border/60 text-portal-text-secondary hover:text-white hover:border-slate-500 transition-all cursor-pointer relative"
+              >
+                <Bell className="w-4.5 h-4.5" />
+                {unreadCount > 0 && (
+                  <span className="absolute top-1.5 right-1.5 w-2.5 h-2.5 bg-portal-primary border-2 border-slate-900 rounded-full animate-pulse" />
+                )}
+              </button>
+              {showNotifications && (
+                <>
+                  <div className="fixed inset-0 z-45" onClick={() => setShowNotifications(false)} />
+                  <div className="relative z-50">
+                    {notificationsDropdown}
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
+        </header>
+
         <main className="flex-grow p-4 sm:p-6 lg:p-8 pt-20 lg:pt-8 bg-portal-bg">
           {children}
         </main>

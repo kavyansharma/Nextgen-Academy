@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useAuth } from "@/lib/context/AuthContext";
 import { resources as staticResources } from "@/data/resources";
-import { queryDocuments, addDocument } from "@/lib/services/firestoreService";
+import { queryDocuments, addDocument, setDocument } from "@/lib/services/firestoreService";
 import { where } from "firebase/firestore";
 import {
   Search,
@@ -15,7 +15,9 @@ import {
   Loader2,
   Download,
   Eye,
-  X
+  X,
+  SlidersHorizontal,
+  Bookmark
 } from "lucide-react";
 
 interface ResourceDoc {
@@ -27,14 +29,20 @@ interface ResourceDoc {
   accessLevel: string; // 'free' | 'paid'
   driveLink: string;
   createdAt?: string;
+  tags?: string[];
+  downloadCount?: number;
 }
 
-// Mock download count mapping
-const DOWNLOAD_COUNTS: Record<string, number> = {
-  "lean-six-sigma": 1242,
-  "industry-4-playbook": 684,
-  "exec-leadership-guide": 435,
-};
+const CATEGORIES = [
+  "All",
+  "Industrial Engineering",
+  "Lean Six Sigma",
+  "Automation",
+  "Leadership",
+  "Quality Management",
+  "Career Development",
+  "Interview Preparation"
+];
 
 export default function ResourcesPage() {
   const { user, loading } = useAuth();
@@ -42,6 +50,7 @@ export default function ResourcesPage() {
   const [loadingDocs, setLoadingDocs] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
+  const [sortBy, setSortBy] = useState<"popularity" | "title">("popularity");
   const [previewResource, setPreviewResource] = useState<ResourceDoc | null>(null);
 
   // Fetch and seed resources
@@ -56,18 +65,40 @@ export default function ResourcesPage() {
 
       if (list.length === 0) {
         console.log("No resources found in Firestore. Seeding static files...");
-        for (const res of staticResources) {
-          await addDocument("resources", {
-            title: res.title,
+        if (user.role === "admin") {
+          for (const res of staticResources) {
+            await setDocument("resources", res.id, {
+              id: res.id,
+              title: res.title,
+              slug: res.slug,
+              description: res.description,
+              category: res.category,
+              accessLevel: res.type, // 'free' | 'paid'
+              driveLink: res.fileUrl,
+              tags: res.tags || [],
+              downloadCount: res.downloadCount || 0
+            });
+          }
+          const seededList = await queryDocuments("resources", ...constraints) as ResourceDoc[];
+          setResources(seededList);
+        } else {
+          // Fallback to static data for non-admin users so they see values immediately
+          const filteredStatic = staticResources.filter(res => {
+            if (user.role === "paid") return true;
+            return res.type === "free";
+          });
+          setResources(filteredStatic.map(res => ({
+            id: res.id,
             slug: res.slug,
+            title: res.title,
             description: res.description,
             category: res.category,
-            accessLevel: res.type, // 'free' | 'paid'
-            driveLink: res.fileUrl
-          });
+            accessLevel: res.type,
+            driveLink: res.fileUrl,
+            tags: res.tags || [],
+            downloadCount: res.downloadCount || 0
+          })));
         }
-        const seededList = await queryDocuments("resources", ...constraints) as ResourceDoc[];
-        setResources(seededList);
       } else {
         setResources(list);
       }
@@ -87,19 +118,34 @@ export default function ResourcesPage() {
     if (!user) return false;
     const cleanType = type.toLowerCase().trim();
     if (user.role === "admin") return true;
-    if (user.role === "paid") return cleanType === "free" || cleanType === "paid" || cleanType === "free";
-    return cleanType === "free"; // Free users only see free level
+    if (user.role === "paid") return cleanType === "free" || cleanType === "paid";
+    return cleanType === "free";
   };
 
-  // Compute unique categories from the full list
-  const categories = ["All", ...Array.from(new Set(resources.map(res => res.category)))];
-
-  // Apply search & category filters
+  // Apply search & tag filters
   const filteredResources = resources.filter(res => {
-    const matchesSearch = res.title.toLowerCase().includes(searchQuery.toLowerCase().trim()) ||
-      res.description.toLowerCase().includes(searchQuery.toLowerCase().trim());
-    const matchesCategory = selectedCategory === "All" || res.category.toLowerCase() === selectedCategory.toLowerCase();
+    const query = searchQuery.toLowerCase().trim();
+    const matchesSearch =
+      res.title.toLowerCase().includes(query) ||
+      res.description.toLowerCase().includes(query) ||
+      (res.tags && res.tags.some(tag => tag.toLowerCase().includes(query)));
+
+    const matchesCategory =
+      selectedCategory === "All" ||
+      res.category.toLowerCase() === selectedCategory.toLowerCase() ||
+      (res.tags && res.tags.some(tag => tag.toLowerCase() === selectedCategory.toLowerCase()));
+
     return matchesSearch && matchesCategory;
+  });
+
+  // Sort resources
+  const sortedResources = [...filteredResources].sort((a, b) => {
+    if (sortBy === "popularity") {
+      return (b.downloadCount || 0) - (a.downloadCount || 0);
+    } else if (sortBy === "title") {
+      return a.title.localeCompare(b.title);
+    }
+    return 0;
   });
 
   if (loading || loadingDocs || !user) {
@@ -125,14 +171,14 @@ export default function ResourcesPage() {
         {user.role === "admin" && (
           <Link
             href="/portal/admin/resources"
-            className="px-5 py-2.5 rounded-xl bg-portal-primary hover:bg-portal-primary/95 text-white text-xs font-bold transition-all shadow-md flex items-center gap-1.5 self-start sm:self-center"
+            className="px-5 py-2.5 rounded-xl bg-portal-primary hover:bg-portal-primary/95 text-white text-xs font-bold transition-all shadow-md flex items-center gap-1.5 self-start sm:self-center cursor-pointer"
           >
             <span>Manage Resources</span>
           </Link>
         )}
       </div>
 
-      {/* Search & Category Filter Section */}
+      {/* Search & Sort & Filter Toolbar */}
       <div className="flex flex-col md:flex-row gap-4 items-stretch md:items-center justify-between">
         {/* Search Input */}
         <div className="relative flex-grow max-w-md">
@@ -141,48 +187,47 @@ export default function ResourcesPage() {
           </span>
           <input
             type="text"
-            placeholder="Search resources by title or keywords..."
+            placeholder="Search by title, description or tag..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="w-full pl-10 pr-4 py-3 rounded-xl bg-portal-card border border-portal-border/60 text-white placeholder-portal-text-secondary focus:outline-none focus:border-portal-primary focus:ring-1 focus:ring-portal-primary transition-all duration-200 text-sm"
           />
         </div>
 
-        {/* Category selection - Desktop Badges */}
-        <div className="hidden md:flex flex-wrap gap-2">
-          {categories.map((cat) => (
-            <button
-              key={cat}
-              onClick={() => setSelectedCategory(cat)}
-              className={`px-4 py-2 rounded-full border text-xs font-semibold transition-all duration-200 cursor-pointer ${
-                selectedCategory.toLowerCase() === cat.toLowerCase()
-                  ? "bg-portal-primary text-white border-portal-primary shadow-md shadow-portal-primary/20"
-                  : "bg-portal-card border-portal-border/60 text-portal-text-secondary hover:text-white hover:border-slate-600"
-              }`}
-            >
-              {cat}
-            </button>
-          ))}
-        </div>
-
-        {/* Category selection - Mobile Selector */}
-        <div className="block md:hidden">
+        {/* Sort Controls */}
+        <div className="flex items-center gap-3 bg-portal-card border border-portal-border/60 rounded-xl px-4 py-2 self-start md:self-auto">
+          <SlidersHorizontal className="w-4 h-4 text-portal-text-secondary" />
+          <span className="text-xs text-portal-text-secondary font-semibold">Sort By:</span>
           <select
-            value={selectedCategory}
-            onChange={(e) => setSelectedCategory(e.target.value)}
-            className="w-full px-4 py-3 rounded-xl bg-portal-card border border-portal-border/60 text-white focus:outline-none focus:border-portal-primary text-sm"
+            value={sortBy}
+            onChange={(e) => setSortBy(e.target.value as any)}
+            className="bg-transparent text-xs text-white font-bold focus:outline-none cursor-pointer"
           >
-            {categories.map((cat) => (
-              <option key={cat} value={cat}>
-                Category: {cat}
-              </option>
-            ))}
+            <option value="popularity">Popularity (Downloads)</option>
+            <option value="title">Alphabetical (A-Z)</option>
           </select>
         </div>
       </div>
 
+      {/* Category Filter Pills (Desktop and Mobile) */}
+      <div className="flex flex-wrap gap-2 pb-2">
+        {CATEGORIES.map((cat) => (
+          <button
+            key={cat}
+            onClick={() => setSelectedCategory(cat)}
+            className={`px-4 py-2.5 rounded-xl border text-xs font-semibold transition-all duration-200 cursor-pointer ${
+              selectedCategory.toLowerCase() === cat.toLowerCase()
+                ? "bg-portal-primary text-white border-portal-primary shadow-md shadow-portal-primary/20"
+                : "bg-portal-card border-portal-border/60 text-portal-text-secondary hover:text-white hover:border-slate-600"
+            }`}
+          >
+            {cat}
+          </button>
+        ))}
+      </div>
+
       {/* Resources Grid */}
-      {filteredResources.length === 0 ? (
+      {sortedResources.length === 0 ? (
         <div className="p-16 rounded-3xl bg-portal-card border border-portal-border/60 text-center max-w-xl mx-auto space-y-6">
           <div className="inline-flex w-16 h-16 rounded-2xl bg-portal-primary/10 border border-portal-primary/20 items-center justify-center text-portal-primary">
             <FileText className="w-8 h-8" />
@@ -205,7 +250,7 @@ export default function ResourcesPage() {
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-          {filteredResources.map((res) => {
+          {sortedResources.map((res) => {
             const userHasAccess = hasAccess(res.accessLevel);
             const accessBadgeColor =
               res.accessLevel.toLowerCase() === "free"
@@ -215,7 +260,7 @@ export default function ResourcesPage() {
             return (
               <div
                 key={res.id}
-                className={`bg-portal-card border border-portal-border/50 rounded-3xl p-6 flex flex-col justify-between hover:border-portal-primary/40 hover:scale-[1.01] transition-all duration-300 relative overflow-hidden group h-80 ${
+                className={`bg-portal-card border border-portal-border/50 rounded-3xl p-6 flex flex-col justify-between hover:border-portal-primary/40 hover:scale-[1.01] transition-all duration-300 relative overflow-hidden group h-[340px] ${
                   !userHasAccess ? "opacity-90 hover:opacity-100" : ""
                 }`}
               >
@@ -239,22 +284,36 @@ export default function ResourcesPage() {
                     <div className="w-10 h-10 rounded-lg bg-slate-900 border border-portal-border/80 flex items-center justify-center text-portal-primary group-hover:scale-105 transition-transform flex-shrink-0">
                       <FileText className="w-5 h-5" />
                     </div>
-                    <h2 className="text-lg font-bold text-white group-hover:text-portal-primary transition-colors duration-200 line-clamp-2 mt-0.5" title={res.title}>
+                    <h2 className="text-base font-bold text-white group-hover:text-portal-primary transition-colors duration-200 line-clamp-2 mt-0.5" title={res.title}>
                       {res.title}
                     </h2>
                   </div>
 
                   {/* Description */}
-                  <p className="text-sm text-portal-text-secondary leading-relaxed line-clamp-3">
+                  <p className="text-xs text-portal-text-secondary leading-relaxed line-clamp-3">
                     {res.description}
                   </p>
+
+                  {/* Tags Badges */}
+                  {res.tags && res.tags.length > 0 && (
+                    <div className="flex flex-wrap gap-1.5 pt-1">
+                      {res.tags.map((tag) => (
+                        <span
+                          key={tag}
+                          className="text-[9px] font-medium bg-slate-950/40 text-slate-300 border border-portal-border/30 px-2 py-0.5 rounded"
+                        >
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+                  )}
                 </div>
 
                 {/* Footer details & Action */}
                 <div className="pt-4 relative z-10 flex items-center justify-between gap-4 border-t border-portal-border/40 mt-3">
                   <div className="flex items-center gap-1 text-xs text-portal-text-secondary font-semibold">
-                    <Download className="w-3.5 h-3.5" />
-                    <span>{DOWNLOAD_COUNTS[res.slug] || 312} downloads</span>
+                    <Download className="w-3.5 h-3.5 text-portal-primary" />
+                    <span>{res.downloadCount || 0} downloads</span>
                   </div>
 
                   <div className="flex items-center gap-2">
@@ -271,7 +330,7 @@ export default function ResourcesPage() {
                     {userHasAccess ? (
                       <Link
                         href={`/resources/${res.slug}`}
-                        className="py-2.5 px-4 rounded-xl bg-portal-primary hover:bg-portal-primary/95 text-white font-bold text-xs flex items-center gap-1.5 transition-all animate-delay-100"
+                        className="py-2.5 px-4 rounded-xl bg-portal-primary hover:bg-portal-primary/95 text-white font-bold text-xs flex items-center gap-1.5 transition-all cursor-pointer"
                       >
                         <span>Open</span>
                         <ExternalLink className="w-3.5 h-3.5" />
@@ -301,7 +360,7 @@ export default function ResourcesPage() {
           <div className="relative w-full max-w-lg bg-portal-card border border-portal-border rounded-3xl p-6 sm:p-8 shadow-2xl animate-fade-in z-10 text-slate-100">
             <button
               onClick={() => setPreviewResource(null)}
-              className="absolute top-4 right-4 p-2 rounded-xl text-portal-text-secondary hover:text-white hover:bg-slate-800"
+              className="absolute top-4 right-4 p-2 rounded-xl text-portal-text-secondary hover:text-white hover:bg-slate-850"
             >
               <X className="w-5 h-5" />
             </button>
@@ -326,7 +385,7 @@ export default function ResourcesPage() {
                 </div>
                 <div>
                   <h3 className="text-xl font-bold text-white leading-snug">{previewResource.title}</h3>
-                  <p className="text-xs text-portal-text-secondary mt-1">{DOWNLOAD_COUNTS[previewResource.slug] || 312} times downloaded</p>
+                  <p className="text-xs text-portal-text-secondary mt-1">{previewResource.downloadCount || 0} times downloaded</p>
                 </div>
               </div>
 
@@ -337,17 +396,30 @@ export default function ResourcesPage() {
                 </p>
               </div>
 
+              {previewResource.tags && previewResource.tags.length > 0 && (
+                <div className="space-y-2">
+                  <h4 className="text-xs font-bold uppercase text-portal-text-secondary tracking-wider">Tags</h4>
+                  <div className="flex flex-wrap gap-1.5">
+                    {previewResource.tags.map((tag) => (
+                      <span key={tag} className="text-xs bg-slate-900 border border-portal-border/40 px-2.5 py-1 rounded-lg text-slate-300">
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               <div className="flex gap-4 pt-2">
                 <button
                   onClick={() => setPreviewResource(null)}
-                  className="flex-1 py-3 rounded-xl border border-portal-border hover:bg-slate-800 text-xs font-bold transition-all"
+                  className="flex-1 py-3 rounded-xl border border-portal-border hover:bg-slate-800 text-xs font-bold transition-all cursor-pointer"
                 >
                   Close Preview
                 </button>
                 {hasAccess(previewResource.accessLevel) ? (
                   <Link
                     href={`/resources/${previewResource.slug}`}
-                    className="flex-1 py-3 rounded-xl bg-portal-primary hover:bg-portal-primary/95 text-white text-xs font-bold flex items-center justify-center gap-1.5 transition-all"
+                    className="flex-1 py-3 rounded-xl bg-portal-primary hover:bg-portal-primary/95 text-white text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer"
                   >
                     <span>Access Resource</span>
                     <ExternalLink className="w-4 h-4" />
@@ -355,7 +427,7 @@ export default function ResourcesPage() {
                 ) : (
                   <button
                     onClick={() => alert("Upgrade to Paid membership to unlock this premium resource! Select any premium course to process.")}
-                    className="flex-grow flex-1 py-3 rounded-xl bg-portal-warning hover:bg-portal-warning/90 text-slate-950 text-xs font-bold flex items-center justify-center gap-1.5 transition-all"
+                    className="flex-grow flex-1 py-3 rounded-xl bg-portal-warning hover:bg-portal-warning/90 text-slate-950 text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer"
                   >
                     <Lock className="w-4 h-4" />
                     <span>Unlock Premium</span>

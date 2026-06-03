@@ -15,6 +15,8 @@ import {
   Loader2,
   AlertCircle
 } from "lucide-react";
+import { queryDocuments, updateDocument } from "@/lib/services/firestoreService";
+import { where } from "firebase/firestore";
 
 interface ResourceViewerProps {
   resource: Resource;
@@ -184,6 +186,20 @@ export default function ResourceViewer({ resource }: ResourceViewerProps) {
                 <a
                   href={pdfUrl}
                   download={`${resource.slug}.pdf`}
+                  onClick={async () => {
+                    try {
+                      const docs = await queryDocuments("resources", where("slug", "==", resource.slug));
+                      if (docs.length > 0) {
+                        const docId = docs[0].id;
+                        const currentCount = docs[0].downloadCount || 0;
+                        await updateDocument("resources", docId, {
+                          downloadCount: currentCount + 1
+                        });
+                      }
+                    } catch (err) {
+                      console.error("Failed to increment download count:", err);
+                    }
+                  }}
                   className="px-5 py-3 rounded-xl bg-brand-orange hover:bg-brand-orange-hover text-white text-xs font-semibold transition-all duration-200 cursor-pointer flex items-center gap-1.5"
                 >
                   <span>Download PDF</span>

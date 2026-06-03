@@ -36,6 +36,8 @@ interface ResourceDoc {
   accessLevel: string; // 'free' | 'paid'
   driveLink: string;
   createdAt: string;
+  tags?: string[];
+  downloadCount?: number;
 }
 
 export default function AdminResourcesPage() {
@@ -56,6 +58,8 @@ export default function AdminResourcesPage() {
   const [category, setCategory] = useState("");
   const [accessLevel, setAccessLevel] = useState<"free" | "paid">("free");
   const [driveLink, setDriveLink] = useState("");
+  const [tagsString, setTagsString] = useState("");
+  const [downloadCount, setDownloadCount] = useState<number>(0);
   const [formError, setFormError] = useState<string | null>(null);
   
   // Upload & submission states
@@ -114,13 +118,16 @@ export default function AdminResourcesPage() {
     setSubmitting(true);
     try {
       const slug = title.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+      const tags = tagsString.split(",").map(t => t.trim()).filter(t => t.length > 0);
       const resId = await addDocument("resources", {
         title: title.trim(),
         slug,
         description: description.trim(),
         category: category.trim(),
         accessLevel,
-        driveLink: driveLink.trim()
+        driveLink: driveLink.trim(),
+        tags,
+        downloadCount: Number(downloadCount) || 0
       });
       await logAdminAction(user.uid, user.email || "", "CREATE_RESOURCE", `Created resource: ${title.trim()} (${accessLevel}) with ID ${resId}`);
       showToast("success", "Resource successfully added!");
@@ -132,6 +139,8 @@ export default function AdminResourcesPage() {
       setCategory("");
       setAccessLevel("free");
       setDriveLink("");
+      setTagsString("");
+      setDownloadCount(0);
       loadResources();
     } catch (err) {
       console.error("Error adding resource:", err);
@@ -149,6 +158,8 @@ export default function AdminResourcesPage() {
     setCategory(res.category);
     setAccessLevel(res.accessLevel as any || "free");
     setDriveLink(res.driveLink || "");
+    setTagsString(res.tags ? res.tags.join(", ") : "");
+    setDownloadCount(res.downloadCount || 0);
     setFormError(null);
   };
 
@@ -165,13 +176,16 @@ export default function AdminResourcesPage() {
     setSubmitting(true);
     try {
       const slug = title.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+      const tags = tagsString.split(",").map(t => t.trim()).filter(t => t.length > 0);
       await updateDocument("resources", resourceToEdit.id, {
         title: title.trim(),
         slug,
         description: description.trim(),
         category: category.trim(),
         accessLevel,
-        driveLink: driveLink.trim()
+        driveLink: driveLink.trim(),
+        tags,
+        downloadCount: Number(downloadCount) || 0
       });
       await logAdminAction(user.uid, user.email || "", "UPDATE_RESOURCE", `Updated resource metadata for: ${title.trim()} (${resourceToEdit.id})`);
       showToast("success", "Resource updated successfully!");
@@ -183,6 +197,8 @@ export default function AdminResourcesPage() {
       setCategory("");
       setAccessLevel("free");
       setDriveLink("");
+      setTagsString("");
+      setDownloadCount(0);
       loadResources();
     } catch (err) {
       console.error("Error updating resource:", err);
@@ -247,6 +263,8 @@ export default function AdminResourcesPage() {
             setCategory("");
             setAccessLevel("free");
             setDriveLink("");
+            setTagsString("");
+            setDownloadCount(0);
             setFormError(null);
             setIsAddOpen(true);
           }}
@@ -503,6 +521,30 @@ export default function AdminResourcesPage() {
                       }}
                     />
                   </label>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-bold text-portal-text-secondary uppercase mb-1.5">Tags (Comma Separated)</label>
+                  <input
+                    type="text"
+                    value={tagsString}
+                    onChange={(e) => setTagsString(e.target.value)}
+                    placeholder="e.g. Lean Six Sigma, Automation"
+                    className="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-portal-border/60 text-white focus:outline-none focus:border-portal-primary text-sm"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-portal-text-secondary uppercase mb-1.5">Download Count Override</label>
+                  <input
+                    type="number"
+                    value={downloadCount}
+                    onChange={(e) => setDownloadCount(Number(e.target.value))}
+                    min={0}
+                    className="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-portal-border/60 text-white focus:outline-none focus:border-portal-primary text-sm"
+                  />
                 </div>
               </div>
             </div>
