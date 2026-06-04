@@ -15,21 +15,75 @@ import {
   Loader2,
   AlertCircle
 } from "lucide-react";
-import { queryDocuments, updateDocument } from "@/lib/services/firestoreService";
+import { queryDocuments, getDocument, updateDocument } from "@/lib/services/firestoreService";
 import { where } from "firebase/firestore";
 
 interface ResourceViewerProps {
-  resource: Resource;
+  resource: Resource | null;
+  fallbackSlug?: string;
 }
 
-export default function ResourceViewer({ resource }: ResourceViewerProps) {
+export default function ResourceViewer({ resource, fallbackSlug }: ResourceViewerProps) {
   const { user, firebaseUser, loading } = useAuth();
   const router = useRouter();
+
+  // Local state for the resource (handles client-side Firestore lookup when Server Component fails authentication)
+  const [activeResource, setActiveResource] = useState<Resource | null>(resource);
+  const [loadingResource, setLoadingResource] = useState(!resource);
+  const [fetchError, setFetchError] = useState<string | null>(null);
 
   // PDF states
   const [pdfUrl, setPdfUrl] = useState<string | null>(null);
   const [loadingPdf, setLoadingPdf] = useState(true);
   const [pdfError, setPdfError] = useState<string | null>(null);
+
+  // Fetch from Firestore on client side if not resolved by Server Component
+  useEffect(() => {
+    if (activeResource) return;
+    if (!fallbackSlug || !user) return;
+
+    const fetchFallback = async () => {
+      try {
+        setLoadingResource(true);
+        setFetchError(null);
+
+        // 1. Query Firestore where slug == fallbackSlug
+        const docs = await queryDocuments("resources", where("slug", "==", fallbackSlug));
+        let docData = docs.length > 0 ? docs[0] : null;
+
+        // 2. Query Firestore document ID == fallbackSlug
+        if (!docData) {
+          docData = await getDocument("resources", fallbackSlug);
+        }
+
+        if (docData) {
+          const rawLevel = (docData.accessLevel || "").toLowerCase().trim();
+          const type = (rawLevel === "paid" || rawLevel === "premium") ? "paid" : "free";
+          setActiveResource({
+            id: docData.id,
+            slug: docData.slug || docData.id,
+            title: docData.title || "Untitled Resource",
+            description: docData.description || "",
+            category: docData.category || "General",
+            type: type as "free" | "paid",
+            price: docData.price,
+            fileUrl: docData.driveLink || docData.fileUrl || "",
+            tags: docData.tags || [],
+            downloadCount: docData.downloadCount || 0
+          });
+        } else {
+          setFetchError("The requested learning resource could not be found.");
+        }
+      } catch (err: any) {
+        console.error("Error fetching dynamic resource client-side:", err);
+        setFetchError(err.message || "Failed to retrieve resource metadata.");
+      } finally {
+        setLoadingResource(false);
+      }
+    };
+
+    fetchFallback();
+  }, [activeResource, fallbackSlug, user]);
 
   // Enforce authentication gate on client side
   useEffect(() => {
@@ -42,18 +96,20 @@ export default function ResourceViewer({ resource }: ResourceViewerProps) {
   // Admin & Paid users can view all resources (both free & paid).
   // Free users can only view free resources.
   const hasAccess =
-    resource.type === "free" ||
-    user?.role === "admin" ||
-    user?.role === "paid";
+    activeResource
+      ? activeResource.type === "free" || user?.role === "admin" || user?.role === "paid"
+      : false;
 
   // Fetch Paid PDF as Blob URL & Cleanup
   useEffect(() => {
     let objectUrl: string | null = null;
 
     const loadPdf = async () => {
+      if (!activeResource) return;
+      
       // If resource is free, we don't need token headers; serve public PDF directly
-      if (resource.type === "free") {
-        setPdfUrl(resource.fileUrl);
+      if (activeResource.type === "free") {
+        setPdfUrl(activeResource.fileUrl);
         setLoadingPdf(false);
         return;
       }
@@ -73,7 +129,7 @@ export default function ResourceViewer({ resource }: ResourceViewerProps) {
         const idToken = await firebaseUser.getIdToken();
 
         // Fetch PDF binary from API route passing Authorization header
-        const response = await fetch(resource.fileUrl, {
+        const response = await fetch(activeResource.fileUrl, {
           headers: {
             Authorization: `Bearer ${idToken}`
           }
@@ -96,9 +152,9 @@ export default function ResourceViewer({ resource }: ResourceViewerProps) {
       }
     };
 
-    if (user && firebaseUser) {
+    if (user && firebaseUser && activeResource) {
       loadPdf();
-    } else if (user && resource.type === "free") {
+    } else if (user && activeResource?.type === "free") {
       // If free and firebaseUser might not be loaded yet, we can load the free resource
       loadPdf();
     }
@@ -109,29 +165,55 @@ export default function ResourceViewer({ resource }: ResourceViewerProps) {
         URL.revokeObjectURL(objectUrl);
       }
     };
-  }, [resource, user, firebaseUser, hasAccess]);
+  }, [activeResource, user, firebaseUser, hasAccess]);
 
   useEffect(() => {
-    if (user && hasAccess && resource) {
+    if (user && hasAccess && activeResource) {
       import("@/lib/services/activityService").then(({ trackResourceView }) => {
-        trackResourceView(user.uid, resource.slug, resource.title);
+        trackResourceView(user.uid, activeResource.slug, activeResource.title);
       });
       import("@/lib/analytics").then(({ trackEvent }) => {
         trackEvent({
           action: "resource_download",
           category: "resources",
-          label: resource.title
+          label: activeResource.title
         });
       });
     }
-  }, [user, hasAccess, resource]);
+  }, [user, hasAccess, activeResource]);
 
-  if (loading || !user) {
+  // Loading indicator for authentication sync or database fetch
+  if (loading || !user || (loadingResource && !fetchError)) {
     return (
       <div className="min-h-[80vh] flex items-center justify-center bg-brand-dark">
         <div className="text-center space-y-4">
           <Loader2 className="w-12 h-12 border-4 border-brand-orange border-t-transparent rounded-full animate-spin mx-auto text-brand-orange" />
           <p className="text-brand-text-muted text-sm tracking-wide">Retrieving access permissions...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Error screen when Firestore resource could not be found
+  if (fetchError || !activeResource) {
+    return (
+      <div className="min-h-[80vh] flex items-center justify-center bg-brand-dark p-6">
+        <div className="max-w-md w-full bg-slate-900 border border-slate-800 rounded-3xl p-8 text-center space-y-6">
+          <div className="w-16 h-16 rounded-2xl bg-red-500/10 border border-red-500/20 flex items-center justify-center text-red-500 mx-auto">
+            <AlertCircle className="w-10 h-10" />
+          </div>
+          <div className="space-y-2">
+            <h2 className="text-2xl font-bold text-white">Resource Not Found</h2>
+            <p className="text-sm text-brand-text-muted">
+              {fetchError || "The requested learning resource could not be located or has been deleted."}
+            </p>
+          </div>
+          <Link
+            href="/portal/resources"
+            className="inline-flex w-full py-3 rounded-xl bg-brand-orange hover:bg-brand-orange-hover text-xs font-bold text-white transition-all justify-center cursor-pointer"
+          >
+            Return to Directory
+          </Link>
         </div>
       </div>
     );
@@ -158,20 +240,20 @@ export default function ResourceViewer({ resource }: ResourceViewerProps) {
 
             <div className="flex flex-wrap items-center gap-2 pt-1">
               <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-slate-900 text-brand-blue border border-slate-800">
-                {resource.category}
+                {activeResource.category}
               </span>
-              <span className={`text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full border ${resource.type === "free"
+              <span className={`text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full border ${activeResource.type === "free"
                   ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-400"
                   : "bg-amber-500/10 border-amber-500/20 text-amber-400"
                 }`}>
-                {resource.type} Resource
+                {activeResource.type} Resource
               </span>
             </div>
 
             <h1 className="text-3xl font-extrabold text-white tracking-tight sm:text-4xl pt-1">
-              {resource.title}
+              {activeResource.title}
             </h1>
-            <p className="text-sm text-brand-text-muted max-w-3xl leading-relaxed">{resource.description}</p>
+            <p className="text-sm text-brand-text-muted max-w-3xl leading-relaxed">{activeResource.description}</p>
           </div>
 
           {/* User role details badge */}
@@ -200,17 +282,14 @@ export default function ResourceViewer({ resource }: ResourceViewerProps) {
 
                 <a
                   href={pdfUrl}
-                  download={`${resource.slug}.pdf`}
+                  download={`${activeResource.slug}.pdf`}
                   onClick={async () => {
                     try {
-                      const docs = await queryDocuments("resources", where("slug", "==", resource.slug));
-                      if (docs.length > 0) {
-                        const docId = docs[0].id;
-                        const currentCount = docs[0].downloadCount || 0;
-                        await updateDocument("resources", docId, {
-                          downloadCount: currentCount + 1
-                        });
-                      }
+                      const currentCount = activeResource.downloadCount || 0;
+                      await updateDocument("resources", activeResource.id, {
+                        downloadCount: currentCount + 1
+                      });
+                      setActiveResource(prev => prev ? { ...prev, downloadCount: currentCount + 1 } : null);
                     } catch (err) {
                       console.error("Failed to increment download count:", err);
                     }
@@ -249,7 +328,7 @@ export default function ResourceViewer({ resource }: ResourceViewerProps) {
                 pdfUrl && (
                   <iframe
                     src={pdfUrl}
-                    title={resource.title}
+                    title={activeResource.title}
                     className="w-full h-[850px] rounded-xl bg-slate-900"
                   />
                 )
@@ -260,9 +339,9 @@ export default function ResourceViewer({ resource }: ResourceViewerProps) {
           /* LOCKED VIEW: PURCHASE CARD REQUIRED */
           <div className="py-12">
             <PurchaseCard
-              resourceId={resource.id}
-              resourceTitle={resource.title}
-              price={resource.price || 0}
+              resourceId={activeResource.id}
+              resourceTitle={activeResource.title}
+              price={activeResource.price || 0}
             />
           </div>
         )}

@@ -35,14 +35,65 @@ interface ResourceDoc {
 
 const CATEGORIES = [
   "All",
-  "Industrial Engineering",
-  "Lean Six Sigma",
-  "Automation",
-  "Leadership",
-  "Quality Management",
-  "Career Development",
-  "Interview Preparation"
+  "Documents",
+  "PDFs",
+  "Templates",
+  "Recordings",
+  "Downloads"
 ];
+
+const getUICategory = (res: { category: string; driveLink?: string; fileUrl?: string; tags?: string[]; title?: string }): string => {
+  const cat = (res.category || "").trim().toLowerCase();
+  if (["documents", "pdfs", "templates", "recordings", "downloads"].includes(cat)) {
+    return res.category.trim();
+  }
+  if (cat === "industrial engineering" || cat === "lean six sigma" || cat === "quality management") {
+    return "PDFs";
+  }
+  if (cat === "automation" || cat === "downloads") {
+    return "Downloads";
+  }
+  
+  // Map based on file URL/link, tags, or title
+  const fileUrl = (res.driveLink || res.fileUrl || "").toLowerCase();
+  const tags = (res.tags || []).map(t => t.toLowerCase());
+  const title = (res.title || "").toLowerCase();
+  
+  if (fileUrl.endsWith(".pdf") || tags.includes("pdf") || title.includes("pdf")) {
+    return "PDFs";
+  }
+  if (
+    fileUrl.includes("drive.google.com") || 
+    fileUrl.includes("docs.google.com") || 
+    tags.includes("template") ||
+    tags.includes("framework") ||
+    title.includes("template") ||
+    title.includes("framework")
+  ) {
+    return "Templates";
+  }
+  if (
+    fileUrl.includes("youtube.com") || 
+    fileUrl.includes("vimeo.com") || 
+    fileUrl.includes("mp4") || 
+    tags.includes("recording") ||
+    tags.includes("video") ||
+    title.includes("recording") ||
+    title.includes("video")
+  ) {
+    return "Recordings";
+  }
+  if (
+    fileUrl.includes("download") || 
+    fileUrl.includes("zip") || 
+    fileUrl.includes("api/resources") ||
+    tags.includes("download")
+  ) {
+    return "Downloads";
+  }
+  
+  return "Documents";
+};
 
 export default function ResourcesPage() {
   const { user, loading } = useAuth();
@@ -136,8 +187,7 @@ export default function ResourcesPage() {
 
     const matchesCategory =
       selectedCategory === "All" ||
-      res.category.toLowerCase() === selectedCategory.toLowerCase() ||
-      (res.tags && res.tags.some(tag => tag.toLowerCase() === selectedCategory.toLowerCase()));
+      getUICategory(res).toLowerCase() === selectedCategory.toLowerCase();
 
     return matchesSearch && matchesCategory;
   });
@@ -168,7 +218,7 @@ export default function ResourcesPage() {
       {/* Header */}
       <div className="border-b border-portal-border/60 pb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-extrabold text-white tracking-tight sm:text-4xl">Academy Resources</h1>
+          <h1 className="text-3xl font-extrabold text-white tracking-tight sm:text-4xl">Learning Resources</h1>
           <p className="text-sm text-portal-text-secondary mt-1">Access technical guides, operational playbooks, and corporate frameworks.</p>
         </div>
 
@@ -275,7 +325,7 @@ export default function ResourcesPage() {
                   {/* Header: Category & Access Badge */}
                   <div className="flex items-center justify-between gap-4">
                     <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full bg-slate-900/60 text-portal-secondary border border-portal-border/50">
-                      {res.category}
+                      {getUICategory(res)}
                     </span>
                     <span className={`inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full border ${accessBadgeColor}`}>
                       {res.accessLevel.toLowerCase() === "free" ? <Unlock className="w-2.5 h-2.5" /> : <Lock className="w-2.5 h-2.5" />}
@@ -333,7 +383,7 @@ export default function ResourcesPage() {
                     {/* Open Resource */}
                     {userHasAccess ? (
                       <Link
-                        href={`/resources/${res.slug}`}
+                        href={`/resources/${res.slug || res.id}`}
                         className="py-2.5 px-4 rounded-xl bg-portal-primary hover:bg-portal-primary/95 text-white font-bold text-xs flex items-center gap-1.5 transition-all cursor-pointer"
                       >
                         <span>Open</span>
@@ -372,7 +422,7 @@ export default function ResourcesPage() {
             <div className="space-y-6">
               <div className="flex items-center gap-3">
                 <span className="text-xs font-bold uppercase tracking-wider px-2.5 py-1 rounded-full bg-slate-900 text-portal-secondary border border-portal-border/50">
-                  {previewResource.category}
+                  {getUICategory(previewResource)}
                 </span>
                 <span className={`text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full border ${
                   previewResource.accessLevel.toLowerCase() === "free"
@@ -422,7 +472,7 @@ export default function ResourcesPage() {
                 </button>
                 {hasAccess(previewResource.accessLevel) ? (
                   <Link
-                    href={`/resources/${previewResource.slug}`}
+                    href={`/resources/${previewResource.slug || previewResource.id}`}
                     className="flex-1 py-3 rounded-xl bg-portal-primary hover:bg-portal-primary/95 text-white text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer"
                   >
                     <span>Access Resource</span>

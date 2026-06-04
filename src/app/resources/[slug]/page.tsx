@@ -1,6 +1,5 @@
 import { resources } from "@/data/resources";
 import ResourceViewer from "@/components/ResourceViewer";
-import { notFound } from "next/navigation";
 
 // Generate paths for static generation
 export async function generateStaticParams() {
@@ -15,8 +14,8 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const resource = resources.find((r) => r.slug === slug);
   if (!resource) {
     return {
-      title: "Resource Not Found | NextGen Academy",
-      description: "This portal resource directory does not exist or has been removed."
+      title: "Learning Resource | NextGen Academy",
+      description: "Access technical guides, operational playbooks, and corporate frameworks."
     };
   }
 
@@ -33,11 +32,8 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 export default async function ResourcePage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const resource = resources.find((r) => r.slug === slug);
-  
-  if (!resource) {
-    notFound();
-  }
+  const resource = resources.find((r) => r.slug === slug) || null;
 
-  return <ResourceViewer resource={resource} />;
+  return <ResourceViewer resource={resource} fallbackSlug={slug} />;
 }
+
