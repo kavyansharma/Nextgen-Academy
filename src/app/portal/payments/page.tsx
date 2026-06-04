@@ -115,15 +115,29 @@ export default function PaymentDetailsPage() {
       setLoading(true);
 
       // 1. Fetch user subscription
-      const subDoc = await getDocument("subscriptions", user.uid) as Subscription | null;
+      let subDoc: Subscription | null = null;
+      try {
+        console.log("[loadData] Reading 'subscriptions' document for UID:", user.uid);
+        subDoc = await getDocument("subscriptions", user.uid) as Subscription | null;
+        console.log("[loadData] 'subscriptions' read finished. Document data:", subDoc);
+      } catch (subErr: any) {
+        console.warn("[loadData] Failed to retrieve user subscription from Firestore. Falling back to default. Error:", subErr?.message || subErr);
+      }
       setSubscription(subDoc);
 
       // 2. Fetch user payments
-      const paymentsList = await queryDocuments("payments", where("userId", "==", user.uid)) as Payment[];
+      let paymentsList: Payment[] = [];
+      try {
+        console.log("[loadData] Querying 'payments' documents for userId:", user.uid);
+        paymentsList = await queryDocuments("payments", where("userId", "==", user.uid)) as Payment[];
+        console.log("[loadData] 'payments' query finished. Count:", paymentsList.length);
+      } catch (payErr: any) {
+        console.warn("[loadData] Failed to retrieve user payments from Firestore. Falling back to empty array. Error:", payErr?.message || payErr);
+      }
       setPayments(paymentsList);
 
-    } catch (err) {
-      console.error("Error loading payment details:", err);
+    } catch (err: any) {
+      console.error("Critical error in loadData lifecycle wrapper:", err);
       showToast("error", "Failed to retrieve billing configurations.");
     } finally {
       setLoading(false);
