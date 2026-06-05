@@ -336,7 +336,7 @@ export default function PortalLayout({ children }: { children: React.ReactNode }
   };
 
   const sidebarContent = (
-    <div className="flex flex-col h-full bg-white border-r border-slate-200 text-slate-900">
+    <div className="flex flex-col h-full bg-portal-sidebar border-r border-slate-200 text-slate-900">
       <div className="flex items-center gap-3 px-6 h-20 border-b border-slate-150 flex-shrink-0">
         <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center font-bold text-xl text-white shadow-md">
           N
@@ -546,14 +546,14 @@ export default function PortalLayout({ children }: { children: React.ReactNode }
             className="fixed inset-0 bg-slate-900/40 z-40 lg:hidden transition-opacity duration-300"
             onClick={() => setMobileOpen(false)}
           ></div>
-          <aside className="fixed inset-y-0 left-0 w-[280px] bg-white z-50 lg:hidden shadow-2xl transition-transform duration-300 ease-in-out">
+          <aside className="fixed inset-y-0 left-0 w-[280px] bg-portal-sidebar z-50 lg:hidden shadow-2xl transition-transform duration-300 ease-in-out">
             {sidebarContent}
           </aside>
         </>
       )}
 
       <div className="flex-1 lg:pl-[280px] flex flex-col min-h-screen">
-        <header className="hidden lg:flex h-20 border-b border-slate-200 px-8 items-center justify-between bg-white/85 backdrop-blur-md sticky top-0 z-30 flex-shrink-0">
+        <header className="hidden lg:flex h-20 border-b border-slate-200 px-8 items-center justify-between bg-white sticky top-0 z-30 flex-shrink-0">
           <div className="text-xs text-slate-500">
             Console: <span className="font-bold text-slate-900 uppercase tracking-wider">{user.role} Tier</span>
           </div>

@@ -6,7 +6,7 @@
   --color-brand-blue: #0EA5E9;
   --color-brand-blue-hover: #0284c7;
   --color-portal-bg: #F8FAFC;
-  --color-portal-sidebar: #FFFFFF;
+  --color-portal-sidebar: #F1F5F9;
   --color-portal-card: #FFFFFF;
   --color-portal-border: #E2E8F0;
   --color-portal-primary: #2563EB;
@@ -22,10 +22,16 @@
   --color-brand-text-muted: #64748B;
   --color-brand-text-light: #0F172A;
   
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.05);
+  --shadow-md: 0 1px 3px rgba(0,0,0,0.05);
+  --shadow-lg: 0 1px 3px rgba(0,0,0,0.05);
+  --shadow-xl: 0 1px 3px rgba(0,0,0,0.05);
+  --shadow: 0 1px 3px rgba(0,0,0,0.05);
+
   --animate-fade-in-up: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
   --animate-fade-in: fadeIn 0.4s ease-out forwards;
   --animate-pulse-glow: pulseGlow 2s infinite ease-in-out;
-
+  
   @keyframes fadeInUp {
     from {
       opacity: 0;
@@ -101,8 +107,7 @@ body {
 
 /* Glassmorphism class */
 .glass {
-  background: rgba(255, 255, 255, 0.85);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(15, 23, 42, 0.06);
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
 }
