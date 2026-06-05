@@ -114,30 +114,24 @@ export default function PaymentDetailsPage() {
     try {
       setLoading(true);
 
+      console.log("[loadData] Initiating Firestore reads for UID:", user.uid);
+
       // 1. Fetch user subscription
-      let subDoc: Subscription | null = null;
-      try {
-        console.log("[loadData] Reading 'subscriptions' document for UID:", user.uid);
-        subDoc = await getDocument("subscriptions", user.uid) as Subscription | null;
-        console.log("[loadData] 'subscriptions' read finished. Document data:", subDoc);
-      } catch (subErr: any) {
-        console.warn("[loadData] Failed to retrieve user subscription from Firestore. Falling back to default. Error:", subErr?.message || subErr);
-      }
+      console.log("[loadData] Reading 'subscriptions' document for UID:", user.uid);
+      const subDoc = await getDocument("subscriptions", user.uid) as Subscription | null;
+      console.log("[loadData] 'subscriptions' read finished successfully. Data:", subDoc);
       setSubscription(subDoc);
 
       // 2. Fetch user payments
-      let paymentsList: Payment[] = [];
-      try {
-        console.log("[loadData] Querying 'payments' documents for userId:", user.uid);
-        paymentsList = await queryDocuments("payments", where("userId", "==", user.uid)) as Payment[];
-        console.log("[loadData] 'payments' query finished. Count:", paymentsList.length);
-      } catch (payErr: any) {
-        console.warn("[loadData] Failed to retrieve user payments from Firestore. Falling back to empty array. Error:", payErr?.message || payErr);
-      }
+      console.log("[loadData] Querying 'payments' documents for userId:", user.uid);
+      const paymentsList = await queryDocuments("payments", where("userId", "==", user.uid)) as Payment[];
+      console.log("[loadData] 'payments' query finished successfully. Count:", paymentsList.length);
       setPayments(paymentsList);
 
     } catch (err: any) {
-      console.error("Critical error in loadData lifecycle wrapper:", err);
+      console.error("Error loading payment details:", err);
+      console.error("FIRESTORE_ERROR_CODE:", err?.code);
+      console.error("FIRESTORE_ERROR_MESSAGE:", err?.message);
       showToast("error", "Failed to retrieve billing configurations.");
     } finally {
       setLoading(false);
