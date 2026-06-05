@@ -124,7 +124,7 @@ service cloud.firestore {
 
     // user_activity collection: Readable and writeable by document owner or admin.
     match /user_activity/{userId} {
-      allow read, write: if isAuthenticated() && (userId == request.auth.uid || isAdmin());
+      allow read, write: if isAuthenticated() && (request.auth.uid == userId || isAdmin());
     }
 
     // communications collection: Readable by authenticated users; writeable by admin.

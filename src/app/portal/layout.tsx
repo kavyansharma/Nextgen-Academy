@@ -267,7 +267,7 @@ export default function PortalLayout({ children }: { children: React.ReactNode }
   let badgeColor = "bg-portal-success/10 border-portal-success/20 text-portal-success";
   let subDesc = "Free Learning Tier";
 
-  const userRole = user?.role || "free";
+  const userRole = user.role;
 
   if (userRole === "admin") {
     subLabel = "ADMIN ACCESS";
@@ -385,7 +385,7 @@ export default function PortalLayout({ children }: { children: React.ReactNode }
           })}
         </div>
 
-        {user?.role === "admin" && (
+        {user.role === "admin" && (
           <div className="space-y-1.5 pt-2 border-t border-portal-border/30">
             <p className="text-[10px] font-bold uppercase tracking-widest text-portal-text-secondary px-3 mb-2">Management</p>
             {adminMenuItems.map((item) => {
@@ -416,11 +416,11 @@ export default function PortalLayout({ children }: { children: React.ReactNode }
       <div className="p-4 border-t border-portal-border/45 bg-slate-950/20 flex-shrink-0">
         <div className="flex items-center gap-3 mb-4 px-2">
           <div className="w-10 h-10 rounded-xl bg-slate-800 border border-portal-border/80 flex items-center justify-center font-bold text-white text-md shadow-sm">
-            {(user?.fullName || "U").charAt(0).toUpperCase()}
+            {user.fullName.charAt(0).toUpperCase()}
           </div>
           
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-bold text-white truncate leading-tight">{user?.fullName || "User"}</p>
+            <p className="text-sm font-bold text-white truncate leading-tight">{user.fullName}</p>
             <div className="flex flex-wrap items-center gap-1.5 mt-1">
               <span className={`px-2 py-0.5 rounded text-[8px] font-bold uppercase border ${badgeColor}`}>
                 {subLabel}
@@ -555,7 +555,7 @@ export default function PortalLayout({ children }: { children: React.ReactNode }
       <div className="flex-1 lg:pl-[280px] flex flex-col min-h-screen">
         <header className="hidden lg:flex h-20 border-b border-portal-border/40 px-8 items-center justify-between bg-portal-sidebar/20 backdrop-blur-md sticky top-0 z-30 flex-shrink-0">
           <div className="text-xs text-portal-text-secondary">
-            Console: <span className="font-bold text-white uppercase tracking-wider">{(user?.role || "Free")} Tier</span>
+            Console: <span className="font-bold text-white uppercase tracking-wider">{user.role} Tier</span>
           </div>
           
           <div className="flex items-center gap-4">

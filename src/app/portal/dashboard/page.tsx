@@ -116,7 +116,7 @@ export default function DashboardPage() {
       try {
         setLoading(true);
 
-        const userRole = user?.role || "free";
+        const userRole = user.role;
         const courseConstraints = (userRole === "admin" || userRole === "paid")
           ? []
           : [where("type", "==", "free")];
@@ -318,8 +318,8 @@ export default function DashboardPage() {
 
   if (!user) return null;
 
-  const formattedRole = (user?.role || "free").charAt(0).toUpperCase() + (user?.role || "free").slice(1);
-  const subscriptionLabel = user?.role === "admin" ? "Enterprise Administrator" : user?.role === "paid" ? "Paid Premium Member" : "Free Learning Tier";
+  const formattedRole = user.role.charAt(0).toUpperCase() + user.role.slice(1);
+  const subscriptionLabel = user.role === "admin" ? "Enterprise Administrator" : user.role === "paid" ? "Paid Premium Member" : "Free Learning Tier";
 
   return (
     <div className="space-y-8 animate-fade-in text-slate-100 font-sans">
@@ -331,15 +331,15 @@ export default function DashboardPage() {
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="flex items-center gap-5">
             <div className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-portal-primary to-portal-secondary flex items-center justify-center text-white text-2xl font-bold shadow-lg shadow-portal-primary/25 border border-portal-border/40">
-              {(user?.fullName || "U").charAt(0).toUpperCase()}
+              {user.fullName.charAt(0).toUpperCase()}
             </div>
             <div>
               <div className="flex items-center gap-2.5">
-                <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">Welcome, {user?.fullName || "User"}</h1>
+                <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">Welcome, {user.fullName}</h1>
                 <Sparkles className="w-5.5 h-5.5 text-portal-warning animate-pulse" />
               </div>
               <div className="flex flex-wrap items-center gap-x-4 gap-y-2 mt-1.5 text-xs text-portal-text-secondary">
-                <span className="font-semibold text-slate-300">@{user?.username || "user"}</span>
+                <span className="font-semibold text-slate-300">@{user.username}</span>
                 <span className="w-1.5 h-1.5 rounded-full bg-slate-700"></span>
                 <span>System Role: <span className="font-semibold text-portal-secondary">{formattedRole}</span></span>
                 <span className="w-1.5 h-1.5 rounded-full bg-slate-700"></span>
