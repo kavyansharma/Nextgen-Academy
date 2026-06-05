@@ -189,47 +189,45 @@ export default function FresherForm() {
   };
 
   return (
-    <div className="relative min-h-screen bg-brand-dark py-12 px-4 sm:px-6 lg:px-8 overflow-hidden">
-      <div className="absolute bottom-1/4 left-1/4 -translate-x-1/2 w-[300px] h-[300px] bg-brand-orange/5 rounded-full blur-[80px] pointer-events-none"></div>
-
+    <div className="relative min-h-screen bg-slate-50 py-12 px-4 sm:px-6 lg:px-8 overflow-hidden">
       <div className="max-w-4xl mx-auto relative space-y-8">
         
         {/* Back Link */}
-        <Link href="/" className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-400 hover:text-brand-orange transition-colors duration-200">
+        <Link href="/" className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-655 hover:text-brand-orange transition-colors duration-200">
           <ArrowLeft className="w-3.5 h-3.5" />
           <span>Back to Home</span>
         </Link>
 
         {/* Header */}
         <div className="space-y-3">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-400/10 border border-amber-400/20 text-amber-400 text-xs font-semibold uppercase tracking-wider">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-50 border border-amber-200 text-amber-700 text-xs font-semibold uppercase tracking-wider">
             <GraduationCap className="w-3.5 h-3.5" />
             <span>Graduate / Fresher Entry</span>
           </div>
-          <h1 className="text-3xl font-extrabold text-white">
+          <h1 className="text-3xl font-extrabold text-slate-900">
             Performance Academy Enrollment
           </h1>
-          <p className="text-sm text-brand-text-muted">
+          <p className="text-sm text-slate-600">
             Launch your career in the core engineering sectors. Register your interest, submit your college capstone/industrial project report, and apply for our validation academies.
           </p>
         </div>
 
         {/* Form Container */}
-        <div className="bg-brand-dark-light border border-slate-800 rounded-3xl p-6 sm:p-8 shadow-2xl glass">
+        <div className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-sm">
           {submitStatus === "success" ? (
             <div className="text-center py-12 space-y-6 animate-fade-in">
-              <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400">
+              <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-emerald-50 border border-emerald-250 text-emerald-600">
                 <CheckCircle2 className="w-10 h-10" />
               </div>
               <div className="space-y-2">
-                <h3 className="text-2xl font-bold text-white">Application Received</h3>
-                <p className="text-sm text-brand-text-muted leading-relaxed max-w-lg mx-auto">
+                <h3 className="text-2xl font-bold text-slate-900">Application Received</h3>
+                <p className="text-sm text-slate-600 leading-relaxed max-w-lg mx-auto">
                   Thank you for applying. A NextGen Performance Academy coordinator will evaluate your graduation details and project report, and connect with you regarding active validation batches.
                 </p>
               </div>
               <button 
                 onClick={() => setSubmitStatus("idle")}
-                className="px-6 py-2.5 rounded-xl bg-slate-900 border border-slate-800 hover:border-brand-orange hover:bg-slate-800 text-white text-xs font-semibold transition-all duration-300"
+                className="px-6 py-2.5 rounded-xl bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-semibold transition-all duration-300 shadow-sm cursor-pointer"
               >
                 Submit another application
               </button>
@@ -238,7 +236,7 @@ export default function FresherForm() {
             <form onSubmit={handleSubmit} className="space-y-8">
               
               {submitStatus === "error" && (
-                <div className="p-4 rounded-xl bg-rose-500/10 border border-rose-500/20 flex items-center gap-3 text-rose-400 text-sm animate-fade-in">
+                <div className="p-4 rounded-xl bg-rose-50 border border-rose-200 flex items-center gap-3 text-rose-700 text-sm animate-fade-in">
                   <AlertTriangle className="w-5 h-5 flex-shrink-0" />
                   <span>{errorMessage || "Application failed. Verify file sizes are correct (Resume: 10MB, Report: 10MB)."}</span>
                 </div>
@@ -246,54 +244,54 @@ export default function FresherForm() {
 
               {/* SECTION 1: Personal Details */}
               <div className="space-y-4">
-                <h3 className="text-sm font-bold uppercase tracking-wider text-amber-400 border-b border-slate-800 pb-2">
+                <h3 className="text-sm font-bold uppercase tracking-wider text-slate-800 border-b border-slate-100 pb-2">
                   1. Personal Details
                 </h3>
                 
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
                   
                   <div className="space-y-2">
-                    <label className="text-xs font-semibold text-slate-300">First Name *</label>
+                    <label className="text-xs font-semibold text-slate-700">First Name *</label>
                     <input
                       type="text"
                       name="firstName"
                       value={fields.firstName}
                       onChange={handleChange}
-                      className={`w-full bg-slate-950 border rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-400 ${
-                        errors.firstName ? "border-rose-500" : "border-slate-800"
+                      className={`w-full bg-white border rounded-xl px-4 py-2.5 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 shadow-sm ${
+                        errors.firstName ? "border-rose-500" : "border-slate-300"
                       }`}
                       placeholder="First Name"
                     />
                   </div>
 
                   <div className="space-y-2">
-                    <label className="text-xs font-semibold text-slate-300">Last Name *</label>
+                    <label className="text-xs font-semibold text-slate-700">Last Name *</label>
                     <input
                       type="text"
                       name="lastName"
                       value={fields.lastName}
                       onChange={handleChange}
-                      className={`w-full bg-slate-950 border rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-400 ${
-                        errors.lastName ? "border-rose-500" : "border-slate-800"
+                      className={`w-full bg-white border rounded-xl px-4 py-2.5 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 shadow-sm ${
+                        errors.lastName ? "border-rose-500" : "border-slate-300"
                       }`}
                       placeholder="Last Name"
                     />
                   </div>
 
                   <div className="space-y-2">
-                    <label className="text-xs font-semibold text-slate-300">Gender *</label>
+                    <label className="text-xs font-semibold text-slate-700">Gender *</label>
                     <select
                       name="gender"
                       value={fields.gender}
                       onChange={handleChange}
-                      className={`w-full bg-slate-950 border rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-400 ${
-                        errors.gender ? "border-rose-500" : "border-slate-800"
+                      className={`w-full bg-white border rounded-xl px-4 py-2.5 text-sm text-slate-900 focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 shadow-sm cursor-pointer ${
+                        errors.gender ? "border-rose-500" : "border-slate-300"
                       }`}
                     >
-                      <option value="">Select Gender</option>
-                      <option value="Male">Male</option>
-                      <option value="Female">Female</option>
-                      <option value="Other">Other</option>
+                      <option value="" className="text-slate-900 bg-white">Select Gender</option>
+                      <option value="Male" className="text-slate-900 bg-white">Male</option>
+                      <option value="Female" className="text-slate-900 bg-white">Female</option>
+                      <option value="Other" className="text-slate-900 bg-white">Other</option>
                     </select>
                   </div>
 
@@ -302,41 +300,41 @@ export default function FresherForm() {
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
                   
                   <div className="space-y-2">
-                    <label className="text-xs font-semibold text-slate-300">Date of Birth *</label>
+                    <label className="text-xs font-semibold text-slate-700">Date of Birth *</label>
                     <input
                       type="date"
                       name="dob"
                       value={fields.dob}
                       onChange={handleChange}
-                      className={`w-full bg-slate-950 border rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-400 ${
-                        errors.dob ? "border-rose-500" : "border-slate-800"
+                      className={`w-full bg-white border rounded-xl px-4 py-2.5 text-sm text-slate-900 focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 shadow-sm ${
+                        errors.dob ? "border-rose-500" : "border-slate-300"
                       }`}
                     />
                   </div>
 
                   <div className="space-y-2">
-                    <label className="text-xs font-semibold text-slate-300">Email Address *</label>
+                    <label className="text-xs font-semibold text-slate-700">Email Address *</label>
                     <input
                       type="email"
                       name="email"
                       value={fields.email}
                       onChange={handleChange}
-                      className={`w-full bg-slate-950 border rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-400 ${
-                        errors.email ? "border-rose-500" : "border-slate-800"
+                      className={`w-full bg-white border rounded-xl px-4 py-2.5 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 shadow-sm ${
+                        errors.email ? "border-rose-500" : "border-slate-300"
                       }`}
                       placeholder="name@gmail.com"
                     />
                   </div>
 
                   <div className="space-y-2">
-                    <label className="text-xs font-semibold text-slate-300">Mobile Number *</label>
+                    <label className="text-xs font-semibold text-slate-700">Mobile Number *</label>
                     <input
                       type="tel"
                       name="mobile"
                       value={fields.mobile}
                       onChange={handleChange}
-                      className={`w-full bg-slate-950 border rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-400 ${
-                        errors.mobile ? "border-rose-500" : "border-slate-800"
+                      className={`w-full bg-white border rounded-xl px-4 py-2.5 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 shadow-sm ${
+                        errors.mobile ? "border-rose-500" : "border-slate-300"
                       }`}
                       placeholder="Mobile number"
                     />
@@ -346,14 +344,14 @@ export default function FresherForm() {
 
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
                   <div className="space-y-2">
-                    <label className="text-xs font-semibold text-slate-300">City / Location *</label>
+                    <label className="text-xs font-semibold text-slate-700">City / Location *</label>
                     <input
                       type="text"
                       name="city"
                       value={fields.city}
                       onChange={handleChange}
-                      className={`w-full bg-slate-950 border rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-400 ${
-                        errors.city ? "border-rose-500" : "border-slate-800"
+                      className={`w-full bg-white border rounded-xl px-4 py-2.5 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 shadow-sm ${
+                        errors.city ? "border-rose-500" : "border-slate-300"
                       }`}
                       placeholder="e.g. Bangalore"
                     />
@@ -363,35 +361,35 @@ export default function FresherForm() {
 
               {/* SECTION 2: Academic Profile */}
               <div className="space-y-4">
-                <h3 className="text-sm font-bold uppercase tracking-wider text-amber-400 border-b border-slate-800 pb-2">
+                <h3 className="text-sm font-bold uppercase tracking-wider text-slate-800 border-b border-slate-100 pb-2">
                   2. Academic Profile
                 </h3>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                   
                   <div className="space-y-2">
-                    <label className="text-xs font-semibold text-slate-300">Degree & Specialization *</label>
+                    <label className="text-xs font-semibold text-slate-700">Degree & Specialization *</label>
                     <input
                       type="text"
                       name="degree"
                       value={fields.degree}
                       onChange={handleChange}
-                      className={`w-full bg-slate-950 border rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-400 ${
-                        errors.degree ? "border-rose-500" : "border-slate-800"
+                      className={`w-full bg-white border rounded-xl px-4 py-2.5 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 shadow-sm ${
+                        errors.degree ? "border-rose-500" : "border-slate-300"
                       }`}
                       placeholder="e.g. B.E. Electrical Engineering (2026 Batch)"
                     />
                   </div>
 
                   <div className="space-y-2">
-                    <label className="text-xs font-semibold text-slate-300">Institute / University Name *</label>
+                    <label className="text-xs font-semibold text-slate-700">Institute / University Name *</label>
                     <input
                       type="text"
                       name="institute"
                       value={fields.institute}
                       onChange={handleChange}
-                      className={`w-full bg-slate-950 border rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-400 ${
-                        errors.institute ? "border-rose-500" : "border-slate-800"
+                      className={`w-full bg-white border rounded-xl px-4 py-2.5 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 shadow-sm ${
+                        errors.institute ? "border-rose-500" : "border-slate-300"
                       }`}
                       placeholder="e.g. NIT Trichy"
                     />
@@ -402,18 +400,18 @@ export default function FresherForm() {
 
               {/* SECTION 3: Industrial Capstone Project */}
               <div className="space-y-4">
-                <h3 className="text-sm font-bold uppercase tracking-wider text-amber-400 border-b border-slate-800 pb-2">
+                <h3 className="text-sm font-bold uppercase tracking-wider text-slate-800 border-b border-slate-100 pb-2">
                   3. Industrial Capstone Project
                 </h3>
                 <div className="space-y-2">
-                  <label className="text-xs font-semibold text-slate-300">Project Description *</label>
+                  <label className="text-xs font-semibold text-slate-700">Project Description *</label>
                   <textarea
-                    name="industrialProject"
+                     name="industrialProject"
                     rows={4}
                     value={fields.industrialProject}
                     onChange={handleChange}
-                    className={`w-full bg-slate-950 border rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-400 resize-none ${
-                      errors.industrialProject ? "border-rose-500" : "border-slate-800"
+                    className={`w-full bg-white border rounded-xl px-4 py-2.5 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 resize-none shadow-sm ${
+                      errors.industrialProject ? "border-rose-500" : "border-slate-300"
                     }`}
                     placeholder="Describe your major industrial academic project, your role, tools used, and the operational results..."
                   />
@@ -422,7 +420,7 @@ export default function FresherForm() {
 
               {/* SECTION 4: Dual File Uploads */}
               <div className="space-y-4">
-                <h3 className="text-sm font-bold uppercase tracking-wider text-amber-400 border-b border-slate-800 pb-2">
+                <h3 className="text-sm font-bold uppercase tracking-wider text-slate-800 border-b border-slate-100 pb-2">
                   4. Document Submission
                 </h3>
 
@@ -430,11 +428,11 @@ export default function FresherForm() {
                   
                   {/* File 1: Resume */}
                   <div className="space-y-2">
-                    <label className="text-xs font-semibold text-slate-300 block mb-1">Resume Upload *</label>
+                    <label className="text-xs font-semibold text-slate-700 block mb-1">Resume Upload *</label>
                     <div 
                       onClick={() => resumeInputRef.current?.click()}
-                      className={`border border-dashed rounded-xl p-6 text-center cursor-pointer hover:bg-slate-900/50 hover:border-amber-400 transition-all ${
-                        errors.resume ? "border-rose-500 bg-rose-500/5" : "border-slate-800 bg-slate-950/20"
+                      className={`border border-dashed rounded-xl p-6 text-center cursor-pointer hover:bg-slate-50 hover:border-amber-500 transition-all ${
+                        errors.resume ? "border-rose-300 bg-rose-50/30" : "border-slate-300 bg-slate-50/50"
                       }`}
                     >
                       <input
@@ -445,21 +443,21 @@ export default function FresherForm() {
                         accept=".pdf,.doc,.docx"
                       />
                       <Upload className="w-6 h-6 mx-auto mb-2 text-slate-400" />
-                      <span className="text-xs font-semibold text-white block truncate">
+                      <span className="text-xs font-semibold text-slate-800 block truncate">
                         {resume ? resume.name : "Select Resume File"}
                       </span>
-                      <span className="text-[10px] text-brand-text-muted">PDF/DOCX under 10MB</span>
+                      <span className="text-[10px] text-slate-400">PDF/DOCX under 10MB</span>
                     </div>
-                    {errors.resume && <p className="text-xs text-rose-400 mt-1">{errors.resume}</p>}
+                    {errors.resume && <p className="text-xs text-rose-600 mt-1">{errors.resume}</p>}
                   </div>
 
                   {/* File 2: Project Report */}
                   <div className="space-y-2">
-                    <label className="text-xs font-semibold text-slate-300 block mb-1">Project Report Upload *</label>
+                    <label className="text-xs font-semibold text-slate-700 block mb-1">Project Report Upload *</label>
                     <div 
                       onClick={() => reportInputRef.current?.click()}
-                      className={`border border-dashed rounded-xl p-6 text-center cursor-pointer hover:bg-slate-900/50 hover:border-amber-400 transition-all ${
-                        errors.projectReport ? "border-rose-500 bg-rose-500/5" : "border-slate-800 bg-slate-950/20"
+                      className={`border border-dashed rounded-xl p-6 text-center cursor-pointer hover:bg-slate-50 hover:border-amber-500 transition-all ${
+                        errors.projectReport ? "border-rose-300 bg-rose-50/30" : "border-slate-300 bg-slate-50/50"
                       }`}
                     >
                       <input
@@ -470,12 +468,12 @@ export default function FresherForm() {
                         accept=".pdf,.doc,.docx"
                       />
                       <FileText className="w-6 h-6 mx-auto mb-2 text-slate-400" />
-                      <span className="text-xs font-semibold text-white block truncate">
+                      <span className="text-xs font-semibold text-slate-800 block truncate">
                         {projectReport ? projectReport.name : "Select Project Report"}
                       </span>
-                      <span className="text-[10px] text-brand-text-muted">PDF/DOCX under 10MB</span>
+                      <span className="text-[10px] text-slate-400">PDF/DOCX under 10MB</span>
                     </div>
-                    {errors.projectReport && <p className="text-xs text-rose-400 mt-1">{errors.projectReport}</p>}
+                    {errors.projectReport && <p className="text-xs text-rose-600 mt-1">{errors.projectReport}</p>}
                   </div>
 
                 </div>
@@ -486,7 +484,7 @@ export default function FresherForm() {
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="w-full py-4 rounded-xl bg-amber-400 hover:bg-amber-500 text-slate-950 font-bold transition-all duration-300 cursor-pointer flex items-center justify-center gap-2 disabled:opacity-50"
+                  className="w-full py-4 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-semibold transition-all duration-300 cursor-pointer flex items-center justify-center gap-2 disabled:opacity-50 shadow-md"
                 >
                   {isSubmitting ? (
                     <span>Submitting application...</span>
@@ -497,13 +495,13 @@ export default function FresherForm() {
 
                 {isSubmitting && (
                   <div className="space-y-2 animate-fade-in">
-                    <div className="flex justify-between text-xs text-slate-300 font-semibold">
+                    <div className="flex justify-between text-xs text-slate-600 font-semibold">
                       <span>{uploadProgress < 90 ? "Uploading files..." : "Saving to Google Drive & Sheets..."}</span>
                       <span>{uploadProgress}%</span>
                     </div>
-                    <div className="w-full bg-slate-950 rounded-full h-2 overflow-hidden border border-slate-800">
+                    <div className="w-full bg-slate-100 rounded-full h-2 overflow-hidden border border-slate-200">
                       <div 
-                        className="bg-gradient-to-r from-amber-400 to-orange-500 h-2 rounded-full transition-all duration-300"
+                        className="bg-gradient-to-r from-amber-500 to-orange-500 h-2 rounded-full transition-all duration-300"
                         style={{ width: `${uploadProgress}%` }}
                       ></div>
                     </div>

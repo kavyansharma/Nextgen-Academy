@@ -277,18 +277,18 @@ export default function AdminSupportDeskPage() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto space-y-8 animate-fade-in text-slate-100 font-sans">
+    <div className="max-w-7xl mx-auto space-y-8 animate-fade-in text-portal-text-primary font-sans">
       
       {/* Header */}
-      <div className="border-b border-portal-border/60 pb-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="border-b border-portal-border pb-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-extrabold text-white tracking-tight">Admin Support Desk</h1>
+          <h1 className="text-3xl font-extrabold text-portal-text-primary tracking-tight">Admin Support Desk</h1>
           <p className="text-sm text-portal-text-secondary mt-1">
             Review, reply, filter, and track resolving states for all LMS student support queries.
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <span className="px-3 py-1 bg-slate-900 border border-slate-800 rounded-full text-xs font-bold text-portal-primary">
+          <span className="px-3 py-1 bg-slate-50 border border-portal-border rounded-full text-xs font-bold text-portal-primary">
             Admin View
           </span>
         </div>
@@ -310,15 +310,15 @@ export default function AdminSupportDeskPage() {
                   placeholder="Search by ID, name, email..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-9 pr-3 py-2 rounded-xl bg-slate-950 border border-portal-border/60 text-white placeholder-slate-600 focus:outline-none focus:border-portal-primary text-xs"
+                  className="w-full pl-9 pr-3 py-2 rounded-xl bg-slate-50 border border-portal-border text-portal-text-primary placeholder-slate-600 focus:outline-none focus:border-portal-primary text-xs"
                 />
               </div>
-              <div className="flex items-center gap-1.5 bg-slate-900 border border-portal-border/50 rounded-xl px-3 py-2">
+              <div className="flex items-center gap-1.5 bg-slate-50 border border-portal-border/50 rounded-xl px-3 py-2">
                 <Filter className="w-3.5 h-3.5 text-portal-primary" />
                 <select
                   value={statusFilter}
                   onChange={(e) => setStatusFilter(e.target.value as any)}
-                  className="bg-transparent border-0 text-white text-xs font-semibold focus:outline-none focus:ring-0 cursor-pointer"
+                  className="bg-transparent border-0 text-portal-text-primary text-xs font-semibold focus:outline-none focus:ring-0 cursor-pointer"
                 >
                   <option value="all">All Statuses</option>
                   <option value="open">Open</option>
@@ -329,7 +329,7 @@ export default function AdminSupportDeskPage() {
             </div>
 
             {/* List panel */}
-            <div className="p-5 rounded-2xl bg-portal-card border border-portal-border/60 shadow-sm min-h-[400px]">
+            <div className="p-5 rounded-2xl bg-white border border-portal-border shadow-sm min-h-[400px]">
               {loadingTickets ? (
                 <div className="py-20 text-center">
                   <Loader2 className="w-8 h-8 animate-spin mx-auto text-portal-primary" />
@@ -346,7 +346,7 @@ export default function AdminSupportDeskPage() {
                       key={t.id}
                       onClick={() => setSelectedTicket(t)}
                       className={`pt-3 first:pt-0 flex justify-between items-center gap-4 p-2.5 rounded-xl transition-all cursor-pointer ${
-                        selectedTicket?.id === t.id ? "bg-slate-900 border border-portal-primary/30" : "hover:bg-slate-900/30 border border-transparent"
+                        selectedTicket?.id === t.id ? "bg-blue-50 border border-portal-primary/30" : "hover:bg-slate-50 border border-transparent"
                       }`}
                     >
                       <div className="min-w-0">
@@ -354,7 +354,7 @@ export default function AdminSupportDeskPage() {
                           <span className="text-[9px] font-mono text-slate-500 font-bold">{t.id}</span>
                           <span className="text-[8px] font-semibold text-slate-400 truncate max-w-[120px]">{t.userName}</span>
                         </div>
-                        <h4 className="text-xs font-bold text-white truncate max-w-[200px]" title={t.subject}>
+                        <h4 className="text-xs font-bold text-portal-text-primary truncate max-w-[200px]" title={t.subject}>
                           {t.subject}
                         </h4>
                         <span className="text-[9px] text-slate-600 block mt-0.5">
@@ -383,14 +383,14 @@ export default function AdminSupportDeskPage() {
           <h3 className="text-xs font-bold uppercase tracking-wider text-portal-text-secondary">Message Operations Desk</h3>
 
           {selectedTicket ? (
-            <div className="p-6 rounded-2xl bg-portal-card border border-portal-border/80 flex flex-col h-[520px] justify-between shadow-xl">
+            <div className="p-6 rounded-2xl bg-white border border-portal-border/80 flex flex-col h-[520px] justify-between shadow-xl">
               
               {/* Ticket Top bar */}
-              <div className="border-b border-portal-border/40 pb-4 mb-4 space-y-2">
+              <div className="border-b border-portal-border pb-4 mb-4 space-y-2">
                 <div className="flex justify-between items-start">
                   <div>
                     <span className="text-[9px] font-mono text-slate-500 font-bold">{selectedTicket.id} &bull; {selectedTicket.userEmail}</span>
-                    <h2 className="text-md font-bold text-white">{selectedTicket.subject}</h2>
+                    <h2 className="text-md font-bold text-portal-text-primary">{selectedTicket.subject}</h2>
                     <p className="text-[10px] text-slate-400">Created by: <strong>{selectedTicket.userName}</strong> on {new Date(selectedTicket.createdAt).toLocaleString()}</p>
                   </div>
                   
@@ -406,7 +406,7 @@ export default function AdminSupportDeskPage() {
                             ? status === "open" ? "bg-red-500/20 border-red-500/40 text-red-400" :
                               status === "in_progress" ? "bg-amber-500/20 border-amber-500/40 text-amber-400" :
                               "bg-emerald-500/20 border-emerald-500/40 text-emerald-400"
-                            : "bg-slate-900 border-slate-800 text-slate-400 hover:text-white hover:border-slate-700"
+                            : "bg-slate-900 border-slate-800 text-slate-400 hover:text-portal-primary hover:border-slate-700"
                         }`}
                       >
                         {status.toUpperCase()}
@@ -430,7 +430,7 @@ export default function AdminSupportDeskPage() {
                     if (isSystem) {
                       return (
                         <div key={idx} className="flex justify-center my-2">
-                          <span className="px-3 py-1 bg-slate-950 border border-slate-850 rounded-lg text-[9px] text-slate-500 font-medium">
+                          <span className="px-3 py-1 bg-slate-50 border border-slate-850 rounded-lg text-[9px] text-slate-500 font-medium">
                             {msg.message}
                           </span>
                         </div>
@@ -441,8 +441,8 @@ export default function AdminSupportDeskPage() {
                       <div key={idx} className={`flex flex-col ${isUser ? "items-start" : "items-end"}`}>
                         <div className={`p-3 rounded-2xl max-w-[85%] leading-relaxed ${
                           isUser
-                            ? "bg-slate-800 border border-slate-750 text-slate-200 rounded-tl-none"
-                            : "bg-brand-orange/15 border border-brand-orange/20 text-slate-100 rounded-tr-none"
+                            ? "bg-slate-100 border border-slate-750 text-portal-text-secondary rounded-tl-none"
+                            : "bg-brand-orange/15 border border-brand-orange/20 text-portal-text-primary rounded-tr-none"
                         }`}>
                           <p className="text-[9px] font-bold text-slate-400 mb-0.5">
                             {msg.senderName} ({msg.senderRole})
@@ -459,7 +459,7 @@ export default function AdminSupportDeskPage() {
               </div>
 
               {/* Reply Form */}
-              <form onSubmit={handleReplySubmit} className="flex gap-2 items-center border-t border-portal-border/30 pt-4">
+              <form onSubmit={handleReplySubmit} className="flex gap-2 items-center border-t border-slate-100 pt-4">
                 <input
                   type="text"
                   value={replyText}
@@ -467,12 +467,12 @@ export default function AdminSupportDeskPage() {
                   placeholder="Type an official support resolution reply message..."
                   required
                   disabled={isSendingReply}
-                  className="flex-1 px-4 py-2.5 rounded-xl bg-slate-950 border border-portal-border/60 text-white placeholder-slate-650 focus:outline-none focus:border-portal-primary text-xs"
+                  className="flex-1 px-4 py-2.5 rounded-xl bg-slate-50 border border-portal-border text-portal-text-primary placeholder-slate-650 focus:outline-none focus:border-portal-primary text-xs"
                 />
                 <button
                   type="submit"
                   disabled={isSendingReply || !replyText.trim()}
-                  className="p-3 rounded-xl bg-portal-primary hover:bg-portal-primary/95 text-white transition-colors cursor-pointer disabled:opacity-30 flex items-center justify-center"
+                  className="p-3 rounded-xl bg-portal-primary hover:bg-portal-primary/95 text-portal-text-primary transition-colors cursor-pointer disabled:opacity-30 flex items-center justify-center"
                 >
                   {isSendingReply ? (
                     <Loader2 className="w-4 h-4 animate-spin" />
@@ -484,10 +484,10 @@ export default function AdminSupportDeskPage() {
 
             </div>
           ) : (
-            <div className="p-6 rounded-2xl bg-portal-card border border-portal-border/60 flex flex-col justify-center items-center text-center h-[520px] space-y-4">
+            <div className="p-6 rounded-2xl bg-white border border-portal-border flex flex-col justify-center items-center text-center h-[520px] space-y-4">
               <Inbox className="w-12 h-12 text-slate-700 animate-bounce" />
               <div>
-                <h4 className="font-bold text-white">No Ticket Selected</h4>
+                <h4 className="font-bold text-portal-text-primary">No Ticket Selected</h4>
                 <p className="text-xs text-portal-text-secondary mt-1 max-w-sm">
                   Select a support query from the left pane to read conversations, reply to students, or adjust statuses.
                 </p>

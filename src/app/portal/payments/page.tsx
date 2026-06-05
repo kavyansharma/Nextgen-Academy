@@ -448,32 +448,32 @@ export default function PaymentDetailsPage() {
       if (plan === "premium_monthly") {
         return {
           label: "PREMIUM MONTHLY",
-          badge: "bg-gradient-to-r from-emerald-500/10 to-teal-500/10 border-emerald-500/20 text-emerald-400 shadow-sm",
+          badge: "bg-emerald-50 border-emerald-200 text-emerald-700 shadow-sm",
           desc: "Premium Monthly Access"
         };
       } else if (plan === "premium_yearly" || plan === "premium") {
         return {
           label: "PREMIUM YEARLY",
-          badge: "bg-gradient-to-r from-emerald-500/10 to-teal-500/10 border-emerald-500/20 text-emerald-400 shadow-sm",
+          badge: "bg-emerald-50 border-emerald-200 text-emerald-700 shadow-sm",
           desc: "Premium Yearly Access"
         };
       } else if (plan === "corporate") {
         return {
           label: "CORPORATE TIER",
-          badge: "bg-gradient-to-r from-purple-500/10 to-indigo-500/10 border-purple-500/20 text-purple-400 shadow-sm",
+          badge: "bg-purple-50 border-purple-200 text-purple-700 shadow-sm",
           desc: "Corporate Enterprise Membership"
         };
       }
       return {
         label: "PREMIUM MEMBER",
-        badge: "bg-gradient-to-r from-emerald-500/10 to-teal-500/10 border-emerald-500/20 text-emerald-400",
+        badge: "bg-emerald-50 border-emerald-200 text-emerald-700",
         desc: "Premium Tier Access"
       };
     }
     
     return {
       label: "FREE MEMBER",
-      badge: "bg-slate-800/40 border-slate-700/60 text-slate-400",
+      badge: "bg-slate-100 border-slate-200 text-slate-600",
       desc: "Free Learning Tier"
     };
   };
@@ -482,20 +482,20 @@ export default function PaymentDetailsPage() {
   const isPremiumUser = user.role === "admin" || user.role === "paid" || (subscription && subscription.status === "active");
 
   return (
-    <div className="space-y-6 animate-fade-in text-slate-100 font-sans">
+    <div className="space-y-6 animate-fade-in text-slate-900 font-sans">
       {/* Header */}
-      <div className="border-b border-portal-border/60 pb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="border-b border-slate-200 pb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-extrabold text-white tracking-tight sm:text-4xl flex items-center gap-2">
-            <CreditCard className="w-8 h-8 text-portal-secondary animate-pulse" />
+          <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight sm:text-4xl flex items-center gap-2">
+            <CreditCard className="w-8 h-8 text-portal-primary animate-pulse" />
             <span>Payment Details</span>
           </h1>
-          <p className="text-sm text-portal-text-secondary mt-1">Review active memberships, download professional invoices, and upgrade learning privileges.</p>
+          <p className="text-sm text-slate-500 mt-1">Review active memberships, download professional invoices, and upgrade learning privileges.</p>
         </div>
 
         <button
           onClick={loadData}
-          className="px-4 py-2.5 rounded-xl border border-portal-border hover:border-slate-500 bg-slate-900 text-xs font-bold text-slate-200 hover:text-white transition-all flex items-center gap-1.5 cursor-pointer self-start sm:self-center"
+          className="px-4 py-2.5 rounded-xl border border-slate-200 hover:border-slate-300 bg-white text-xs font-bold text-slate-700 hover:bg-slate-50 hover:text-slate-900 transition-all shadow-sm flex items-center gap-1.5 cursor-pointer self-start sm:self-center"
         >
           <Loader2 className={`w-3.5 h-3.5 ${loading ? "animate-spin" : ""}`} />
           <span>Sync Records</span>
@@ -506,28 +506,28 @@ export default function PaymentDetailsPage() {
       {toast && (
         <div className={`fixed top-4 right-4 z-50 flex gap-3 p-4 rounded-xl text-sm border shadow-lg animate-fade-in ${
           toast.type === "success" 
-            ? "bg-portal-success/10 border-portal-success/20 text-portal-success" 
-            : "bg-red-500/10 border-red-500/20 text-red-200"
+            ? "bg-emerald-50 border-emerald-200 text-emerald-800" 
+            : "bg-red-50 border-red-200 text-red-800"
         }`}>
           {toast.type === "success" ? (
-            <CheckCircle2 className="w-5 h-5 flex-shrink-0" />
+            <CheckCircle2 className="w-5 h-5 flex-shrink-0 text-emerald-600" />
           ) : (
-            <AlertCircle className="w-5 h-5 flex-shrink-0" />
+            <AlertCircle className="w-5 h-5 flex-shrink-0 text-red-600" />
           )}
           <span>{toast.message}</span>
         </div>
       )}
 
       {loading ? (
-        <div className="p-16 text-center text-portal-text-secondary">
+        <div className="p-16 text-center text-slate-500">
           <Loader2 className="w-8 h-8 animate-spin mx-auto text-portal-primary mb-3" />
           <span>Assembling ledger entries...</span>
         </div>
       ) : (
         <div className="space-y-8">
           {/* Top Billing Summary Card */}
-          <div className="p-6 rounded-3xl bg-portal-card border border-portal-border/60 shadow-xl overflow-hidden relative group">
-            <div className="absolute top-0 right-0 w-80 h-80 bg-portal-secondary/5 rounded-full blur-[80px] pointer-events-none"></div>
+          <div className="p-6 rounded-3xl bg-white border border-slate-200 shadow-sm overflow-hidden relative group">
+            <div className="absolute top-0 right-0 w-80 h-80 bg-blue-50/50 rounded-full blur-[80px] pointer-events-none"></div>
 
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6 items-center relative z-10">
               <div className="md:col-span-2 space-y-2">
@@ -536,32 +536,32 @@ export default function PaymentDetailsPage() {
                     {planDetails.label}
                   </span>
                   {isPremiumUser && (
-                    <span className="flex items-center gap-1 text-[9px] font-bold text-portal-secondary uppercase">
+                    <span className="flex items-center gap-1 text-[9px] font-bold text-portal-primary uppercase">
                       <ShieldCheck className="w-3.5 h-3.5" />
                       Verified Premium
                     </span>
                   )}
                 </div>
-                <h2 className="text-xl font-extrabold text-white">{planDetails.desc}</h2>
-                <p className="text-xs text-portal-text-secondary">NextGen Academy verified credentials and learning paths remain active while your account status is verified.</p>
+                <h2 className="text-xl font-extrabold text-slate-900">{planDetails.desc}</h2>
+                <p className="text-xs text-slate-500">NextGen Academy verified credentials and learning paths remain active while your account status is verified.</p>
               </div>
 
-              <div className="border-t md:border-t-0 md:border-l border-portal-border/40 pt-4 md:pt-0 md:pl-6 space-y-1">
-                <p className="text-[10px] font-bold uppercase tracking-wider text-portal-text-secondary">Status</p>
-                <p className={`text-md font-extrabold ${subscription?.status === "active" || user.role === "admin" ? "text-portal-success" : "text-slate-400"}`}>
+              <div className="border-t md:border-t-0 md:border-l border-slate-100 pt-4 md:pt-0 md:pl-6 space-y-1">
+                <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Status</p>
+                <p className={`text-md font-extrabold ${subscription?.status === "active" || user.role === "admin" ? "text-emerald-600" : "text-slate-500"}`}>
                   {user.role === "admin" ? "Platform Owner" : subscription?.status === "active" ? "Active (Paid)" : "Free (Inactive)"}
                 </p>
-                <p className="text-[10px] text-portal-text-secondary mt-1">
+                <p className="text-[10px] text-slate-400 mt-1">
                   Enrolled: {subscription?.startDate ? new Date(subscription.startDate).toLocaleDateString() : "N/A"}
                 </p>
               </div>
 
-              <div className="border-t md:border-t-0 md:border-l border-portal-border/40 pt-4 md:pt-0 md:pl-6 space-y-1">
-                <p className="text-[10px] font-bold uppercase tracking-wider text-portal-text-secondary">Billing Expiration</p>
-                <p className="text-md font-extrabold text-white">
+              <div className="border-t md:border-t-0 md:border-l border-slate-100 pt-4 md:pt-0 md:pl-6 space-y-1">
+                <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Billing Expiration</p>
+                <p className="text-md font-extrabold text-slate-900">
                   {user.role === "admin" ? "Always Open" : subscription?.expiryDate ? new Date(subscription.expiryDate).toLocaleDateString() : "Lifetime Free"}
                 </p>
-                <p className="text-[10px] text-portal-text-secondary mt-1">
+                <p className="text-[10px] text-slate-400 mt-1">
                   Billing cycle renewal occurs on cycle date.
                 </p>
               </div>
@@ -571,38 +571,38 @@ export default function PaymentDetailsPage() {
           {/* Payments & Invoices Section */}
           <div className="space-y-4">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-              <h2 className="text-xl font-bold text-white tracking-tight flex items-center gap-2">
+              <h2 className="text-xl font-bold text-slate-900 tracking-tight flex items-center gap-2">
                 <Calendar className="w-5 h-5 text-portal-primary" />
                 <span>Transaction History</span>
               </h2>
 
               {/* Search Bar */}
               <div className="relative w-full sm:w-64">
-                <Search className="w-4 h-4 text-portal-text-secondary absolute left-3 top-1/2 -translate-y-1/2" />
+                <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
                 <input
                   type="text"
                   placeholder="Search invoice or ID..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-9 pr-4 py-2 rounded-xl bg-slate-950/60 border border-portal-border/60 text-white placeholder-slate-500 focus:outline-none focus:border-portal-primary text-xs"
+                  className="w-full pl-9 pr-4 py-2 rounded-xl bg-white border border-slate-200 text-slate-900 placeholder-slate-400 focus:outline-none focus:border-portal-primary focus:ring-1 focus:ring-portal-primary text-xs shadow-sm"
                 />
               </div>
             </div>
 
             {/* Table */}
-            <div className="overflow-x-auto bg-portal-card border border-portal-border/60 shadow-xl rounded-2xl">
+            <div className="overflow-x-auto bg-white border border-slate-200 shadow-sm rounded-2xl">
               {processedPayments.length === 0 ? (
-                <div className="p-16 text-center text-portal-text-secondary space-y-6">
-                  <div className="inline-flex w-14 h-14 rounded-2xl bg-portal-primary/5 border border-portal-border/60 items-center justify-center text-slate-550">
+                <div className="p-16 text-center text-slate-500 space-y-6">
+                  <div className="inline-flex w-14 h-14 rounded-2xl bg-slate-50 border border-slate-200 items-center justify-center text-slate-400">
                     <Award className="w-6 h-6" />
                   </div>
                   <div className="space-y-2">
-                    <p className="font-bold text-white text-md">No Payments Found</p>
-                    <p className="text-xs text-portal-text-secondary max-w-sm mx-auto">No transaction records were located under this student profile. Upgrade to a paid plan below to begin learning.</p>
+                    <p className="font-bold text-slate-900 text-md">No Payments Found</p>
+                    <p className="text-xs text-slate-500 max-w-sm mx-auto">No transaction records were located under this student profile. Upgrade to a paid plan below to begin learning.</p>
                   </div>
                   <a
                     href="#upgrade-section"
-                    className="inline-flex px-5 py-2.5 rounded-xl bg-portal-primary hover:bg-portal-primary/90 text-xs font-bold text-white transition-all shadow-md"
+                    className="inline-flex px-5 py-2.5 rounded-xl bg-portal-primary hover:bg-portal-primary/95 text-xs font-bold text-white transition-all shadow-md"
                   >
                     Upgrade Membership
                   </a>
@@ -610,9 +610,9 @@ export default function PaymentDetailsPage() {
               ) : (
                 <table className="w-full text-left border-collapse text-xs">
                   <thead>
-                    <tr className="border-b border-portal-border/60 font-bold text-portal-text-secondary uppercase tracking-wider bg-slate-950/45">
+                    <tr className="border-b border-slate-200 font-bold text-slate-500 uppercase tracking-wider bg-slate-50">
                       <th className="p-4.5 pl-6">
-                        <button onClick={() => handleSort("createdAt")} className="flex items-center gap-1 hover:text-white transition-colors cursor-pointer">
+                        <button onClick={() => handleSort("createdAt")} className="flex items-center gap-1 hover:text-slate-800 transition-colors cursor-pointer">
                           <span>Transaction Date</span>
                           <ArrowUpDown className="w-3 h-3" />
                         </button>
@@ -620,7 +620,7 @@ export default function PaymentDetailsPage() {
                       <th className="p-4.5">Plan / Description</th>
                       <th className="p-4.5">Transaction ID</th>
                       <th className="p-4.5">
-                        <button onClick={() => handleSort("amount")} className="flex items-center gap-1 hover:text-white transition-colors cursor-pointer">
+                        <button onClick={() => handleSort("amount")} className="flex items-center gap-1 hover:text-slate-800 transition-colors cursor-pointer">
                           <span>Amount</span>
                           <ArrowUpDown className="w-3 h-3" />
                         </button>
@@ -629,26 +629,26 @@ export default function PaymentDetailsPage() {
                       <th className="p-4.5 pr-6 text-right">Invoice</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-portal-border/30">
+                  <tbody className="divide-y divide-slate-100">
                     {processedPayments.map((pay) => {
-                      let planName = "Premium Upgrade";
-                      if (pay.amount === 999) planName = "Premium Monthly";
-                      else if (pay.amount === 7999) planName = "Premium Yearly";
+                       let planName = "Premium Upgrade";
+                       if (pay.amount === 999) planName = "Premium Monthly";
+                       else if (pay.amount === 7999) planName = "Premium Yearly";
 
-                      let statusBadge = "bg-portal-success/10 border-portal-success/20 text-portal-success";
-                      if (pay.status === "failed") statusBadge = "bg-red-500/10 border-red-500/20 text-red-400";
-                      else if (pay.status === "refunded") statusBadge = "bg-amber-500/10 border-amber-500/20 text-amber-400";
+                       let statusBadge = "bg-emerald-50 border-emerald-200 text-emerald-700";
+                       if (pay.status === "failed") statusBadge = "bg-red-50 border-red-200 text-red-700";
+                       else if (pay.status === "refunded") statusBadge = "bg-amber-50 border-amber-200 text-amber-700";
 
-                      return (
-                        <tr key={pay.id} className="hover:bg-slate-900/20 transition-colors">
-                          <td className="p-4.5 pl-6 font-medium text-white">
+                       return (
+                        <tr key={pay.id} className="hover:bg-slate-50/80 transition-colors">
+                          <td className="p-4.5 pl-6 font-medium text-slate-900">
                             {new Date(pay.createdAt).toLocaleDateString()}
                           </td>
-                          <td className="p-4.5 text-slate-300 font-semibold">{planName}</td>
-                          <td className="p-4.5 font-mono text-portal-secondary select-all">
+                          <td className="p-4.5 text-slate-700 font-semibold">{planName}</td>
+                          <td className="p-4.5 font-mono text-slate-600 select-all">
                             {pay.razorpayPaymentId || pay.paymentId}
                           </td>
-                          <td className="p-4.5 text-white font-extrabold">₹{pay.amount.toLocaleString()}</td>
+                          <td className="p-4.5 text-slate-900 font-extrabold">₹{pay.amount.toLocaleString()}</td>
                           <td className="p-4.5">
                             <span className={`px-2 py-0.5 rounded-full border text-[9px] font-extrabold uppercase ${statusBadge}`}>
                               {pay.status}
@@ -658,17 +658,17 @@ export default function PaymentDetailsPage() {
                             {pay.status === "success" ? (
                               <button
                                 onClick={() => handleDownloadInvoice(pay)}
-                                className="p-2 rounded-xl bg-slate-900 border border-portal-border hover:border-portal-secondary text-portal-text-secondary hover:text-white transition-colors cursor-pointer"
+                                className="p-2 rounded-xl bg-white border border-slate-200 hover:border-portal-primary hover:bg-slate-50 text-slate-500 hover:text-portal-primary transition-colors cursor-pointer"
                                 title="Download PDF Invoice"
                               >
                                 <Download className="w-3.5 h-3.5" />
                               </button>
                             ) : (
-                              <span className="text-[10px] text-slate-600 italic">No Invoice</span>
+                              <span className="text-[10px] text-slate-400 italic">No Invoice</span>
                             )}
                           </td>
                         </tr>
-                      );
+                       );
                     })}
                   </tbody>
                 </table>
@@ -677,46 +677,46 @@ export default function PaymentDetailsPage() {
           </div>
 
           {/* Upgrade Membership Section */}
-          <div id="upgrade-section" className="space-y-4 pt-6 border-t border-portal-border/40">
-            <h2 className="text-xl font-bold text-white tracking-tight flex items-center gap-2">
-              <Zap className="w-5 h-5 text-portal-warning" />
+          <div id="upgrade-section" className="space-y-4 pt-6 border-t border-slate-200">
+            <h2 className="text-xl font-bold text-slate-900 tracking-tight flex items-center gap-2">
+              <Zap className="w-5 h-5 text-amber-500" />
               <span>Available Upgrade Plans</span>
             </h2>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {/* Premium Monthly */}
-              <div className="p-6 rounded-3xl bg-portal-card border border-portal-border/60 shadow-lg flex flex-col justify-between hover:border-portal-secondary/30 hover:scale-[1.01] transition-all duration-300 relative group">
+              <div className="p-6 rounded-3xl bg-white border border-slate-200 shadow-sm flex flex-col justify-between hover:border-portal-primary/30 hover:scale-[1.01] transition-all duration-300 relative group">
                 <div className="space-y-4">
                   <div className="flex justify-between items-start">
-                    <h3 className="font-bold text-white text-lg">Premium Monthly</h3>
-                    <span className="px-2 py-0.5 rounded text-[8px] font-bold uppercase border bg-portal-secondary/10 border-portal-secondary/20 text-portal-secondary">
+                    <h3 className="font-bold text-slate-900 text-lg">Premium Monthly</h3>
+                    <span className="px-2 py-0.5 rounded text-[8px] font-bold uppercase border bg-blue-50 border-blue-200 text-blue-700">
                       Popular
                     </span>
                   </div>
                   <div>
-                    <span className="text-3xl font-extrabold text-white">₹999</span>
-                    <span className="text-xs text-portal-text-secondary"> / month</span>
+                    <span className="text-3xl font-extrabold text-slate-900">₹999</span>
+                    <span className="text-xs text-slate-500"> / month</span>
                   </div>
 
-                  <ul className="space-y-2.5 text-xs text-portal-text-secondary pt-4 border-t border-portal-border/30">
+                  <ul className="space-y-2.5 text-xs text-slate-600 pt-4 border-t border-slate-100">
                     <li className="flex items-center gap-2">
-                      <CheckCircle2 className="w-4 h-4 text-portal-success flex-shrink-0" />
+                      <CheckCircle2 className="w-4 h-4 text-emerald-600 flex-shrink-0" />
                       <span>Unlimited Course Access</span>
                     </li>
                     <li className="flex items-center gap-2">
-                      <CheckCircle2 className="w-4 h-4 text-portal-success flex-shrink-0" />
+                      <CheckCircle2 className="w-4 h-4 text-emerald-600 flex-shrink-0" />
                       <span>Premium Engineering Resources</span>
                     </li>
                     <li className="flex items-center gap-2">
-                      <CheckCircle2 className="w-4 h-4 text-portal-success flex-shrink-0" />
+                      <CheckCircle2 className="w-4 h-4 text-emerald-600 flex-shrink-0" />
                       <span>Priority Support Desk</span>
                     </li>
                     <li className="flex items-center gap-2">
-                      <CheckCircle2 className="w-4 h-4 text-portal-success flex-shrink-0" />
+                      <CheckCircle2 className="w-4 h-4 text-emerald-600 flex-shrink-0" />
                       <span>Verified Credentials</span>
                     </li>
                     <li className="flex items-center gap-2">
-                      <CheckCircle2 className="w-4 h-4 text-portal-success flex-shrink-0" />
+                      <CheckCircle2 className="w-4 h-4 text-emerald-600 flex-shrink-0" />
                       <span>Public Forums Access</span>
                     </li>
                   </ul>
@@ -726,7 +726,7 @@ export default function PaymentDetailsPage() {
                   <button
                     onClick={() => handleUpgrade("premium_monthly", 999)}
                     disabled={isCheckoutProcessing}
-                    className="w-full py-3 rounded-xl bg-portal-primary hover:bg-portal-primary/90 text-white font-bold text-xs shadow-md transition-all flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50"
+                    className="w-full py-3 rounded-xl bg-portal-primary hover:bg-portal-primary/95 text-white font-bold text-xs shadow-md transition-all flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50"
                   >
                     {isCheckoutProcessing ? (
                       <Loader2 className="w-4 h-4 animate-spin" />
@@ -741,40 +741,40 @@ export default function PaymentDetailsPage() {
               </div>
 
               {/* Premium Yearly */}
-              <div className="p-6 rounded-3xl bg-portal-card border border-portal-border/60 shadow-lg flex flex-col justify-between hover:border-portal-secondary/30 hover:scale-[1.01] transition-all duration-300 relative group">
-                <div className="absolute top-0 right-0 w-32 h-32 bg-portal-primary/5 rounded-full blur-2xl"></div>
+              <div className="p-6 rounded-3xl bg-white border border-blue-500 shadow-md flex flex-col justify-between hover:scale-[1.01] transition-all duration-300 relative group">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-blue-50/50 rounded-full blur-2xl"></div>
                 <div className="space-y-4 relative z-10">
                   <div className="flex justify-between items-start">
-                    <h3 className="font-bold text-white text-lg">Premium Yearly</h3>
-                    <span className="px-2 py-0.5 rounded text-[8px] font-bold uppercase border bg-portal-success/10 border-portal-success/20 text-portal-success animate-pulse">
+                    <h3 className="font-bold text-slate-900 text-lg">Premium Yearly</h3>
+                    <span className="px-2 py-0.5 rounded text-[8px] font-bold uppercase border bg-emerald-50 border-emerald-200 text-emerald-700 animate-pulse">
                       Best Value
                     </span>
                   </div>
                   <div>
-                    <span className="text-3xl font-extrabold text-white">₹7,999</span>
-                    <span className="text-xs text-portal-text-secondary"> / year</span>
-                    <p className="text-[10px] text-portal-success font-bold mt-1">Save over 33% compared to monthly!</p>
+                    <span className="text-3xl font-extrabold text-slate-900">₹7,999</span>
+                    <span className="text-xs text-slate-500"> / year</span>
+                    <p className="text-[10px] text-emerald-700 font-bold mt-1">Save over 33% compared to monthly!</p>
                   </div>
 
-                  <ul className="space-y-2.5 text-xs text-portal-text-secondary pt-4 border-t border-portal-border/30">
+                  <ul className="space-y-2.5 text-xs text-slate-600 pt-4 border-t border-slate-100">
                     <li className="flex items-center gap-2">
-                      <CheckCircle2 className="w-4 h-4 text-portal-success flex-shrink-0" />
+                      <CheckCircle2 className="w-4 h-4 text-emerald-600 flex-shrink-0" />
                       <span>Unlimited Course Access</span>
                     </li>
                     <li className="flex items-center gap-2">
-                      <CheckCircle2 className="w-4 h-4 text-portal-success flex-shrink-0" />
+                      <CheckCircle2 className="w-4 h-4 text-emerald-600 flex-shrink-0" />
                       <span>Premium Engineering Resources</span>
                     </li>
                     <li className="flex items-center gap-2">
-                      <CheckCircle2 className="w-4 h-4 text-portal-success flex-shrink-0" />
+                      <CheckCircle2 className="w-4 h-4 text-emerald-600 flex-shrink-0" />
                       <span>Priority Support Desk</span>
                     </li>
                     <li className="flex items-center gap-2">
-                      <CheckCircle2 className="w-4 h-4 text-portal-success flex-shrink-0" />
+                      <CheckCircle2 className="w-4 h-4 text-emerald-600 flex-shrink-0" />
                       <span>Verified Credentials</span>
                     </li>
                     <li className="flex items-center gap-2">
-                      <CheckCircle2 className="w-4 h-4 text-portal-success flex-shrink-0" />
+                      <CheckCircle2 className="w-4 h-4 text-emerald-600 flex-shrink-0" />
                       <span>Public Forums Access</span>
                     </li>
                   </ul>
@@ -799,38 +799,38 @@ export default function PaymentDetailsPage() {
               </div>
 
               {/* Corporate Plan */}
-              <div className="p-6 rounded-3xl bg-portal-card border border-portal-border/60 shadow-lg flex flex-col justify-between hover:border-portal-secondary/30 hover:scale-[1.01] transition-all duration-300 relative group">
+              <div className="p-6 rounded-3xl bg-white border border-slate-200 shadow-sm flex flex-col justify-between hover:border-portal-primary/30 hover:scale-[1.01] transition-all duration-300 relative group">
                 <div className="space-y-4">
                   <div className="flex justify-between items-start">
-                    <h3 className="font-bold text-white text-lg">Corporate Plan</h3>
-                    <span className="px-2 py-0.5 rounded text-[8px] font-bold uppercase border bg-purple-500/10 border-purple-500/20 text-purple-400">
+                    <h3 className="font-bold text-slate-900 text-lg">Corporate Plan</h3>
+                    <span className="px-2 py-0.5 rounded text-[8px] font-bold uppercase border bg-purple-50 border-purple-200 text-purple-700">
                       Teams
                     </span>
                   </div>
                   <div>
-                    <span className="text-3xl font-extrabold text-white">Custom</span>
-                    <span className="text-xs text-portal-text-secondary"> / enterprise</span>
+                    <span className="text-3xl font-extrabold text-slate-900">Custom</span>
+                    <span className="text-xs text-slate-500"> / enterprise</span>
                   </div>
 
-                  <ul className="space-y-2.5 text-xs text-portal-text-secondary pt-4 border-t border-portal-border/30">
+                  <ul className="space-y-2.5 text-xs text-slate-600 pt-4 border-t border-slate-100">
                     <li className="flex items-center gap-2">
-                      <CheckCircle2 className="w-4 h-4 text-purple-400 flex-shrink-0" />
+                      <CheckCircle2 className="w-4 h-4 text-purple-600 flex-shrink-0" />
                       <span>Bulk seats and team portals</span>
                     </li>
                     <li className="flex items-center gap-2">
-                      <CheckCircle2 className="w-4 h-4 text-purple-400 flex-shrink-0" />
+                      <CheckCircle2 className="w-4 h-4 text-purple-600 flex-shrink-0" />
                       <span>Dedicated LMS account manager</span>
                     </li>
                     <li className="flex items-center gap-2">
-                      <CheckCircle2 className="w-4 h-4 text-purple-400 flex-shrink-0" />
+                      <CheckCircle2 className="w-4 h-4 text-purple-600 flex-shrink-0" />
                       <span>Advanced analytics dashboard</span>
                     </li>
                     <li className="flex items-center gap-2">
-                      <CheckCircle2 className="w-4 h-4 text-purple-400 flex-shrink-0" />
+                      <CheckCircle2 className="w-4 h-4 text-purple-600 flex-shrink-0" />
                       <span>Enterprise SLA Support</span>
                     </li>
                     <li className="flex items-center gap-2">
-                      <CheckCircle2 className="w-4 h-4 text-purple-400 flex-shrink-0" />
+                      <CheckCircle2 className="w-4 h-4 text-purple-600 flex-shrink-0" />
                       <span>Custom brand certifications</span>
                     </li>
                   </ul>
@@ -839,7 +839,7 @@ export default function PaymentDetailsPage() {
                 <div className="pt-6">
                   <Link
                     href="/portal/support?subject=Corporate%20Plan%20Enterprise%20Inquiry&message=Hello%20NextGen%20Support%2C%20I%20am%20interested%20in%20upgrading%20our%20team%20to%20a%20Corporate%20LMS%20membership.%20Please%20send%20us%20pricing%20details%20for%20our%20group."
-                    className="w-full py-3 rounded-xl bg-slate-900 border border-portal-border hover:border-purple-400 hover:bg-purple-950/15 text-slate-200 hover:text-purple-300 font-bold text-xs shadow-md transition-all flex items-center justify-center gap-1.5 cursor-pointer text-center"
+                    className="w-full py-3 rounded-xl bg-slate-900 border border-slate-200 hover:border-purple-500 hover:bg-slate-800 text-white font-bold text-xs shadow-md transition-all flex items-center justify-center gap-1.5 cursor-pointer text-center"
                   >
                     <Mail className="w-3.5 h-3.5" />
                     <span>Contact Support</span>

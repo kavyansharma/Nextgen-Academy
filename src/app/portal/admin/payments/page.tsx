@@ -216,7 +216,7 @@ export default function AdminPaymentsPage() {
   const refundedCount = payments.filter((p) => p.status === "refunded").length;
 
   return (
-    <div className="space-y-6 animate-fade-in text-slate-100">
+    <div className="space-y-6 animate-fade-in text-portal-text-primary">
       {/* Back link */}
       <div>
         <Link
@@ -229,8 +229,8 @@ export default function AdminPaymentsPage() {
       </div>
 
       {/* Header */}
-      <div className="border-b border-portal-border/60 pb-6">
-        <h1 className="text-3xl font-extrabold text-white tracking-tight sm:text-4xl flex items-center gap-2">
+      <div className="border-b border-portal-border pb-6">
+        <h1 className="text-3xl font-extrabold text-portal-text-primary tracking-tight sm:text-4xl flex items-center gap-2">
           <CreditCard className="w-8 h-8 text-portal-primary" />
           <span>Payments Ledger</span>
         </h1>
@@ -244,8 +244,8 @@ export default function AdminPaymentsPage() {
         <div
           className={`fixed top-4 right-4 z-50 flex gap-3 p-4 rounded-xl text-sm border shadow-lg animate-fade-in ${
             toast.type === "success"
-              ? "bg-portal-success/10 border-portal-success/20 text-portal-success"
-              : "bg-red-500/10 border-red-500/20 text-red-200"
+              ? "bg-emerald-50 border-emerald-200 text-emerald-800"
+              : "bg-red-50 border-red-200 text-red-800"
           }`}
         >
           {toast.type === "success" ? (
@@ -260,59 +260,59 @@ export default function AdminPaymentsPage() {
       {/* Stats Cards Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         {/* Total Revenue */}
-        <div className="bg-portal-card border border-portal-border/60 p-5 rounded-2xl flex items-center justify-between shadow-md">
+        <div className="bg-white border border-portal-border p-5 rounded-2xl flex items-center justify-between shadow-sm hover:shadow-md transition-all duration-300">
           <div className="space-y-1">
             <span className="text-xs text-portal-text-secondary font-bold uppercase tracking-wider">Net Sales Revenue</span>
-            <h3 className="text-2xl font-black text-white">₹{totalRevenue.toLocaleString()}</h3>
-            <p className="text-[10px] text-portal-success font-semibold flex items-center gap-1">
+            <h3 className="text-2xl font-black text-portal-text-primary">₹{totalRevenue.toLocaleString()}</h3>
+            <p className="text-[10px] text-emerald-600 font-semibold flex items-center gap-1">
               <TrendingUp className="w-3 h-3" />
               <span>Includes active memberships</span>
             </p>
           </div>
-          <div className="w-12 h-12 bg-portal-success/10 text-portal-success rounded-xl flex items-center justify-center">
+          <div className="w-12 h-12 bg-emerald-50 border border-emerald-100 text-emerald-600 rounded-xl flex items-center justify-center">
             <TrendingUp className="w-6 h-6" />
           </div>
         </div>
 
         {/* Refunded Capital */}
-        <div className="bg-portal-card border border-portal-border/60 p-5 rounded-2xl flex items-center justify-between shadow-md">
+        <div className="bg-white border border-portal-border p-5 rounded-2xl flex items-center justify-between shadow-sm hover:shadow-md transition-all duration-300">
           <div className="space-y-1">
             <span className="text-xs text-portal-text-secondary font-bold uppercase tracking-wider">Refunded Capital</span>
-            <h3 className="text-2xl font-black text-slate-300">₹{totalRefunded.toLocaleString()}</h3>
+            <h3 className="text-2xl font-black text-portal-text-primary">₹{totalRefunded.toLocaleString()}</h3>
             <p className="text-[10px] text-portal-text-secondary font-semibold">Processed from dashboard</p>
           </div>
-          <div className="w-12 h-12 bg-slate-900 text-portal-warning rounded-xl flex items-center justify-center">
+          <div className="w-12 h-12 bg-amber-50 border border-amber-100 text-amber-600 rounded-xl flex items-center justify-center">
             <RefreshCcw className="w-5 h-5" />
           </div>
         </div>
 
         {/* Successful count */}
-        <div className="bg-portal-card border border-portal-border/60 p-5 rounded-2xl flex items-center justify-between shadow-md">
+        <div className="bg-white border border-portal-border p-5 rounded-2xl flex items-center justify-between shadow-sm hover:shadow-md transition-all duration-300">
           <div className="space-y-1">
             <span className="text-xs text-portal-text-secondary font-bold uppercase tracking-wider">Approved Sales</span>
-            <h3 className="text-2xl font-black text-white">{successfulCount}</h3>
+            <h3 className="text-2xl font-black text-portal-text-primary">{successfulCount}</h3>
             <p className="text-[10px] text-portal-text-secondary font-semibold">Checkout completions</p>
           </div>
-          <div className="w-12 h-12 bg-portal-primary/10 text-portal-primary rounded-xl flex items-center justify-center">
+          <div className="w-12 h-12 bg-blue-50 border border-blue-100 text-portal-primary rounded-xl flex items-center justify-center">
             <CheckCircle2 className="w-5 h-5" />
           </div>
         </div>
 
         {/* Refunds count */}
-        <div className="bg-portal-card border border-portal-border/60 p-5 rounded-2xl flex items-center justify-between shadow-md">
+        <div className="bg-white border border-portal-border p-5 rounded-2xl flex items-center justify-between shadow-sm hover:shadow-md transition-all duration-300">
           <div className="space-y-1">
             <span className="text-xs text-portal-text-secondary font-bold uppercase tracking-wider">Refund Count</span>
-            <h3 className="text-2xl font-black text-white">{refundedCount}</h3>
+            <h3 className="text-2xl font-black text-portal-text-primary">{refundedCount}</h3>
             <p className="text-[10px] text-portal-text-secondary font-semibold">Adjusted ledger entries</p>
           </div>
-          <div className="w-12 h-12 bg-slate-900 text-red-400 rounded-xl flex items-center justify-center">
+          <div className="w-12 h-12 bg-red-50 border border-red-100 text-red-500 rounded-xl flex items-center justify-center">
             <AlertTriangle className="w-5 h-5" />
           </div>
         </div>
       </div>
 
       {/* Search & Filter Toolbar */}
-      <div className="flex flex-col md:flex-row gap-4 items-stretch md:items-center justify-between bg-slate-900/40 p-4 border border-portal-border/60 rounded-2xl">
+      <div className="flex flex-col md:flex-row gap-4 items-stretch md:items-center justify-between bg-white p-4 border border-portal-border rounded-2xl shadow-sm">
         <div className="relative flex-grow max-w-md">
           <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-portal-text-secondary">
             <Search className="w-4 h-4" />
@@ -322,7 +322,7 @@ export default function AdminPaymentsPage() {
             placeholder="Search by Payment ID, Name, Email, Order ID..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-portal-card border border-portal-border/60 text-white placeholder-portal-text-secondary focus:outline-none focus:border-portal-primary focus:ring-1 focus:ring-portal-primary text-sm"
+            className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-slate-50 border border-portal-border text-portal-text-primary placeholder-portal-text-secondary focus:outline-none focus:border-portal-primary focus:ring-1 focus:ring-portal-primary/20 text-sm"
           />
         </div>
 
@@ -330,7 +330,7 @@ export default function AdminPaymentsPage() {
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="w-full px-4 py-2.5 rounded-xl bg-portal-card border border-portal-border/60 text-slate-300 focus:outline-none focus:border-portal-primary text-sm cursor-pointer"
+            className="w-full px-4 py-2.5 rounded-xl bg-slate-50 border border-portal-border text-portal-text-primary focus:outline-none focus:border-portal-primary text-sm cursor-pointer"
           >
             <option value="all">All Payments</option>
             <option value="success">Success</option>
@@ -341,7 +341,7 @@ export default function AdminPaymentsPage() {
       </div>
 
       {/* Table */}
-      <div className="overflow-x-auto bg-portal-card border border-portal-border/60 shadow-xl rounded-2xl">
+      <div className="overflow-x-auto bg-white border border-portal-border shadow-sm rounded-2xl">
         {loadingData ? (
           <div className="p-12 text-center text-portal-text-secondary">
             <Loader2 className="w-8 h-8 animate-spin mx-auto text-portal-primary mb-3" />
@@ -350,69 +350,69 @@ export default function AdminPaymentsPage() {
         ) : filteredPayments.length === 0 ? (
           <div className="p-12 text-center text-portal-text-secondary space-y-2">
             <CreditCard className="w-12 h-12 text-slate-700 mx-auto" />
-            <p className="font-bold text-white">No Payments Logged</p>
+            <p className="font-bold text-portal-text-primary">No Payments Logged</p>
             <p className="text-sm">We couldn&apos;t find any transaction matches in the system.</p>
           </div>
         ) : (
           <table className="w-full text-left border-collapse text-sm">
             <thead>
-              <tr className="border-b border-portal-border/60 text-xs font-bold text-portal-text-secondary uppercase tracking-wider bg-slate-950/45">
-                <th className="p-4.5 pl-6">Payment ID</th>
-                <th className="p-4.5">Student Profile</th>
-                <th className="p-4.5">Billing Amount</th>
-                <th className="p-4.5">Date Created</th>
-                <th className="p-4.5">Status</th>
-                <th className="p-4.5 pr-6 text-right">Actions</th>
+              <tr className="border-b border-portal-border text-xs font-bold text-portal-text-secondary uppercase tracking-wider bg-slate-50">
+                <th className="p-4 pl-6">Payment ID</th>
+                <th className="p-4">Student Profile</th>
+                <th className="p-4">Billing Amount</th>
+                <th className="p-4">Date Created</th>
+                <th className="p-4">Status</th>
+                <th className="p-4 pr-6 text-right">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-portal-border/30">
+            <tbody className="divide-y divide-slate-100">
               {filteredPayments.map((pay) => {
                 const customer = users[pay.userId];
                 const badgeColor =
                   pay.status === "success"
-                    ? "bg-portal-success/10 border-portal-success/20 text-portal-success"
+                    ? "bg-emerald-50 border-emerald-200 text-emerald-700"
                     : pay.status === "refunded"
-                    ? "bg-portal-warning/10 border-portal-warning/20 text-portal-warning"
-                    : "bg-red-500/10 border-red-500/20 text-red-400";
+                    ? "bg-amber-50 border-amber-200 text-amber-700"
+                    : "bg-red-50 border-red-200 text-red-600";
 
                 return (
-                  <tr key={pay.id} className="hover:bg-slate-900/25 transition-colors duration-150">
+                  <tr key={pay.id} className="hover:bg-slate-50/70 transition-colors duration-150">
                     {/* ID */}
-                    <td className="p-4.5 pl-6">
-                      <div className="font-mono text-xs font-semibold text-white">{pay.paymentId}</div>
+                    <td className="p-4 pl-6">
+                      <div className="font-mono text-xs font-semibold text-portal-text-primary">{pay.paymentId}</div>
                       <p className="text-[10px] text-portal-text-secondary font-mono mt-0.5">
                         Order: {pay.razorpayOrderId}
                       </p>
                     </td>
 
                     {/* Customer */}
-                    <td className="p-4.5">
-                      <div className="font-bold text-slate-200">{customer?.name || "Anonymous Member"}</div>
+                    <td className="p-4">
+                      <div className="font-bold text-portal-text-primary">{customer?.name || "Anonymous Member"}</div>
                       <p className="text-xs text-portal-text-secondary font-medium">{customer?.email || `UID: ${pay.userId}`}</p>
                     </td>
 
                     {/* Amount */}
-                    <td className="p-4.5 font-bold text-white">
+                    <td className="p-4 font-bold text-portal-text-primary">
                       ₹{(pay.amount / 100).toFixed(2)}
                     </td>
 
                     {/* Date */}
-                    <td className="p-4.5 text-slate-300 text-xs">
+                    <td className="p-4 text-portal-text-secondary text-xs">
                       {new Date(pay.createdAt).toLocaleString()}
                     </td>
 
                     {/* Status */}
-                    <td className="p-4.5">
+                    <td className="p-4">
                       <span className={`inline-flex px-2.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider border ${badgeColor}`}>
                         {pay.status}
                       </span>
                     </td>
 
                     {/* Actions */}
-                    <td className="p-4.5 pr-6 text-right space-x-2">
+                    <td className="p-4 pr-6 text-right space-x-2">
                       <button
                         onClick={() => setSelectedPayment(pay)}
-                        className="inline-flex p-2 rounded-lg bg-slate-900 border border-portal-border text-portal-secondary hover:text-white transition-all cursor-pointer"
+                        className="inline-flex p-2 rounded-lg bg-white border border-portal-border text-portal-secondary hover:text-white hover:bg-portal-secondary hover:border-portal-secondary transition-all cursor-pointer"
                         title="View Details"
                       >
                         <Eye className="w-3.5 h-3.5" />
@@ -421,7 +421,7 @@ export default function AdminPaymentsPage() {
                         <button
                           onClick={() => handleRefundPayment(pay)}
                           disabled={submittingAction}
-                          className="inline-flex p-2 rounded-lg bg-slate-900 border border-portal-border text-red-400 hover:text-white hover:bg-red-500/15 transition-all cursor-pointer disabled:opacity-50"
+                          className="inline-flex p-2 rounded-lg bg-white border border-portal-border text-red-400 hover:text-white hover:bg-red-500 hover:border-red-500 transition-all cursor-pointer disabled:opacity-50"
                           title="Issue Refund"
                         >
                           <RefreshCcw className="w-3.5 h-3.5" />
@@ -440,38 +440,38 @@ export default function AdminPaymentsPage() {
       {selectedPayment && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 animate-fade-in">
           <div
-            className="absolute inset-0 bg-slate-950/70 backdrop-blur-sm"
+            className="absolute inset-0 bg-slate-800/40 backdrop-blur-sm"
             onClick={() => {
               if (!submittingAction) setSelectedPayment(null);
             }}
           ></div>
 
-          <div className="relative w-full max-w-lg bg-portal-card border border-portal-border rounded-3xl p-6 sm:p-8 shadow-2xl z-10 text-slate-100 space-y-5">
-            <div className="flex justify-between items-center border-b border-portal-border/60 pb-3">
-              <h3 className="text-lg font-bold text-white">Payment Details</h3>
+          <div className="relative w-full max-w-lg bg-white border border-portal-border rounded-3xl p-6 sm:p-8 shadow-2xl z-10 text-portal-text-primary space-y-5">
+            <div className="flex justify-between items-center border-b border-portal-border pb-3">
+              <h3 className="text-lg font-bold text-portal-text-primary">Payment Details</h3>
               <button
                 onClick={() => setSelectedPayment(null)}
-                className="p-1.5 rounded-lg text-portal-text-secondary hover:text-white"
+                className="p-1.5 rounded-lg border border-portal-border hover:bg-slate-50 text-portal-text-secondary hover:text-portal-text-primary"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
             <div className="space-y-4 text-sm">
-              <div className="grid grid-cols-2 gap-4 bg-slate-950/40 p-4 rounded-2xl border border-portal-border/20 font-mono text-xs">
+              <div className="grid grid-cols-2 gap-4 bg-slate-50 p-4 rounded-2xl border border-portal-border font-mono text-xs">
                 <div>
                   <span className="text-portal-text-secondary block font-bold uppercase tracking-wider text-[10px]">Payment ID</span>
-                  <span className="text-white font-semibold">{selectedPayment.paymentId}</span>
+                  <span className="text-portal-text-primary font-semibold">{selectedPayment.paymentId}</span>
                 </div>
                 <div>
                   <span className="text-portal-text-secondary block font-bold uppercase tracking-wider text-[10px]">Status</span>
                   <span
                     className={`inline-flex px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider rounded border ${
                       selectedPayment.status === "success"
-                        ? "bg-portal-success/10 border-portal-success/20 text-portal-success"
+                        ? "bg-emerald-50 border-emerald-200 text-emerald-700"
                         : selectedPayment.status === "refunded"
-                        ? "bg-portal-warning/10 border-portal-warning/20 text-portal-warning"
-                        : "bg-red-500/10 border-red-500/20 text-red-400"
+                        ? "bg-amber-50 border-amber-200 text-amber-700"
+                        : "bg-red-50 border-red-200 text-red-600"
                     }`}
                   >
                     {selectedPayment.status}
@@ -479,37 +479,37 @@ export default function AdminPaymentsPage() {
                 </div>
                 <div className="col-span-2">
                   <span className="text-portal-text-secondary block font-bold uppercase tracking-wider text-[10px]">Razorpay Payment ID</span>
-                  <span className="text-white break-all">{selectedPayment.razorpayPaymentId}</span>
+                  <span className="text-portal-text-primary break-all">{selectedPayment.razorpayPaymentId}</span>
                 </div>
                 <div className="col-span-2">
                   <span className="text-portal-text-secondary block font-bold uppercase tracking-wider text-[10px]">Razorpay Order ID</span>
-                  <span className="text-white break-all">{selectedPayment.razorpayOrderId}</span>
+                  <span className="text-portal-text-primary break-all">{selectedPayment.razorpayOrderId}</span>
                 </div>
               </div>
 
-              <div className="space-y-2 border-t border-portal-border/30 pt-3">
+              <div className="space-y-2 border-t border-portal-border pt-3">
                 <h4 className="text-xs font-bold uppercase text-portal-text-secondary tracking-wider">Customer Details</h4>
-                <div className="p-3 bg-slate-900/40 rounded-xl border border-portal-border/20 space-y-1">
-                  <p className="font-bold text-white">{users[selectedPayment.userId]?.name || "Anonymous"}</p>
+                <div className="p-3 bg-slate-50 rounded-xl border border-portal-border space-y-1">
+                  <p className="font-bold text-portal-text-primary">{users[selectedPayment.userId]?.name || "Anonymous"}</p>
                   <p className="text-xs text-portal-text-secondary">Email: {users[selectedPayment.userId]?.email || "N/A"}</p>
                   <p className="text-[10px] text-portal-text-secondary font-mono">UID: {selectedPayment.userId}</p>
                 </div>
               </div>
 
-              <div className="space-y-2 border-t border-portal-border/30 pt-3">
+              <div className="space-y-2 border-t border-portal-border pt-3">
                 <h4 className="text-xs font-bold uppercase text-portal-text-secondary tracking-wider">Financial Breakdown</h4>
-                <div className="flex justify-between items-center text-xs font-semibold p-2.5 bg-slate-900/40 rounded-xl border border-portal-border/20">
+                <div className="flex justify-between items-center text-xs font-semibold p-2.5 bg-slate-50 rounded-xl border border-portal-border">
                   <span className="text-portal-text-secondary">Amount (INR)</span>
-                  <span className="text-white font-mono text-sm font-bold">₹{(selectedPayment.amount / 100).toFixed(2)}</span>
+                  <span className="text-portal-text-primary font-mono text-sm font-bold">₹{(selectedPayment.amount / 100).toFixed(2)}</span>
                 </div>
               </div>
             </div>
 
-            <div className="flex gap-4 pt-4 border-t border-portal-border/60">
+            <div className="flex gap-4 pt-4 border-t border-portal-border">
               <button
                 type="button"
                 onClick={() => setSelectedPayment(null)}
-                className="flex-grow flex-1 py-3 rounded-xl border border-portal-border hover:bg-slate-900 text-xs font-bold transition-all"
+                className="flex-grow flex-1 py-3 rounded-xl border border-portal-border hover:bg-slate-50 text-xs font-bold text-portal-text-secondary hover:text-portal-text-primary transition-all cursor-pointer"
               >
                 Close details
               </button>

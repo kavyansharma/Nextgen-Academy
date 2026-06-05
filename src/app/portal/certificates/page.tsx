@@ -368,20 +368,20 @@ export default function CertificatesPage() {
   };
 
   return (
-    <div className="space-y-8 animate-fade-in text-slate-100">
+    <div className="space-y-8 animate-fade-in text-portal-text-primary">
       {/* Header */}
-      <div className="border-b border-portal-border/60 pb-6">
-        <h1 className="text-3xl font-extrabold text-white tracking-tight sm:text-4xl">Certificates & Credentials</h1>
+      <div className="border-b border-portal-border pb-6">
+        <h1 className="text-3xl font-extrabold text-portal-text-primary tracking-tight sm:text-4xl">Certificates & Credentials</h1>
         <p className="text-sm text-portal-text-secondary mt-1">Claim your verified professional achievements and export print-ready PDF certificates.</p>
       </div>
 
       {completedCourses.length === 0 ? (
-        <div className="p-16 rounded-3xl bg-portal-card border border-portal-border/60 text-center max-w-xl mx-auto space-y-6">
-          <div className="inline-flex w-16 h-16 rounded-2xl bg-portal-warning/10 border border-portal-warning/20 items-center justify-center text-portal-warning">
+        <div className="p-16 rounded-3xl bg-portal-card border border-portal-border text-center max-w-xl mx-auto space-y-6">
+          <div className="inline-flex w-16 h-16 rounded-2xl bg-amber-50 border border-amber-200 items-center justify-center text-amber-600">
             <Award className="w-8 h-8" />
           </div>
           <div className="space-y-2">
-            <h2 className="text-2xl font-bold text-white">No Credentials Found</h2>
+            <h2 className="text-2xl font-bold text-portal-text-primary">No Credentials Found</h2>
             <p className="text-sm text-portal-text-secondary leading-relaxed">
               Complete any training course at 100% to instantly generate your verified professional certificate of achievement.
             </p>
@@ -398,13 +398,13 @@ export default function CertificatesPage() {
           {completedCourses.map((cert) => (
             <div
               key={cert.certificateId}
-              className="bg-portal-card border border-portal-border/60 rounded-3xl p-6 flex flex-col justify-between hover:border-portal-warning/30 hover:scale-[1.01] transition-all duration-300 relative overflow-hidden group h-72 shadow-lg"
+              className="bg-portal-card border border-portal-border rounded-3xl p-6 flex flex-col justify-between hover:border-amber-500/30 hover:scale-[1.01] transition-all duration-300 relative overflow-hidden group h-72 shadow-sm"
             >
-              <div className="absolute top-0 right-0 w-32 h-32 bg-portal-warning/5 rounded-full blur-2xl"></div>
+              <div className="absolute top-0 right-0 w-32 h-32 bg-amber-500/5 rounded-full blur-2xl"></div>
 
               <div className="space-y-4 relative z-10">
                 <div className="flex justify-between items-start gap-4">
-                  <div className="p-2.5 rounded-xl bg-slate-900 border border-portal-border/80 text-portal-warning group-hover:scale-105 transition-transform">
+                  <div className="p-2.5 rounded-xl bg-slate-50 border border-portal-border text-amber-600 group-hover:scale-105 transition-transform">
                     <Award className="w-5 h-5" />
                   </div>
                   <span className="text-[9px] font-mono text-portal-text-secondary select-all" title="Credential ID">
@@ -413,14 +413,14 @@ export default function CertificatesPage() {
                 </div>
 
                 <div className="space-y-1 pt-1">
-                  <h3 className="text-lg font-bold text-white group-hover:text-portal-warning transition-colors line-clamp-2 leading-snug">
+                  <h3 className="text-lg font-bold text-portal-text-primary group-hover:text-amber-600 transition-colors line-clamp-2 leading-snug">
                     {cert.courseName}
                   </h3>
                   <p className="text-xs text-portal-text-secondary">Instructor: {cert.instructor}</p>
                 </div>
               </div>
 
-              <div className="pt-4 border-t border-portal-border/40 mt-3 relative z-10 flex items-center justify-between gap-4">
+              <div className="pt-4 border-t border-portal-border mt-3 relative z-10 flex items-center justify-between gap-4">
                 <div className="flex items-center gap-1.5 text-xs text-portal-text-secondary font-semibold">
                   <Calendar className="w-3.5 h-3.5" />
                   <span>{new Date(cert.issuedAt).toLocaleDateString()}</span>
@@ -428,7 +428,7 @@ export default function CertificatesPage() {
 
                 <button
                   onClick={() => setActiveCert(cert)}
-                  className="px-4 py-2 rounded-xl bg-slate-900 border border-portal-border hover:border-portal-warning text-xs font-bold text-slate-200 hover:text-white transition-all cursor-pointer flex items-center gap-1"
+                  className="px-4 py-2 rounded-xl bg-white border border-portal-border hover:border-amber-500/55 hover:bg-slate-50 text-xs font-bold text-portal-text-secondary hover:text-portal-text-primary transition-all cursor-pointer flex items-center gap-1"
                 >
                   <span>{isPremiumUser ? "Claim & Download" : "Preview Lock"}</span>
                   <ExternalLink className="w-3.5 h-3.5" />
@@ -442,12 +442,12 @@ export default function CertificatesPage() {
       {/* Certificate Viewer Modal */}
       {activeCert && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-slate-950/80 backdrop-blur-sm" onClick={() => setActiveCert(null)}></div>
+          <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onClick={() => setActiveCert(null)}></div>
           
-          <div className="relative w-full max-w-3xl bg-portal-card border border-portal-border rounded-3xl p-6 sm:p-10 shadow-2xl z-10 text-slate-100 space-y-6">
+          <div className="relative w-full max-w-3xl bg-white border border-portal-border rounded-3xl p-6 sm:p-10 shadow-2xl z-10 text-portal-text-primary space-y-6">
             <button
               onClick={() => setActiveCert(null)}
-              className="absolute top-4 right-4 p-2 rounded-xl text-portal-text-secondary hover:text-white hover:bg-slate-800"
+              className="absolute top-4 right-4 p-2 rounded-xl text-portal-text-secondary hover:text-portal-text-primary hover:bg-slate-100"
             >
               <X className="w-5 h-5" />
             </button>
@@ -456,7 +456,7 @@ export default function CertificatesPage() {
             <div 
               id="print-area" 
               className={`p-6 sm:p-12 rounded-2xl text-center relative overflow-hidden space-y-6 select-none shadow-inner ${
-                certificateAssets?.background ? "border-none animate-fade-in" : "border-8 border-double border-portal-warning/40 bg-slate-950"
+                certificateAssets?.background ? "border-none animate-fade-in" : "border-8 border-double border-amber-600/30 bg-stone-50"
               }`}
               style={
                 certificateAssets?.background 
@@ -471,63 +471,45 @@ export default function CertificatesPage() {
               {/* Background watermark */}
               {!certificateAssets?.background && (
                 <div className="absolute inset-0 flex items-center justify-center opacity-[0.02] pointer-events-none select-none">
-                  <Award className="w-[400px] h-[400px] text-portal-warning" />
+                  <Award className="w-[400px] h-[400px] text-amber-600" />
                 </div>
               )}
 
               <div className="flex items-center justify-center gap-2">
-                <Sparkles className="w-5 h-5 text-portal-warning animate-pulse" />
-                <span className={`text-[10px] tracking-[0.2em] font-extrabold uppercase ${
-                  certificateAssets?.background ? "text-slate-800" : "text-portal-warning"
-                }`}>
+                <Sparkles className="w-5 h-5 text-amber-600 animate-pulse" />
+                <span className="text-[10px] tracking-[0.2em] font-extrabold uppercase text-slate-800">
                   NextGen Academy Certificate
                 </span>
-                <Sparkles className="w-5 h-5 text-portal-warning animate-pulse" />
+                <Sparkles className="w-5 h-5 text-amber-600 animate-pulse" />
               </div>
 
               <div className="space-y-2">
-                <h2 className={`text-xs font-serif italic ${
-                  certificateAssets?.background ? "text-slate-600" : "text-portal-text-secondary"
-                }`}>
+                <h2 className="text-xs font-serif italic text-slate-600">
                   This is to certify that
                 </h2>
-                <p className={`text-2xl sm:text-3xl font-extrabold tracking-tight border-b-2 pb-2 max-w-md mx-auto ${
-                  certificateAssets?.background ? "text-amber-600 border-slate-300" : "text-white border-slate-900"
-                }`}>
+                <p className="text-2xl sm:text-3xl font-extrabold tracking-tight border-b-2 pb-2 max-w-md mx-auto text-amber-600 border-slate-300">
                   {user.fullName}
                 </p>
               </div>
 
               <div className="space-y-2">
-                <h3 className={`text-xs font-serif italic ${
-                  certificateAssets?.background ? "text-slate-600" : "text-portal-text-secondary"
-                }`}>
+                <h3 className="text-xs font-serif italic text-slate-600">
                   has successfully completed the training course
                 </h3>
-                <p className={`text-lg sm:text-xl font-bold max-w-lg mx-auto leading-snug ${
-                  certificateAssets?.background ? "text-slate-900" : "text-portal-secondary"
-                }`}>
+                <p className="text-lg sm:text-xl font-bold max-w-lg mx-auto leading-snug text-slate-900">
                   {activeCert.courseName}
                 </p>
-                <p className={`text-[10px] ${
-                  certificateAssets?.background ? "text-slate-500" : "text-portal-text-secondary"
-                }`}>
+                <p className="text-[10px] text-slate-500">
                   Category: {activeCert.category} &bull; Instructor: {activeCert.instructor}
                 </p>
               </div>
 
-              <div className={`flex flex-col sm:flex-row items-center justify-between gap-6 pt-6 max-w-xl mx-auto border-t ${
-                certificateAssets?.background ? "border-slate-350" : "border-slate-900/60"
-              }`}>
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-6 pt-6 max-w-xl mx-auto border-t border-slate-250">
                 <div className="space-y-1">
-                  <p className={`text-xs font-bold ${
-                    certificateAssets?.background ? "text-slate-800" : "text-slate-300"
-                  }`}>
+                  <p className="text-xs font-bold text-slate-800">
                     {new Date(activeCert.issuedAt).toLocaleDateString()}
                   </p>
-                  <p className={`text-[9px] uppercase font-semibold ${
-                    certificateAssets?.background ? "text-slate-500" : "text-portal-text-secondary"
-                  }`}>
+                  <p className="text-[9px] uppercase font-semibold text-slate-500">
                     Date of Issuance
                   </p>
                 </div>
@@ -542,24 +524,18 @@ export default function CertificatesPage() {
                   {certificateAssets?.signature ? (
                     <img src={certificateAssets.signature} alt="Signature" className="h-8 object-contain mb-1" />
                   ) : (
-                    <div className="w-24 h-1 bg-portal-warning/60 mb-1"></div>
+                    <div className="w-24 h-1 bg-amber-600/30 mb-1"></div>
                   )}
-                  <p className={`text-[10px] font-bold ${
-                    certificateAssets?.background ? "text-slate-800" : "text-white"
-                  }`}>
+                  <p className="text-[10px] font-bold text-slate-800">
                     Advisory Board
                   </p>
-                  <p className={`text-[9px] uppercase font-semibold ${
-                    certificateAssets?.background ? "text-slate-500" : "text-portal-text-secondary"
-                  }`}>
+                  <p className="text-[9px] uppercase font-semibold text-slate-500">
                     NextGen Academy Corp
                   </p>
                 </div>
               </div>
 
-              <div className={`text-[9px] font-mono pt-4 ${
-                certificateAssets?.background ? "text-slate-600" : "text-portal-text-secondary"
-              }`}>
+              <div className="text-[9px] font-mono pt-4 text-slate-500">
                 Verified Credential ID: {activeCert.certificateId}
               </div>
             </div>
@@ -570,7 +546,7 @@ export default function CertificatesPage() {
                 <>
                   <button
                     onClick={() => window.print()}
-                    className="flex-grow flex-1 py-3.5 rounded-xl border border-portal-border hover:bg-slate-800 text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+                    className="flex-grow flex-1 py-3.5 rounded-xl border border-portal-border hover:bg-slate-50 text-xs text-portal-text-secondary hover:text-portal-text-primary font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer"
                   >
                     <Printer className="w-4 h-4" />
                     <span>Print Credentials</span>
@@ -594,14 +570,14 @@ export default function CertificatesPage() {
                   </button>
                 </>
               ) : (
-                <div className="w-full p-4 bg-slate-900 border border-portal-warning/30 rounded-2xl flex items-center justify-between gap-4">
-                  <div className="flex items-center gap-3 text-xs text-portal-text-secondary">
-                    <Lock className="w-4 h-4 text-portal-warning" />
+                <div className="w-full p-4 bg-amber-50/50 border border-amber-200/60 rounded-2xl flex items-center justify-between gap-4">
+                  <div className="flex items-center gap-3 text-xs text-amber-800">
+                    <Lock className="w-4 h-4 text-amber-650" />
                     <span>Premium account required to download verified certificate PDF files.</span>
                   </div>
                   <button
                     onClick={() => alert("Select a Premium Course in the catalog and click 'Unlock Premium Course' to upgrade membership.")}
-                    className="px-4 py-2.5 rounded-xl bg-portal-warning hover:bg-portal-warning/90 text-slate-950 text-xs font-bold transition-all cursor-pointer whitespace-nowrap"
+                    className="px-4 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold transition-all cursor-pointer whitespace-nowrap"
                   >
                     Unlock Certificate
                   </button>

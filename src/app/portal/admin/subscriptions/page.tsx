@@ -371,7 +371,7 @@ export default function AdminSubscriptionsPage() {
   const expiredCount = subscriptions.filter((s) => s.status === "expired").length;
 
   return (
-    <div className="space-y-6 animate-fade-in text-slate-100">
+    <div className="space-y-6 animate-fade-in text-portal-text-primary">
       {/* Back Link */}
       <div>
         <Link
@@ -384,10 +384,10 @@ export default function AdminSubscriptionsPage() {
       </div>
 
       {/* Header */}
-      <div className="border-b border-portal-border/60 pb-6">
-        <h1 className="text-3xl font-extrabold text-white tracking-tight sm:text-4xl flex items-center gap-2">
+      <div className="border-b border-portal-border pb-6">
+        <h1 className="text-3xl font-extrabold text-portal-text-primary tracking-tight sm:text-4xl flex items-center gap-2">
           <Award className="w-8 h-8 text-portal-primary" />
-          <span>Subscription & Membership Settings</span>
+          <span>Subscription &amp; Membership Settings</span>
         </h1>
         <p className="text-sm text-portal-text-secondary mt-1">
           Monitor customer memberships, modify validation periods, terminate active licenses, and customize tier pricing plans.
@@ -399,8 +399,8 @@ export default function AdminSubscriptionsPage() {
         <div
           className={`fixed top-4 right-4 z-50 flex gap-3 p-4 rounded-xl text-sm border shadow-lg animate-fade-in ${
             toast.type === "success"
-              ? "bg-portal-success/10 border-portal-success/20 text-portal-success"
-              : "bg-red-500/10 border-red-500/20 text-red-200"
+              ? "bg-emerald-50 border-emerald-200 text-emerald-800"
+              : "bg-red-50 border-red-200 text-red-800"
           }`}
         >
           {toast.type === "success" ? (
@@ -413,13 +413,13 @@ export default function AdminSubscriptionsPage() {
       )}
 
       {/* Tab Switcher */}
-      <div className="flex border-b border-portal-border/40">
+      <div className="flex border-b border-portal-border">
         <button
           onClick={() => setActiveTab("subscriptions")}
           className={`px-5 py-3 text-xs font-bold uppercase tracking-wider border-b-2 transition-all cursor-pointer ${
             activeTab === "subscriptions"
-              ? "border-portal-primary text-white"
-              : "border-transparent text-portal-text-secondary hover:text-white"
+              ? "border-portal-primary text-portal-primary"
+              : "border-transparent text-portal-text-secondary hover:text-portal-text-primary"
           }`}
         >
           Subscriptions Desk
@@ -428,8 +428,8 @@ export default function AdminSubscriptionsPage() {
           onClick={() => setActiveTab("plans")}
           className={`px-5 py-3 text-xs font-bold uppercase tracking-wider border-b-2 transition-all cursor-pointer ${
             activeTab === "plans"
-              ? "border-portal-primary text-white"
-              : "border-transparent text-portal-text-secondary hover:text-white"
+              ? "border-portal-primary text-portal-primary"
+              : "border-transparent text-portal-text-secondary hover:text-portal-text-primary"
           }`}
         >
           Membership Plans
@@ -441,59 +441,59 @@ export default function AdminSubscriptionsPage() {
           {/* Stats Summary Cards */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {/* Total Registered */}
-            <div className="bg-portal-card border border-portal-border/60 p-5 rounded-2xl flex items-center justify-between shadow-md">
+            <div className="bg-white border border-portal-border p-5 rounded-2xl flex items-center justify-between shadow-sm hover:shadow-md transition-all duration-300">
               <div className="space-y-1">
                 <span className="text-xs text-portal-text-secondary font-bold uppercase tracking-wider">Total Subscriptions</span>
-                <h3 className="text-2xl font-black text-white">{subscriptions.length}</h3>
+                <h3 className="text-2xl font-black text-portal-text-primary">{subscriptions.length}</h3>
                 <p className="text-[10px] text-portal-text-secondary font-semibold">Registered active or inactive</p>
               </div>
-              <div className="w-12 h-12 bg-slate-900 text-portal-secondary rounded-xl flex items-center justify-center">
+              <div className="w-12 h-12 bg-blue-50 border border-blue-100 text-blue-600 rounded-xl flex items-center justify-center">
                 <Award className="w-6 h-6" />
               </div>
             </div>
 
             {/* Active Members */}
-            <div className="bg-portal-card border border-portal-border/60 p-5 rounded-2xl flex items-center justify-between shadow-md">
+            <div className="bg-white border border-portal-border p-5 rounded-2xl flex items-center justify-between shadow-sm hover:shadow-md transition-all duration-300">
               <div className="space-y-1">
                 <span className="text-xs text-portal-text-secondary font-bold uppercase tracking-wider">Active Premium</span>
-                <h3 className="text-2xl font-black text-white">{activeCount}</h3>
-                <p className="text-[10px] text-portal-success font-semibold flex items-center gap-1">
+                <h3 className="text-2xl font-black text-portal-text-primary">{activeCount}</h3>
+                <p className="text-[10px] text-emerald-600 font-semibold flex items-center gap-1">
                   <UserCheck className="w-3.5 h-3.5" />
                   <span>Full portal access</span>
                 </p>
               </div>
-              <div className="w-12 h-12 bg-portal-success/10 text-portal-success rounded-xl flex items-center justify-center">
+              <div className="w-12 h-12 bg-emerald-50 border border-emerald-100 text-emerald-600 rounded-xl flex items-center justify-center">
                 <UserCheck className="w-5 h-5" />
               </div>
             </div>
 
             {/* Cancelled */}
-            <div className="bg-portal-card border border-portal-border/60 p-5 rounded-2xl flex items-center justify-between shadow-md">
+            <div className="bg-white border border-portal-border p-5 rounded-2xl flex items-center justify-between shadow-sm hover:shadow-md transition-all duration-300">
               <div className="space-y-1">
                 <span className="text-xs text-portal-text-secondary font-bold uppercase tracking-wider">Cancelled Licenses</span>
-                <h3 className="text-2xl font-black text-white">{cancelledCount}</h3>
-                <p className="text-[10px] text-portal-warning font-semibold">Refunded or terminated</p>
+                <h3 className="text-2xl font-black text-portal-text-primary">{cancelledCount}</h3>
+                <p className="text-[10px] text-amber-600 font-semibold">Refunded or terminated</p>
               </div>
-              <div className="w-12 h-12 bg-slate-900 text-portal-warning rounded-xl flex items-center justify-center">
+              <div className="w-12 h-12 bg-amber-50 border border-amber-100 text-amber-600 rounded-xl flex items-center justify-center">
                 <Ban className="w-5 h-5" />
               </div>
             </div>
 
             {/* Expired */}
-            <div className="bg-portal-card border border-portal-border/60 p-5 rounded-2xl flex items-center justify-between shadow-md">
+            <div className="bg-white border border-portal-border p-5 rounded-2xl flex items-center justify-between shadow-sm hover:shadow-md transition-all duration-300">
               <div className="space-y-1">
                 <span className="text-xs text-portal-text-secondary font-bold uppercase tracking-wider">Expired accounts</span>
-                <h3 className="text-2xl font-black text-white">{expiredCount}</h3>
-                <p className="text-[10px] text-red-400 font-semibold">Passed validation period</p>
+                <h3 className="text-2xl font-black text-portal-text-primary">{expiredCount}</h3>
+                <p className="text-[10px] text-red-500 font-semibold">Passed validation period</p>
               </div>
-              <div className="w-12 h-12 bg-slate-900 text-red-400 rounded-xl flex items-center justify-center">
+              <div className="w-12 h-12 bg-red-50 border border-red-100 text-red-500 rounded-xl flex items-center justify-center">
                 <Clock className="w-5 h-5" />
               </div>
             </div>
           </div>
 
           {/* Filter toolbar */}
-          <div className="flex flex-col md:flex-row gap-4 items-stretch md:items-center justify-between bg-slate-900/40 p-4 border border-portal-border/60 rounded-2xl">
+          <div className="flex flex-col md:flex-row gap-4 items-stretch md:items-center justify-between bg-white p-4 border border-portal-border rounded-2xl shadow-sm">
             <div className="relative flex-grow max-w-md">
               <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-portal-text-secondary">
                 <Search className="w-4 h-4" />
@@ -503,7 +503,7 @@ export default function AdminSubscriptionsPage() {
                 placeholder="Search by User Name, Email, UID, Payment ID..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-portal-card border border-portal-border/60 text-white placeholder-portal-text-secondary focus:outline-none focus:border-portal-primary focus:ring-1 focus:ring-portal-primary text-sm"
+                className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-slate-50 border border-portal-border text-portal-text-primary placeholder-portal-text-secondary focus:outline-none focus:border-portal-primary focus:ring-1 focus:ring-portal-primary/20 text-sm"
               />
             </div>
 
@@ -511,7 +511,7 @@ export default function AdminSubscriptionsPage() {
               <select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
-                className="w-full px-4 py-2.5 rounded-xl bg-portal-card border border-portal-border/60 text-slate-300 focus:outline-none focus:border-portal-primary text-sm cursor-pointer"
+                className="w-full px-4 py-2.5 rounded-xl bg-slate-50 border border-portal-border text-portal-text-primary focus:outline-none focus:border-portal-primary text-sm cursor-pointer"
               >
                 <option value="all">All Subscriptions</option>
                 <option value="active">Active</option>
@@ -522,7 +522,7 @@ export default function AdminSubscriptionsPage() {
           </div>
 
           {/* Subscriptions Table */}
-          <div className="overflow-x-auto bg-portal-card border border-portal-border/60 shadow-xl rounded-2xl">
+          <div className="overflow-x-auto bg-white border border-portal-border shadow-sm rounded-2xl">
             {loadingData ? (
               <div className="p-12 text-center text-portal-text-secondary">
                 <Loader2 className="w-8 h-8 animate-spin mx-auto text-portal-primary mb-3" />
@@ -530,67 +530,67 @@ export default function AdminSubscriptionsPage() {
               </div>
             ) : filteredSubs.length === 0 ? (
               <div className="p-12 text-center text-portal-text-secondary space-y-2">
-                <Award className="w-12 h-12 text-slate-700 mx-auto" />
-                <p className="font-bold text-white">No Subscriptions Found</p>
+                <Award className="w-12 h-12 text-slate-300 mx-auto" />
+                <p className="font-bold text-portal-text-primary">No Subscriptions Found</p>
                 <p className="text-sm">We couldn&apos;t find any subscription profiles matching your filter.</p>
               </div>
             ) : (
               <table className="w-full text-left border-collapse text-sm">
                 <thead>
-                  <tr className="border-b border-portal-border/60 text-xs font-bold text-portal-text-secondary uppercase tracking-wider bg-slate-950/45">
-                    <th className="p-4.5 pl-6">Student Profile</th>
-                    <th className="p-4.5">Tier Plan</th>
-                    <th className="p-4.5">Start Date</th>
-                    <th className="p-4.5">Expiry Date</th>
-                    <th className="p-4.5">Status</th>
-                    <th className="p-4.5 pr-6 text-right">Actions</th>
+                  <tr className="border-b border-portal-border text-xs font-bold text-portal-text-secondary uppercase tracking-wider bg-slate-50">
+                    <th className="p-4 pl-6">Student Profile</th>
+                    <th className="p-4">Tier Plan</th>
+                    <th className="p-4">Start Date</th>
+                    <th className="p-4">Expiry Date</th>
+                    <th className="p-4">Status</th>
+                    <th className="p-4 pr-6 text-right">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-portal-border/30">
+                <tbody className="divide-y divide-slate-100">
                   {filteredSubs.map((sub) => {
                     const customer = users[sub.userId];
                     const badgeColor =
                       sub.status === "active"
-                        ? "bg-portal-success/10 border-portal-success/20 text-portal-success"
+                        ? "bg-emerald-50 border-emerald-200 text-emerald-700"
                         : sub.status === "cancelled"
-                        ? "bg-portal-warning/10 border-portal-warning/20 text-portal-warning"
-                        : "bg-red-500/10 border-red-500/20 text-red-400";
+                        ? "bg-amber-50 border-amber-200 text-amber-700"
+                        : "bg-red-50 border-red-200 text-red-600";
 
                     return (
-                      <tr key={sub.id} className="hover:bg-slate-900/25 transition-colors duration-150">
+                      <tr key={sub.id} className="hover:bg-slate-50/70 transition-colors duration-150">
                         {/* Customer */}
-                        <td className="p-4.5 pl-6">
-                          <div className="font-bold text-slate-200">{customer?.name || "Anonymous Member"}</div>
+                        <td className="p-4 pl-6">
+                          <div className="font-bold text-portal-text-primary">{customer?.name || "Anonymous Member"}</div>
                           <p className="text-xs text-portal-text-secondary font-medium">{customer?.email || `UID: ${sub.userId}`}</p>
                         </td>
 
                         {/* Plan */}
-                        <td className="p-4.5 font-bold text-white capitalize text-xs">
+                        <td className="p-4 font-bold text-portal-text-primary capitalize text-xs">
                           {sub.plan}
                         </td>
 
                         {/* Start Date */}
-                        <td className="p-4.5 text-slate-300 text-xs">
+                        <td className="p-4 text-portal-text-secondary text-xs">
                           {new Date(sub.startDate).toLocaleDateString()}
                         </td>
 
                         {/* Expiry Date */}
-                        <td className="p-4.5 text-slate-300 text-xs font-semibold">
+                        <td className="p-4 text-portal-text-secondary text-xs font-semibold">
                           {new Date(sub.expiryDate).toLocaleDateString()}
                         </td>
 
                         {/* Status */}
-                        <td className="p-4.5">
+                        <td className="p-4">
                           <span className={`inline-flex px-2.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider border ${badgeColor}`}>
                             {sub.status}
                           </span>
                         </td>
 
                         {/* Actions */}
-                        <td className="p-4.5 pr-6 text-right space-x-2">
+                        <td className="p-4 pr-6 text-right space-x-2">
                           <button
                             onClick={() => handleOpenEditExpiry(sub)}
-                            className="inline-flex p-2 rounded-lg bg-slate-900 border border-portal-border text-portal-secondary hover:text-white transition-all cursor-pointer"
+                            className="inline-flex p-2 rounded-lg bg-white border border-portal-border text-portal-secondary hover:text-white hover:bg-portal-secondary hover:border-portal-secondary transition-all cursor-pointer"
                             title="Edit Expiry"
                           >
                             <Calendar className="w-3.5 h-3.5" />
@@ -599,7 +599,7 @@ export default function AdminSubscriptionsPage() {
                             <button
                               onClick={() => handleCancelSubscription(sub)}
                               disabled={submittingAction}
-                              className="inline-flex p-2 rounded-lg bg-slate-900 border border-portal-border text-red-400 hover:text-white hover:bg-red-500/15 transition-all cursor-pointer disabled:opacity-50"
+                              className="inline-flex p-2 rounded-lg bg-white border border-portal-border text-red-400 hover:text-white hover:bg-red-500 hover:border-red-500 transition-all cursor-pointer disabled:opacity-50"
                               title="Cancel subscription"
                             >
                               <Ban className="w-3.5 h-3.5" />
@@ -624,24 +624,24 @@ export default function AdminSubscriptionsPage() {
               return (
                 <div
                   key={p.id}
-                  className="bg-portal-card border border-portal-border/60 rounded-3xl p-6 flex flex-col justify-between hover:border-portal-primary/30 transition-all duration-300 relative overflow-hidden group shadow-lg"
+                  className="bg-white border border-portal-border rounded-3xl p-6 flex flex-col justify-between hover:border-portal-primary/50 hover:shadow-md transition-all duration-300 relative overflow-hidden group shadow-sm"
                 >
                   <div className="space-y-4">
                     <div className="flex justify-between items-start">
-                      <h4 className="text-lg font-black text-white">{p.name}</h4>
+                      <h4 className="text-lg font-black text-portal-text-primary">{p.name}</h4>
                       <span
                         className={`inline-flex px-2.5 py-0.5 rounded text-[8px] font-bold uppercase tracking-wider border ${
                           p.active
-                            ? "bg-portal-success/10 border-portal-success/20 text-portal-success"
-                            : "bg-red-500/10 border-red-500/20 text-red-400"
+                            ? "bg-emerald-50 border-emerald-200 text-emerald-700"
+                            : "bg-red-50 border-red-200 text-red-600"
                         }`}
                       >
                         {p.active ? "Active" : "Inactive"}
                       </span>
                     </div>
 
-                    <div className="py-3 border-y border-portal-border/30">
-                      <span className="text-2xl font-black text-white">
+                    <div className="py-3 border-y border-portal-border">
+                      <span className="text-2xl font-black text-portal-text-primary">
                         {isCorporate ? "Custom" : `₹${p.price}`}
                       </span>
                       {!isFree && !isCorporate && (
@@ -650,7 +650,7 @@ export default function AdminSubscriptionsPage() {
                     </div>
 
                     <div className="space-y-2">
-                      <p className="text-[10px] font-bold text-white uppercase tracking-wider">Features</p>
+                      <p className="text-[10px] font-bold text-portal-text-secondary uppercase tracking-wider">Features</p>
                       <ul className="space-y-1.5">
                         {p.features.map((feat, idx) => (
                           <li key={idx} className="flex items-start gap-1.5 text-xs text-portal-text-secondary leading-normal">
@@ -662,10 +662,10 @@ export default function AdminSubscriptionsPage() {
                     </div>
                   </div>
 
-                  <div className="pt-6 mt-6 border-t border-portal-border/40">
+                  <div className="pt-6 mt-6 border-t border-portal-border">
                     <button
                       onClick={() => handleOpenEditPlan(p)}
-                      className="w-full py-2.5 rounded-xl bg-slate-900 border border-portal-border hover:border-portal-primary text-xs font-bold text-slate-200 hover:text-white transition-all cursor-pointer flex items-center justify-center gap-1.5"
+                      className="w-full py-2.5 rounded-xl bg-slate-50 border border-portal-border hover:border-portal-primary hover:bg-blue-50 text-xs font-bold text-portal-text-secondary hover:text-portal-primary transition-all cursor-pointer flex items-center justify-center gap-1.5"
                     >
                       <Award className="w-3.5 h-3.5" />
                       <span>Edit Plan Details</span>
@@ -682,7 +682,7 @@ export default function AdminSubscriptionsPage() {
       {subToEdit && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 animate-fade-in">
           <div
-            className="absolute inset-0 bg-slate-950/70 backdrop-blur-sm"
+            className="absolute inset-0 bg-slate-800/40 backdrop-blur-sm"
             onClick={() => {
               if (!submittingAction) setSubToEdit(null);
             }}
@@ -690,23 +690,23 @@ export default function AdminSubscriptionsPage() {
 
           <form
             onSubmit={handleSaveExpiry}
-            className="relative w-full max-w-md bg-portal-card border border-portal-border rounded-3xl p-6 sm:p-8 shadow-2xl z-10 text-slate-100 space-y-4"
+            className="relative w-full max-w-md bg-white border border-portal-border rounded-3xl p-6 sm:p-8 shadow-2xl z-10 text-portal-text-primary space-y-4"
           >
-            <div className="flex justify-between items-center border-b border-portal-border/60 pb-3">
-              <h3 className="text-lg font-bold text-white font-black">Edit Subscription validation</h3>
+            <div className="flex justify-between items-center border-b border-portal-border pb-3">
+              <h3 className="text-lg font-bold text-portal-text-primary">Edit Subscription validation</h3>
               <button
                 type="button"
                 onClick={() => setSubToEdit(null)}
-                className="p-1.5 rounded-lg text-portal-text-secondary hover:text-white"
+                className="p-1.5 rounded-lg border border-portal-border hover:bg-slate-50 text-portal-text-secondary hover:text-portal-text-primary"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
             <div className="space-y-4">
-              <div className="p-3 bg-slate-950/40 border border-portal-border/20 rounded-2xl text-xs space-y-1">
+              <div className="p-3 bg-slate-50 border border-portal-border rounded-2xl text-xs space-y-1">
                 <p className="text-portal-text-secondary font-bold uppercase tracking-wider text-[10px]">User Account</p>
-                <p className="text-white font-bold">{users[subToEdit.userId]?.name || "Anonymous"}</p>
+                <p className="text-portal-text-primary font-bold">{users[subToEdit.userId]?.name || "Anonymous"}</p>
                 <p className="text-portal-text-secondary">{users[subToEdit.userId]?.email || `UID: ${subToEdit.userId}`}</p>
               </div>
 
@@ -717,7 +717,7 @@ export default function AdminSubscriptionsPage() {
                   required
                   value={newExpiryDate}
                   onChange={(e) => setNewExpiryDate(e.target.value)}
-                  className="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-portal-border/60 text-white focus:outline-none focus:border-portal-primary text-sm font-semibold"
+                  className="w-full px-4 py-2.5 rounded-xl bg-slate-50 border border-portal-border text-portal-text-primary focus:outline-none focus:border-portal-primary text-sm font-semibold"
                 />
                 <p className="text-[10px] text-portal-text-secondary mt-1.5 leading-relaxed">
                   Extending this date beyond today will automatically reactivate the user&apos;s role to &apos;paid&apos; if it is currently expired or free.
@@ -725,11 +725,11 @@ export default function AdminSubscriptionsPage() {
               </div>
             </div>
 
-            <div className="flex gap-4 pt-4 border-t border-portal-border/60">
+            <div className="flex gap-4 pt-4 border-t border-portal-border">
               <button
                 type="button"
                 onClick={() => setSubToEdit(null)}
-                className="flex-grow flex-1 py-3 rounded-xl border border-portal-border hover:bg-slate-900 text-xs font-bold transition-all cursor-pointer"
+                className="flex-grow flex-1 py-3 rounded-xl border border-portal-border hover:bg-slate-50 text-xs font-bold text-portal-text-secondary hover:text-portal-text-primary transition-all cursor-pointer"
               >
                 Cancel
               </button>
@@ -750,7 +750,7 @@ export default function AdminSubscriptionsPage() {
       {planToEdit && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 animate-fade-in">
           <div
-            className="absolute inset-0 bg-slate-950/70 backdrop-blur-sm"
+            className="absolute inset-0 bg-slate-800/40 backdrop-blur-sm"
             onClick={() => {
               if (!submittingAction) setPlanToEdit(null);
             }}
@@ -758,14 +758,14 @@ export default function AdminSubscriptionsPage() {
 
           <form
             onSubmit={handleSavePlan}
-            className="relative w-full max-w-lg bg-portal-card border border-portal-border rounded-3xl p-6 sm:p-8 shadow-2xl z-10 text-slate-100 space-y-4"
+            className="relative w-full max-w-lg bg-white border border-portal-border rounded-3xl p-6 sm:p-8 shadow-2xl z-10 text-portal-text-primary space-y-4"
           >
-            <div className="flex justify-between items-center border-b border-portal-border/60 pb-3">
-              <h3 className="text-lg font-bold text-white font-black">Configure Tier: {planToEdit.name}</h3>
+            <div className="flex justify-between items-center border-b border-portal-border pb-3">
+              <h3 className="text-lg font-bold text-portal-text-primary">Configure Tier: {planToEdit.name}</h3>
               <button
                 type="button"
                 onClick={() => setPlanToEdit(null)}
-                className="p-1.5 rounded-lg text-portal-text-secondary hover:text-white"
+                className="p-1.5 rounded-lg border border-portal-border hover:bg-slate-50 text-portal-text-secondary hover:text-portal-text-primary"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -780,7 +780,7 @@ export default function AdminSubscriptionsPage() {
                     required
                     value={planToEdit.name}
                     onChange={(e) => setPlanToEdit({ ...planToEdit, name: e.target.value })}
-                    className="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-portal-border/60 text-white focus:outline-none focus:border-portal-primary text-sm font-semibold"
+                    className="w-full px-4 py-2.5 rounded-xl bg-slate-50 border border-portal-border text-portal-text-primary focus:outline-none focus:border-portal-primary text-sm font-semibold"
                   />
                 </div>
 
@@ -792,7 +792,7 @@ export default function AdminSubscriptionsPage() {
                     disabled={planToEdit.id === "free" || planToEdit.id === "corporate"}
                     value={planToEdit.price}
                     onChange={(e) => setPlanToEdit({ ...planToEdit, price: parseInt(e.target.value) || 0 })}
-                    className="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-portal-border/60 text-white focus:outline-none focus:border-portal-primary text-sm font-semibold disabled:opacity-50"
+                    className="w-full px-4 py-2.5 rounded-xl bg-slate-50 border border-portal-border text-portal-text-primary focus:outline-none focus:border-portal-primary text-sm font-semibold disabled:opacity-50"
                   />
                 </div>
               </div>
@@ -804,7 +804,7 @@ export default function AdminSubscriptionsPage() {
                     value={planToEdit.billingPeriod}
                     disabled={planToEdit.id === "free" || planToEdit.id === "corporate"}
                     onChange={(e) => setPlanToEdit({ ...planToEdit, billingPeriod: e.target.value })}
-                    className="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-portal-border/60 text-slate-300 focus:outline-none focus:border-portal-primary text-sm cursor-pointer disabled:opacity-50"
+                    className="w-full px-4 py-2.5 rounded-xl bg-slate-50 border border-portal-border/60 text-slate-300 focus:outline-none focus:border-portal-primary text-sm cursor-pointer disabled:opacity-50"
                   >
                     <option value="always">Always Free</option>
                     <option value="month">Per Month</option>
@@ -818,7 +818,7 @@ export default function AdminSubscriptionsPage() {
                   <select
                     value={planToEdit.active ? "true" : "false"}
                     onChange={(e) => setPlanToEdit({ ...planToEdit, active: e.target.value === "true" })}
-                    className="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-portal-border/60 text-slate-300 focus:outline-none focus:border-portal-primary text-sm cursor-pointer"
+                    className="w-full px-4 py-2.5 rounded-xl bg-slate-50 border border-portal-border/60 text-slate-300 focus:outline-none focus:border-portal-primary text-sm cursor-pointer"
                   >
                     <option value="true">Active Plan</option>
                     <option value="false">Inactive Plan</option>
@@ -833,7 +833,7 @@ export default function AdminSubscriptionsPage() {
                   value={editedFeatures}
                   onChange={(e) => setEditedFeatures(e.target.value)}
                   placeholder="e.g. Access to all courses"
-                  className="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-portal-border/60 text-white focus:outline-none focus:border-portal-primary text-sm font-semibold"
+                  className="w-full px-4 py-2.5 rounded-xl bg-slate-50 border border-portal-border text-portal-text-primary focus:outline-none focus:border-portal-primary text-sm font-semibold"
                 />
               </div>
             </div>
@@ -842,7 +842,7 @@ export default function AdminSubscriptionsPage() {
               <button
                 type="button"
                 onClick={() => setPlanToEdit(null)}
-                className="flex-grow flex-1 py-3 rounded-xl border border-portal-border hover:bg-slate-900 text-xs font-bold transition-all cursor-pointer"
+                className="flex-grow flex-1 py-3 rounded-xl border border-portal-border hover:bg-slate-50 text-xs font-bold text-portal-text-secondary transition-all cursor-pointer"
               >
                 Cancel
               </button>

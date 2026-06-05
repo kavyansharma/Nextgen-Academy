@@ -206,7 +206,7 @@ export default function AdminCommunityModerationPage() {
   }
 
   return (
-    <div className="max-w-6xl mx-auto space-y-8 animate-fade-in text-slate-100 font-sans relative">
+    <div className="max-w-6xl mx-auto space-y-8 animate-fade-in text-portal-text-primary font-sans relative">
       
       {/* Toast Notification */}
       {notification && (
@@ -219,22 +219,22 @@ export default function AdminCommunityModerationPage() {
       )}
 
       {/* Header */}
-      <div className="border-b border-portal-border/60 pb-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="border-b border-portal-border pb-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-extrabold text-white tracking-tight">Forum Moderation Desk</h1>
+          <h1 className="text-3xl font-extrabold text-portal-text-primary tracking-tight">Forum Moderation Desk</h1>
           <p className="text-sm text-portal-text-secondary mt-1">
             Audit posts and replies flagged by the learning community. Maintain a professional, safe consulting workspace.
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <span className="px-3.5 py-1 bg-slate-900 border border-slate-800 rounded-full text-xs font-bold text-portal-primary uppercase tracking-wider">
+          <span className="px-3.5 py-1 bg-slate-50 border border-portal-border rounded-full text-xs font-bold text-portal-primary uppercase tracking-wider">
             Moderator Console
           </span>
         </div>
       </div>
 
       {/* Tabs Menu */}
-      <div className="flex border-b border-portal-border/30">
+      <div className="flex border-b border-slate-100">
         {[
           { id: "posts" as const, label: `Flagged Threads (${reportedPosts.length})` },
           { id: "replies" as const, label: `Flagged Responses (${reportedReplies.length})` }
@@ -245,7 +245,7 @@ export default function AdminCommunityModerationPage() {
             className={`px-5 py-3 border-b-2 text-xs font-bold transition-all cursor-pointer ${
               activeTab === tab.id
                 ? "border-portal-primary text-portal-primary"
-                : "border-transparent text-portal-text-secondary hover:text-white"
+                : "border-transparent text-portal-text-secondary hover:text-portal-primary"
             }`}
           >
             {tab.label}
@@ -255,7 +255,7 @@ export default function AdminCommunityModerationPage() {
 
       {/* Moderation Desk Content */}
       {fetchLoading ? (
-        <div className="p-20 text-center bg-portal-card border border-portal-border/60 rounded-3xl">
+        <div className="p-20 text-center bg-white border border-portal-border rounded-3xl">
           <Loader2 className="w-8 h-8 animate-spin mx-auto text-portal-primary mb-2" />
           <p className="text-xs text-portal-text-secondary">Retrieving flagged database entries...</p>
         </div>
@@ -263,44 +263,44 @@ export default function AdminCommunityModerationPage() {
         
         /* reported posts workspace */
         reportedPosts.length === 0 ? (
-          <div className="p-16 text-center bg-portal-card border border-portal-border/60 rounded-3xl space-y-4">
+          <div className="p-16 text-center bg-white border border-portal-border rounded-3xl space-y-4">
             <CheckCircle className="w-12 h-12 text-emerald-500 mx-auto" />
             <div>
-              <p className="font-bold text-white">Post Moderation Queue Clear</p>
+              <p className="font-bold text-portal-text-primary">Post Moderation Queue Clear</p>
               <p className="text-xs text-portal-text-secondary mt-1">No community posts have been flagged for review.</p>
             </div>
           </div>
         ) : (
           <div className="space-y-4 animate-fade-in">
             {reportedPosts.map((post) => (
-              <div key={post.id} className="p-5 rounded-2xl bg-portal-card border border-red-500/25 flex flex-col md:flex-row justify-between gap-6 shadow-md hover:border-red-500/40 transition-colors">
+              <div key={post.id} className="p-5 rounded-2xl bg-white border border-red-500/25 flex flex-col md:flex-row justify-between gap-6 shadow-md hover:border-red-500/40 transition-colors">
                 <div className="space-y-3 flex-1">
                   <div className="flex flex-wrap items-center gap-2 text-[10px]">
                     <span className="px-2 py-0.5 bg-red-500/10 text-red-400 border border-red-500/20 rounded font-bold uppercase tracking-wider">
                       Flagged Thread
                     </span>
                     <span className="text-slate-500">Author:</span>
-                    <span className="font-bold text-slate-300">{post.authorName} ({post.authorRole})</span>
+                    <span className="font-bold text-portal-text-secondary">{post.authorName} ({post.authorRole})</span>
                     <span className="text-slate-500">&bull;</span>
                     <span className="text-slate-400">{new Date(post.createdAt).toLocaleDateString()}</span>
                   </div>
 
-                  <h3 className="text-md font-bold text-white">{post.title}</h3>
-                  <p className="text-xs text-slate-350 leading-relaxed bg-slate-950/30 p-3.5 rounded-xl border border-slate-900">{post.content}</p>
+                  <h3 className="text-md font-bold text-portal-text-primary">{post.title}</h3>
+                  <p className="text-xs text-portal-text-secondary leading-relaxed bg-slate-50/30 p-3.5 rounded-xl border border-portal-border">{post.content}</p>
                 </div>
 
                 {/* Moderation Controls */}
                 <div className="flex sm:flex-col justify-end gap-2 md:w-44 border-t md:border-t-0 border-slate-800 pt-4 md:pt-0 self-stretch md:self-center">
                   <button
                     onClick={() => handleApprovePost(post.id, post.title)}
-                    className="flex-1 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer"
+                    className="flex-1 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-portal-text-primary font-bold text-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer"
                   >
                     <CheckCircle className="w-4 h-4" />
                     <span>Approve</span>
                   </button>
                   <button
                     onClick={() => handleDeletePost(post.id, post.title)}
-                    className="flex-1 py-2 rounded-xl bg-red-600 hover:bg-red-500 text-white font-bold text-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer"
+                    className="flex-1 py-2 rounded-xl bg-red-600 hover:bg-red-500 text-portal-text-primary font-bold text-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer"
                   >
                     <Trash2 className="w-4 h-4" />
                     <span>Delete Post</span>
@@ -315,43 +315,43 @@ export default function AdminCommunityModerationPage() {
         
         /* reported replies workspace */
         reportedReplies.length === 0 ? (
-          <div className="p-16 text-center bg-portal-card border border-portal-border/60 rounded-3xl space-y-4">
+          <div className="p-16 text-center bg-white border border-portal-border rounded-3xl space-y-4">
             <CheckCircle className="w-12 h-12 text-emerald-500 mx-auto" />
             <div>
-              <p className="font-bold text-white">Response Moderation Queue Clear</p>
+              <p className="font-bold text-portal-text-primary">Response Moderation Queue Clear</p>
               <p className="text-xs text-portal-text-secondary mt-1">No replies or comments have been flagged for review.</p>
             </div>
           </div>
         ) : (
           <div className="space-y-4 animate-fade-in">
             {reportedReplies.map((reply) => (
-              <div key={reply.id} className="p-5 rounded-2xl bg-portal-card border border-red-500/25 flex flex-col md:flex-row justify-between gap-6 shadow-md hover:border-red-500/40 transition-colors">
+              <div key={reply.id} className="p-5 rounded-2xl bg-white border border-red-500/25 flex flex-col md:flex-row justify-between gap-6 shadow-md hover:border-red-500/40 transition-colors">
                 <div className="space-y-3 flex-1">
                   <div className="flex flex-wrap items-center gap-2 text-[10px]">
                     <span className="px-2 py-0.5 bg-red-500/10 text-red-400 border border-red-500/20 rounded font-bold uppercase tracking-wider">
                       Flagged Reply
                     </span>
                     <span className="text-slate-500">Author:</span>
-                    <span className="font-bold text-slate-300">{reply.authorName} ({reply.authorRole})</span>
+                    <span className="font-bold text-portal-text-secondary">{reply.authorName} ({reply.authorRole})</span>
                     <span className="text-slate-500">&bull;</span>
                     <span className="text-slate-400">Post ID: {reply.postId}</span>
                   </div>
 
-                  <p className="text-xs text-slate-350 leading-relaxed bg-slate-950/30 p-3.5 rounded-xl border border-slate-900">{reply.content}</p>
+                  <p className="text-xs text-portal-text-secondary leading-relaxed bg-slate-50/30 p-3.5 rounded-xl border border-portal-border">{reply.content}</p>
                 </div>
 
                 {/* Moderation Controls */}
                 <div className="flex sm:flex-col justify-end gap-2 md:w-44 border-t md:border-t-0 border-slate-800 pt-4 md:pt-0 self-stretch md:self-center">
                   <button
                     onClick={() => handleApproveReply(reply.id, reply.postId)}
-                    className="flex-1 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer"
+                    className="flex-1 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-portal-text-primary font-bold text-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer"
                   >
                     <CheckCircle className="w-4 h-4" />
                     <span>Approve</span>
                   </button>
                   <button
                     onClick={() => handleDeleteReply(reply.id, reply.postId)}
-                    className="flex-1 py-2 rounded-xl bg-red-600 hover:bg-red-500 text-white font-bold text-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer"
+                    className="flex-1 py-2 rounded-xl bg-red-600 hover:bg-red-500 text-portal-text-primary font-bold text-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer"
                   >
                     <Trash2 className="w-4 h-4" />
                     <span>Delete Reply</span>

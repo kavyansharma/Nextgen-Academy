@@ -284,7 +284,7 @@ export default function CoursesPage() {
           email: user.email,
         },
         theme: {
-          color: "#f97316"
+          color: "#2563EB"
         }
       };
 
@@ -320,12 +320,12 @@ export default function CoursesPage() {
   }
 
   return (
-    <div className="space-y-8 animate-fade-in text-slate-100">
+    <div className="space-y-8 animate-fade-in text-slate-900">
       {/* Header */}
-      <div className="border-b border-portal-border/60 pb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="border-b border-slate-200 pb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-extrabold text-white tracking-tight sm:text-4xl">Academy Courses</h1>
-          <p className="text-sm text-portal-text-secondary mt-1">Acquire verified certificates, specialized training modules, and executive learning path guides.</p>
+          <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight sm:text-4xl">Academy Courses</h1>
+          <p className="text-sm text-slate-500 mt-1">Acquire verified certificates, specialized training modules, and executive learning path guides.</p>
         </div>
 
         {user.role === "admin" && (
@@ -342,7 +342,7 @@ export default function CoursesPage() {
       {/* Filter controls */}
       <div className="flex flex-col md:flex-row gap-4 items-stretch md:items-center justify-between">
         {/* Course Type selector tabs */}
-        <div className="flex bg-slate-950 p-1 rounded-xl border border-portal-border/50 max-w-sm">
+        <div className="flex bg-slate-100 p-1 rounded-xl border border-slate-200 max-w-sm shadow-sm">
           {[
             { id: "all", label: "All Courses" },
             { id: "free", label: "Free Tier" },
@@ -354,7 +354,7 @@ export default function CoursesPage() {
               className={`px-4 py-2 rounded-lg text-xs font-bold transition-all cursor-pointer ${
                 selectedTypeFilter === tab.id
                   ? "bg-portal-primary text-white shadow-sm"
-                  : "text-portal-text-secondary hover:text-white"
+                  : "text-slate-600 hover:text-slate-900"
               }`}
             >
               {tab.label}
@@ -371,7 +371,7 @@ export default function CoursesPage() {
               className={`px-4 py-2 rounded-full border text-xs font-semibold transition-all duration-200 cursor-pointer ${
                 selectedCategory.toLowerCase() === cat.toLowerCase()
                   ? "bg-portal-primary text-white border-portal-primary shadow-md shadow-portal-primary/20"
-                  : "bg-portal-card border-portal-border/60 text-portal-text-secondary hover:text-white hover:border-slate-600"
+                  : "bg-white border-slate-200 text-slate-600 hover:text-slate-900 hover:border-slate-350 shadow-sm"
               }`}
             >
               {cat}
@@ -384,7 +384,7 @@ export default function CoursesPage() {
           <select
             value={selectedCategory}
             onChange={(e) => setSelectedCategory(e.target.value)}
-            className="w-full px-4 py-3 rounded-xl bg-portal-card border border-portal-border/60 text-white focus:outline-none focus:border-portal-primary text-sm"
+            className="w-full px-4 py-3 rounded-xl bg-white border border-slate-200 text-slate-800 focus:outline-none focus:border-portal-primary text-sm shadow-sm"
           >
             {categories.map((cat) => (
               <option key={cat} value={cat}>
@@ -402,10 +402,10 @@ export default function CoursesPage() {
           return (
             <div
               key={c.id}
-              className="bg-portal-card border border-portal-border/50 rounded-3xl overflow-hidden hover:border-portal-primary/40 hover:scale-[1.01] transition-all duration-300 flex flex-col justify-between group h-[420px] shadow-lg"
+              className="bg-white border border-slate-200 rounded-3xl overflow-hidden hover:border-portal-primary/40 hover:scale-[1.01] hover:shadow-md transition-all duration-300 flex flex-col justify-between group h-[420px] shadow-sm"
             >
               {/* Thumbnail banner */}
-              <div className="h-44 overflow-hidden relative border-b border-portal-border/40">
+              <div className="h-44 overflow-hidden relative border-b border-slate-100">
                 <img
                   src={c.thumbnail}
                   alt={c.title}
@@ -414,15 +414,15 @@ export default function CoursesPage() {
                 <div className="absolute inset-0 bg-slate-950/20 group-hover:bg-slate-950/10 transition-colors"></div>
                 
                 {/* Category badge absolute */}
-                <span className="absolute top-4 left-4 text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full bg-slate-950/80 text-portal-secondary border border-portal-border/40 backdrop-blur-sm">
+                <span className="absolute top-4 left-4 text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full bg-slate-900/75 text-white border border-white/10 backdrop-blur-sm">
                   {c.category}
                 </span>
 
                 {/* Level Access Lock Badge */}
                 <span className={`absolute top-4 right-4 inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full border backdrop-blur-sm ${
                   c.type === "free"
-                    ? "bg-portal-success/90 border-portal-success/20 text-white"
-                    : "bg-portal-warning/90 border-portal-warning/20 text-slate-950"
+                    ? "bg-emerald-600 text-white border-emerald-500/20"
+                    : "bg-amber-500 text-white border-amber-400/20"
                 }`}>
                   {c.type === "free" ? <Unlock className="w-3 h-3" /> : <Lock className="w-3 h-3" />}
                   <span>{c.type}</span>
@@ -432,15 +432,15 @@ export default function CoursesPage() {
               {/* Course Info details */}
               <div className="p-6 flex-1 flex flex-col justify-between space-y-4">
                 <div className="space-y-2">
-                  <h3 className="text-lg font-bold text-white group-hover:text-portal-primary transition-colors duration-200 line-clamp-1">
+                  <h3 className="text-lg font-bold text-slate-900 group-hover:text-portal-primary transition-colors duration-200 line-clamp-1">
                     {c.title}
                   </h3>
-                  <p className="text-xs text-portal-text-secondary leading-relaxed line-clamp-3">
+                  <p className="text-xs text-slate-500 leading-relaxed line-clamp-3">
                     {c.description}
                   </p>
                 </div>
 
-                <div className="flex items-center justify-between gap-4 text-xs text-portal-text-secondary border-t border-portal-border/40 pt-4">
+                <div className="flex items-center justify-between gap-4 text-xs text-slate-500 border-t border-slate-100 pt-4">
                   <span className="flex items-center gap-1 font-semibold">
                     <Clock className="w-4 h-4 text-portal-primary" />
                     {c.duration || "Self-paced"}
@@ -465,9 +465,9 @@ export default function CoursesPage() {
                 ) : (
                   <button
                     onClick={() => setUpgradeCourse(c)}
-                    className="w-full py-3 px-4 rounded-xl bg-slate-900 hover:bg-slate-850 border border-portal-border hover:border-portal-warning text-portal-text-secondary hover:text-white font-bold text-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer"
+                    className="w-full py-3 px-4 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 hover:border-slate-350 text-slate-700 hover:text-slate-900 font-bold text-xs flex items-center justify-center gap-1.5 transition-all shadow-sm cursor-pointer"
                   >
-                    <Lock className="w-4 h-4 text-portal-warning" />
+                    <Lock className="w-4 h-4 text-amber-500 animate-pulse" />
                     <span>Unlock Premium Course</span>
                   </button>
                 )}
@@ -480,48 +480,48 @@ export default function CoursesPage() {
       {/* Upgrade Gate Modal */}
       {upgradeCourse && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-slate-950/80 backdrop-blur-sm" onClick={() => { if (!isUpgrading && !upgradeSuccess) setUpgradeCourse(null); }}></div>
+          <div className="absolute inset-0 bg-slate-950/60 backdrop-blur-sm" onClick={() => { if (!isUpgrading && !upgradeSuccess) setUpgradeCourse(null); }}></div>
 
-          <div className="relative w-full max-w-md bg-portal-card border border-portal-border rounded-3xl p-6 sm:p-8 shadow-2xl animate-fade-in z-10 text-slate-100 overflow-hidden">
+          <div className="relative w-full max-w-md bg-white border border-slate-250 rounded-3xl p-6 sm:p-8 shadow-2xl animate-fade-in z-10 text-slate-900 overflow-hidden">
             {/* Background highlights */}
-            <div className="absolute top-0 right-0 w-36 h-36 bg-portal-warning/10 rounded-full blur-2xl"></div>
+            <div className="absolute top-0 right-0 w-36 h-36 bg-blue-50/50 rounded-full blur-2xl"></div>
 
             <button
               onClick={() => setUpgradeCourse(null)}
               disabled={isUpgrading || upgradeSuccess}
-              className="absolute top-4 right-4 p-2 rounded-xl text-portal-text-secondary hover:text-white hover:bg-slate-800 disabled:opacity-30"
+              className="absolute top-4 right-4 p-2 rounded-xl text-slate-400 hover:text-slate-800 hover:bg-slate-50 disabled:opacity-30"
             >
               <X className="w-5 h-5" />
             </button>
 
             {upgradeSuccess ? (
               <div className="py-8 text-center space-y-4 animate-fade-in">
-                <div className="w-16 h-16 rounded-full bg-portal-success/10 border border-portal-success/20 flex items-center justify-center text-portal-success mx-auto">
+                <div className="w-16 h-16 rounded-full bg-emerald-50 border border-emerald-200 flex items-center justify-center text-emerald-600 mx-auto">
                   <CheckCircle2 className="w-10 h-10 animate-bounce" />
                 </div>
-                <h3 className="text-xl font-bold text-white">Upgrade Successful!</h3>
-                <p className="text-sm text-portal-text-secondary">Welcome to Premium Learning. Unlocking course content...</p>
+                <h3 className="text-xl font-bold text-slate-900">Upgrade Successful!</h3>
+                <p className="text-sm text-slate-500">Welcome to Premium Learning. Unlocking course content...</p>
               </div>
             ) : (
               <div className="space-y-6">
                 <div className="text-center space-y-3">
-                  <div className="w-12 h-12 rounded-xl bg-portal-warning/10 border border-portal-warning/20 flex items-center justify-center text-portal-warning mx-auto">
+                  <div className="w-12 h-12 rounded-xl bg-blue-50 border border-blue-100 flex items-center justify-center text-portal-primary mx-auto">
                     <Sparkles className="w-6 h-6 animate-pulse" />
                   </div>
-                  <h3 className="text-xl font-extrabold text-white font-black">Unlock Premium Learning</h3>
-                  <p className="text-xs text-portal-text-secondary max-w-xs mx-auto">
+                  <h3 className="text-xl font-extrabold text-slate-900">Unlock Premium Learning</h3>
+                  <p className="text-xs text-slate-500 max-w-xs mx-auto">
                     Choose the subscription tier that best fits your engineering or industrial skill building path.
                   </p>
                 </div>
 
                 <div className="space-y-3">
-                  <p className="text-[10px] font-bold text-white uppercase tracking-wider">Select a Plan</p>
+                  <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Select a Plan</p>
                   
                   {/* Monthly Plan */}
                   <label className={`flex items-center justify-between p-3.5 rounded-2xl border cursor-pointer transition-all ${
                     selectedPlanId === "premium_monthly" 
-                      ? "bg-portal-primary/10 border-portal-primary" 
-                      : "bg-slate-900 border-portal-border/60 hover:border-slate-550"
+                      ? "bg-blue-50 border-blue-500" 
+                      : "bg-white border-slate-200 hover:border-slate-350 shadow-sm"
                   }`}>
                     <div className="flex items-center gap-3">
                       <input 
@@ -532,18 +532,18 @@ export default function CoursesPage() {
                         className="text-portal-primary focus:ring-portal-primary"
                       />
                       <div>
-                        <p className="text-xs font-bold text-white">Premium Monthly</p>
-                        <p className="text-[10px] text-portal-text-secondary">Billed month-to-month</p>
+                        <p className="text-xs font-bold text-slate-900">Premium Monthly</p>
+                        <p className="text-[10px] text-slate-500">Billed month-to-month</p>
                       </div>
                     </div>
-                    <span className="text-sm font-black text-white">₹999/mo</span>
+                    <span className="text-sm font-extrabold text-slate-900">₹999/mo</span>
                   </label>
 
                   {/* Yearly Plan */}
                   <label className={`flex items-center justify-between p-3.5 rounded-2xl border cursor-pointer transition-all ${
                     selectedPlanId === "premium_yearly" 
-                      ? "bg-portal-primary/10 border-portal-primary" 
-                      : "bg-slate-900 border-portal-border/60 hover:border-slate-550"
+                      ? "bg-blue-50 border-blue-500" 
+                      : "bg-white border-slate-200 hover:border-slate-350 shadow-sm"
                   }`}>
                     <div className="flex items-center gap-3">
                       <input 
@@ -555,20 +555,20 @@ export default function CoursesPage() {
                       />
                       <div>
                         <div className="flex items-center gap-1.5">
-                          <p className="text-xs font-bold text-white">Premium Yearly</p>
-                          <span className="bg-portal-primary/20 text-portal-primary text-[8px] font-extrabold px-1.5 py-0.5 rounded uppercase">Save 33%</span>
+                          <p className="text-xs font-bold text-slate-900">Premium Yearly</p>
+                          <span className="bg-portal-primary/10 text-portal-primary text-[8px] font-extrabold px-1.5 py-0.5 rounded uppercase">Save 33%</span>
                         </div>
-                        <p className="text-[10px] text-portal-text-secondary">Best value subscription</p>
+                        <p className="text-[10px] text-slate-500">Best value subscription</p>
                       </div>
                     </div>
-                    <span className="text-sm font-black text-white">₹7,999/yr</span>
+                    <span className="text-sm font-extrabold text-slate-900">₹7,999/yr</span>
                   </label>
 
                   {/* Corporate Plan */}
                   <label className={`flex items-center justify-between p-3.5 rounded-2xl border cursor-pointer transition-all ${
                     selectedPlanId === "corporate" 
-                      ? "bg-portal-primary/10 border-portal-primary" 
-                      : "bg-slate-900 border-portal-border/60 hover:border-slate-550"
+                      ? "bg-blue-50 border-blue-500" 
+                      : "bg-white border-slate-200 hover:border-slate-350 shadow-sm"
                   }`}>
                     <div className="flex items-center gap-3">
                       <input 
@@ -579,11 +579,11 @@ export default function CoursesPage() {
                         className="text-portal-primary focus:ring-portal-primary"
                       />
                       <div>
-                        <p className="text-xs font-bold text-white">Corporate Enterprise</p>
-                        <p className="text-[10px] text-portal-text-secondary">Bulk seat licenses & SLA</p>
+                        <p className="text-xs font-bold text-slate-900">Corporate Enterprise</p>
+                        <p className="text-[10px] text-slate-500">Bulk seat licenses & SLA</p>
                       </div>
                     </div>
-                    <span className="text-xs font-bold text-portal-secondary">Custom</span>
+                    <span className="text-xs font-bold text-blue-600">Custom</span>
                   </label>
                 </div>
 
@@ -591,7 +591,7 @@ export default function CoursesPage() {
                   {selectedPlanId === "corporate" ? (
                     <Link
                       href="/portal/support"
-                      className="w-full py-3.5 rounded-xl bg-portal-secondary hover:bg-portal-secondary/90 text-slate-950 font-bold text-sm shadow-lg flex items-center justify-center gap-2 cursor-pointer transition-all"
+                      className="w-full py-3.5 rounded-xl bg-portal-primary hover:bg-portal-primary/90 text-white font-bold text-sm shadow-lg flex items-center justify-center gap-2 cursor-pointer transition-all"
                     >
                       <Mail className="w-4 h-4" />
                       <span>Contact Corporate Support</span>
@@ -600,7 +600,7 @@ export default function CoursesPage() {
                     <button
                       onClick={() => handleUpgrade(selectedPlanId)}
                       disabled={isUpgrading}
-                      className="w-full py-3.5 rounded-xl bg-portal-warning hover:bg-portal-warning/90 text-slate-950 font-bold text-sm shadow-lg flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 transition-all"
+                      className="w-full py-3.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-bold text-sm shadow-lg flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 transition-all"
                     >
                       {isUpgrading ? (
                         <>
@@ -619,7 +619,7 @@ export default function CoursesPage() {
                     type="button"
                     onClick={() => setUpgradeCourse(null)}
                     disabled={isUpgrading}
-                    className="w-full py-3 rounded-xl border border-portal-border hover:bg-slate-800 text-xs font-bold text-portal-text-secondary hover:text-white transition-all disabled:opacity-50"
+                    className="w-full py-3 rounded-xl border border-slate-200 hover:bg-slate-50 text-xs font-bold text-slate-500 hover:text-slate-800 transition-all disabled:opacity-50"
                   >
                     Cancel
                   </button>

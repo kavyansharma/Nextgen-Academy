@@ -387,7 +387,7 @@ export default function AdminCoursesPage() {
   }
 
   return (
-    <div className="space-y-6 animate-fade-in text-slate-100">
+    <div className="space-y-6 animate-fade-in text-portal-text-primary">
       {/* Back button */}
       <div>
         <Link
@@ -400,9 +400,9 @@ export default function AdminCoursesPage() {
       </div>
 
       {/* Header */}
-      <div className="border-b border-portal-border/60 pb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="border-b border-portal-border pb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-extrabold text-white tracking-tight sm:text-4xl flex items-center gap-2">
+          <h1 className="text-3xl font-extrabold text-portal-text-primary tracking-tight sm:text-4xl flex items-center gap-2">
             <Sliders className="w-8 h-8 text-portal-primary animate-pulse" />
             <span>Course Management</span>
           </h1>
@@ -414,7 +414,7 @@ export default function AdminCoursesPage() {
             setFormError(null);
             setIsAddCourseOpen(true);
           }}
-          className="px-5 py-2.5 rounded-xl bg-portal-primary hover:bg-portal-primary/95 text-white font-bold text-xs flex items-center justify-center gap-1.5 transition-all shadow-md cursor-pointer self-start sm:self-center"
+          className="px-5 py-2.5 rounded-xl bg-portal-primary hover:bg-portal-primary/95 text-portal-text-primary font-bold text-xs flex items-center justify-center gap-1.5 transition-all shadow-md cursor-pointer self-start sm:self-center"
         >
           <Plus className="w-4 h-4" />
           <span>Create Course</span>
@@ -425,8 +425,8 @@ export default function AdminCoursesPage() {
       {toast && (
         <div className={`fixed top-4 right-4 z-50 flex gap-3 p-4 rounded-xl text-sm border shadow-lg animate-fade-in ${
           toast.type === "success" 
-            ? "bg-portal-success/10 border-portal-success/20 text-portal-success" 
-            : "bg-red-500/10 border-red-500/20 text-red-200"
+            ? "bg-emerald-50 border-emerald-200 text-emerald-700" 
+            : "bg-red-50 border-red-200 text-red-800"
         }`}>
           {toast.type === "success" ? (
             <CheckCircle2 className="w-5 h-5 flex-shrink-0" />
@@ -449,9 +449,9 @@ export default function AdminCoursesPage() {
               <span>Fetching directories...</span>
             </div>
           ) : courses.length === 0 ? (
-            <div className="p-16 rounded-3xl bg-portal-card border border-portal-border/60 text-center">
+            <div className="p-16 rounded-3xl bg-white border border-portal-border text-center">
               <BookOpen className="w-12 h-12 text-slate-700 mx-auto mb-3" />
-              <p className="font-bold text-white">No courses created yet</p>
+              <p className="font-bold text-portal-text-primary">No courses created yet</p>
               <p className="text-xs text-portal-text-secondary mt-1">Create your first academy course to populate the portal catalog.</p>
             </div>
           ) : (
@@ -459,16 +459,16 @@ export default function AdminCoursesPage() {
               {courses.map((c) => (
                 <div
                   key={c.id}
-                  className={`bg-portal-card border rounded-2xl p-5 flex flex-col justify-between h-56 transition-all duration-205 cursor-pointer ${
+                  className={`bg-white border rounded-2xl p-5 flex flex-col justify-between h-56 transition-all duration-205 cursor-pointer ${
                     selectedCourse?.id === c.id
-                      ? "border-portal-primary bg-slate-900/60"
-                      : "border-portal-border/60 hover:border-slate-600"
+                      ? "border-portal-primary bg-blue-50/60"
+                      : "border-portal-border hover:border-slate-600"
                   }`}
                   onClick={() => setSelectedCourse(c)}
                 >
                   <div className="space-y-2">
                     <div className="flex justify-between items-start gap-4">
-                      <span className="text-[9px] font-bold uppercase px-2 py-0.5 rounded-full bg-slate-950 text-portal-secondary border border-portal-border/40">
+                      <span className="text-[9px] font-bold uppercase px-2 py-0.5 rounded-full bg-slate-50 text-portal-secondary border border-portal-border">
                         {c.category}
                       </span>
                       <span className={`text-[9px] font-bold uppercase px-2 py-0.5 rounded-full border ${
@@ -478,12 +478,12 @@ export default function AdminCoursesPage() {
                       </span>
                     </div>
 
-                    <h4 className="font-bold text-white text-md line-clamp-1">{c.title}</h4>
+                    <h4 className="font-bold text-portal-text-primary text-md line-clamp-1">{c.title}</h4>
                     <p className="text-xs text-portal-text-secondary line-clamp-3 leading-relaxed">{c.description}</p>
                   </div>
 
                   {/* Footer actions */}
-                  <div className="flex items-center justify-between border-t border-portal-border/40 pt-4 mt-2">
+                  <div className="flex items-center justify-between border-t border-portal-border pt-4 mt-2">
                     <span className="text-[10px] text-portal-text-secondary font-semibold">
                       {c.lessonsCount || 0} Lessons
                     </span>
@@ -491,14 +491,14 @@ export default function AdminCoursesPage() {
                     <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
                       <button
                         onClick={() => handleOpenEditCourse(c)}
-                        className="p-1.5 rounded-lg bg-slate-900 border border-portal-border text-portal-secondary hover:text-white hover:bg-portal-secondary/15 transition-all"
+                        className="p-1.5 rounded-lg bg-white border border-portal-border text-portal-secondary hover:text-portal-primary hover:border-portal-primary hover:bg-portal-secondary/15 transition-all"
                         title="Edit Course"
                       >
                         <Edit className="w-4 h-4" />
                       </button>
                       <button
                         onClick={() => handleDeleteCourse(c.id)}
-                        className="p-1.5 rounded-lg bg-slate-900 border border-portal-border text-red-400 hover:text-white hover:bg-red-500/15 transition-all"
+                        className="p-1.5 rounded-lg bg-slate-50 border border-portal-border text-red-400 hover:text-portal-primary hover:bg-red-500/15 transition-all"
                         title="Delete Course"
                       >
                         <Trash2 className="w-4 h-4" />
@@ -525,7 +525,7 @@ export default function AdminCoursesPage() {
                   setLessonError(null);
                   setIsAddLessonOpen(true);
                 }}
-                className="px-3 py-1.5 rounded-xl bg-slate-900 border border-portal-border hover:border-portal-primary text-xs font-bold text-portal-primary hover:text-white flex items-center gap-1 cursor-pointer"
+                className="px-3 py-1.5 rounded-xl bg-slate-50 border border-portal-border hover:border-portal-primary text-xs font-bold text-portal-primary hover:text-portal-primary flex items-center gap-1 cursor-pointer"
               >
                 <Plus className="w-3.5 h-3.5" />
                 <span>Add Lesson</span>
@@ -534,13 +534,13 @@ export default function AdminCoursesPage() {
           </div>
 
           {selectedCourse ? (
-            <div className="bg-portal-card border border-portal-border/60 rounded-2xl overflow-hidden shadow-md">
-              <div className="p-4 bg-slate-950 border-b border-portal-border/60">
-                <h4 className="font-bold text-xs text-white uppercase tracking-wider line-clamp-1">{selectedCourse.title}</h4>
+            <div className="bg-white border border-portal-border rounded-2xl overflow-hidden shadow-md">
+              <div className="p-4 bg-slate-50 border-b border-portal-border">
+                <h4 className="font-bold text-xs text-portal-text-primary uppercase tracking-wider line-clamp-1">{selectedCourse.title}</h4>
                 <p className="text-[10px] text-portal-text-secondary mt-0.5">Lessons Catalog Editor</p>
               </div>
 
-              <div className="divide-y divide-portal-border/30 max-h-[480px] overflow-y-auto">
+              <div className="divide-y divide-slate-100 max-h-[480px] overflow-y-auto">
                 {lessons.length === 0 ? (
                   <div className="p-12 text-center text-portal-text-secondary text-xs">
                     <span>No lessons published. Click &apos;Add Lesson&apos; to begin.</span>
@@ -549,10 +549,10 @@ export default function AdminCoursesPage() {
                   lessons
                     .sort((a, b) => (a.order || 0) - (b.order || 0))
                     .map((lesson) => (
-                      <div key={lesson.id} className="p-4 flex items-center justify-between gap-4 bg-slate-900/10 hover:bg-slate-900/30">
+                      <div key={lesson.id} className="p-4 flex items-center justify-between gap-4 bg-slate-900/10 hover:bg-slate-50">
                         <div className="min-w-0">
                           <span className="text-[9px] font-bold text-portal-secondary uppercase">Order {lesson.order}</span>
-                          <h5 className="text-xs font-bold text-slate-200 truncate mt-0.5" title={lesson.title}>{lesson.title}</h5>
+                          <h5 className="text-xs font-bold text-portal-text-secondary truncate mt-0.5" title={lesson.title}>{lesson.title}</h5>
                           <div className="flex gap-2 items-center text-[10px] text-portal-text-secondary mt-1">
                             <span className="flex items-center gap-0.5"><Video className="w-3 h-3" /> Video</span>
                             {lesson.pdfUrl && <span className="flex items-center gap-0.5"><FileText className="w-3 h-3" /> PDF</span>}
@@ -562,13 +562,13 @@ export default function AdminCoursesPage() {
                         <div className="flex gap-1">
                           <button
                             onClick={() => handleOpenEditLesson(lesson)}
-                            className="p-1 rounded-lg border border-portal-border/50 text-portal-secondary hover:text-white"
+                            className="p-1 rounded-lg border border-portal-border/50 text-portal-secondary hover:text-portal-primary"
                           >
                             <Edit className="w-3.5 h-3.5" />
                           </button>
                           <button
                             onClick={() => handleDeleteLesson(lesson.id)}
-                            className="p-1 rounded-lg border border-portal-border/50 text-red-400 hover:text-white"
+                            className="p-1 rounded-lg border border-portal-border/50 text-red-400 hover:text-portal-primary"
                           >
                             <Trash2 className="w-3.5 h-3.5" />
                           </button>
@@ -579,7 +579,7 @@ export default function AdminCoursesPage() {
               </div>
             </div>
           ) : (
-            <div className="p-12 rounded-2xl bg-portal-card border border-portal-border/60 text-center text-xs text-portal-text-secondary">
+            <div className="p-12 rounded-2xl bg-white border border-portal-border text-center text-xs text-portal-text-secondary">
               <span>Select a course from the directory to manage its syllabus lessons.</span>
             </div>
           )}
@@ -589,18 +589,18 @@ export default function AdminCoursesPage() {
       {/* Course Modal (Create & Edit) */}
       {(isAddCourseOpen || courseToEdit) && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-slate-950/70 backdrop-blur-sm" onClick={() => { if (!submittingCourse) { setIsAddCourseOpen(false); setCourseToEdit(null); } }}></div>
+          <div className="absolute inset-0 bg-slate-50/70 backdrop-blur-sm" onClick={() => { if (!submittingCourse) { setIsAddCourseOpen(false); setCourseToEdit(null); } }}></div>
 
           <form
             onSubmit={courseToEdit ? handleEditCourse : handleAddCourse}
-            className="relative w-full max-w-lg bg-portal-card border border-portal-border rounded-3xl p-6 sm:p-8 shadow-2xl z-10 text-slate-100 space-y-4 max-h-[90vh] overflow-y-auto"
+            className="relative w-full max-w-lg bg-white border border-portal-border rounded-3xl p-6 sm:p-8 shadow-2xl z-10 text-portal-text-primary space-y-4 max-h-[90vh] overflow-y-auto"
           >
-            <div className="flex justify-between items-center border-b border-portal-border/60 pb-3">
-              <h3 className="text-lg font-bold text-white">{courseToEdit ? "Modify Course Profile" : "Create Academy Course"}</h3>
+            <div className="flex justify-between items-center border-b border-portal-border pb-3">
+              <h3 className="text-lg font-bold text-portal-text-primary">{courseToEdit ? "Modify Course Profile" : "Create Academy Course"}</h3>
               <button
                 type="button"
                 onClick={() => { setIsAddCourseOpen(false); setCourseToEdit(null); }}
-                className="p-1.5 rounded-lg text-portal-text-secondary hover:text-white"
+                className="p-1.5 rounded-lg text-portal-text-secondary hover:text-portal-primary"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -621,7 +621,7 @@ export default function AdminCoursesPage() {
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
                   placeholder="e.g. Smart Factory Implementation"
-                  className="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-portal-border/60 text-white focus:outline-none focus:border-portal-primary text-sm"
+                  className="w-full px-4 py-2.5 rounded-xl bg-slate-50 border border-portal-border text-portal-text-primary focus:outline-none focus:border-portal-primary text-sm"
                 />
               </div>
 
@@ -632,7 +632,7 @@ export default function AdminCoursesPage() {
                   onChange={(e) => setDescription(e.target.value)}
                   rows={3}
                   placeholder="Summarize course content and goals..."
-                  className="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-portal-border/60 text-white focus:outline-none focus:border-portal-primary text-sm"
+                  className="w-full px-4 py-2.5 rounded-xl bg-slate-50 border border-portal-border text-portal-text-primary focus:outline-none focus:border-portal-primary text-sm"
                 />
               </div>
 
@@ -644,7 +644,7 @@ export default function AdminCoursesPage() {
                     value={category}
                     onChange={(e) => setCategory(e.target.value)}
                     placeholder="e.g. Operations"
-                    className="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-portal-border/60 text-white focus:outline-none focus:border-portal-primary text-sm"
+                    className="w-full px-4 py-2.5 rounded-xl bg-slate-50 border border-portal-border text-portal-text-primary focus:outline-none focus:border-portal-primary text-sm"
                   />
                 </div>
 
@@ -653,7 +653,7 @@ export default function AdminCoursesPage() {
                   <select
                     value={type}
                     onChange={(e) => setType(e.target.value as any)}
-                    className="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-portal-border/60 text-white focus:outline-none focus:border-portal-primary text-sm cursor-pointer"
+                    className="w-full px-4 py-2.5 rounded-xl bg-slate-50 border border-portal-border text-portal-text-primary focus:outline-none focus:border-portal-primary text-sm cursor-pointer"
                   >
                     <option value="free">Free Tier</option>
                     <option value="premium">Premium Tier</option>
@@ -669,7 +669,7 @@ export default function AdminCoursesPage() {
                     value={duration}
                     onChange={(e) => setDuration(e.target.value)}
                     placeholder="e.g. 5 hours"
-                    className="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-portal-border/60 text-white focus:outline-none focus:border-portal-primary text-sm"
+                    className="w-full px-4 py-2.5 rounded-xl bg-slate-50 border border-portal-border text-portal-text-primary focus:outline-none focus:border-portal-primary text-sm"
                   />
                 </div>
 
@@ -680,7 +680,7 @@ export default function AdminCoursesPage() {
                     value={instructor}
                     onChange={(e) => setInstructor(e.target.value)}
                     placeholder="e.g. Sarah Jenkins"
-                    className="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-portal-border/60 text-white focus:outline-none focus:border-portal-primary text-sm"
+                    className="w-full px-4 py-2.5 rounded-xl bg-slate-50 border border-portal-border text-portal-text-primary focus:outline-none focus:border-portal-primary text-sm"
                   />
                 </div>
               </div>
@@ -693,9 +693,9 @@ export default function AdminCoursesPage() {
                     value={thumbnail}
                     onChange={(e) => setThumbnail(e.target.value)}
                     placeholder="Image URL or upload a file..."
-                    className="flex-1 px-4 py-2.5 rounded-xl bg-slate-950 border border-portal-border/60 text-white focus:outline-none focus:border-portal-primary text-sm"
+                    className="flex-1 px-4 py-2.5 rounded-xl bg-slate-50 border border-portal-border text-portal-text-primary focus:outline-none focus:border-portal-primary text-sm"
                   />
-                  <label className="px-4 py-2.5 rounded-xl bg-slate-900 border border-portal-border hover:border-portal-primary text-xs font-bold text-portal-primary flex items-center justify-center cursor-pointer transition-all hover:bg-slate-850">
+                  <label className="px-4 py-2.5 rounded-xl bg-slate-50 border border-portal-border hover:border-portal-primary text-xs font-bold text-portal-primary flex items-center justify-center cursor-pointer transition-all hover:bg-slate-850">
                     {uploadingThumbnail ? <Loader2 className="w-4 h-4 animate-spin" /> : "Upload File"}
                     <input
                       type="file"
@@ -722,18 +722,18 @@ export default function AdminCoursesPage() {
               </div>
             </div>
 
-            <div className="flex gap-4 pt-4 border-t border-portal-border/60">
+            <div className="flex gap-4 pt-4 border-t border-portal-border">
               <button
                 type="button"
                 onClick={() => { setIsAddCourseOpen(false); setCourseToEdit(null); }}
-                className="flex-1 py-3 rounded-xl border border-portal-border hover:bg-slate-900 text-xs font-bold transition-all"
+                className="flex-1 py-3 rounded-xl border border-portal-border hover:bg-slate-50 text-xs font-bold text-portal-text-secondary transition-all"
               >
                 Cancel
               </button>
               <button
                 type="submit"
                 disabled={submittingCourse}
-                className="flex-1 py-3 rounded-xl bg-portal-primary hover:bg-portal-primary/90 text-white text-xs font-bold flex items-center justify-center gap-1.5 transition-all shadow-md"
+                className="flex-1 py-3 rounded-xl bg-portal-primary hover:bg-portal-primary/90 text-portal-text-primary text-xs font-bold flex items-center justify-center gap-1.5 transition-all shadow-md"
               >
                 {submittingCourse && <Loader2 className="w-4 h-4 animate-spin" />}
                 <span>{courseToEdit ? "Save Changes" : "Publish Course"}</span>
@@ -746,18 +746,18 @@ export default function AdminCoursesPage() {
       {/* Lesson Modal (Create & Edit) */}
       {(isAddLessonOpen || lessonToEdit) && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-slate-950/70 backdrop-blur-sm" onClick={() => { if (!submittingLesson) { setIsAddLessonOpen(false); setLessonToEdit(null); } }}></div>
+          <div className="absolute inset-0 bg-slate-50/70 backdrop-blur-sm" onClick={() => { if (!submittingLesson) { setIsAddLessonOpen(false); setLessonToEdit(null); } }}></div>
 
           <form
             onSubmit={lessonToEdit ? handleEditLesson : handleAddLesson}
-            className="relative w-full max-w-lg bg-portal-card border border-portal-border rounded-3xl p-6 sm:p-8 shadow-2xl z-10 text-slate-100 space-y-4 max-h-[90vh] overflow-y-auto"
+            className="relative w-full max-w-lg bg-white border border-portal-border rounded-3xl p-6 sm:p-8 shadow-2xl z-10 text-portal-text-primary space-y-4 max-h-[90vh] overflow-y-auto"
           >
-            <div className="flex justify-between items-center border-b border-portal-border/60 pb-3">
-              <h3 className="text-lg font-bold text-white">{lessonToEdit ? "Modify Syllabus Module" : "Add Lesson Module"}</h3>
+            <div className="flex justify-between items-center border-b border-portal-border pb-3">
+              <h3 className="text-lg font-bold text-portal-text-primary">{lessonToEdit ? "Modify Syllabus Module" : "Add Lesson Module"}</h3>
               <button
                 type="button"
                 onClick={() => { setIsAddLessonOpen(false); setLessonToEdit(null); }}
-                className="p-1.5 rounded-lg text-portal-text-secondary hover:text-white"
+                className="p-1.5 rounded-lg text-portal-text-secondary hover:text-portal-primary"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -778,7 +778,7 @@ export default function AdminCoursesPage() {
                   value={lessonTitle}
                   onChange={(e) => setLessonTitle(e.target.value)}
                   placeholder="e.g. Module 1: Foundational Industrial Standards"
-                  className="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-portal-border/60 text-white focus:outline-none focus:border-portal-primary text-sm"
+                  className="w-full px-4 py-2.5 rounded-xl bg-slate-50 border border-portal-border text-portal-text-primary focus:outline-none focus:border-portal-primary text-sm"
                 />
               </div>
 
@@ -790,7 +790,7 @@ export default function AdminCoursesPage() {
                     value={videoUrl}
                     onChange={(e) => setVideoUrl(e.target.value)}
                     placeholder="https://www.youtube.com/embed/..."
-                    className="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-portal-border/60 text-white focus:outline-none focus:border-portal-primary text-sm"
+                    className="w-full px-4 py-2.5 rounded-xl bg-slate-50 border border-portal-border text-portal-text-primary focus:outline-none focus:border-portal-primary text-sm"
                   />
                 </div>
 
@@ -801,7 +801,7 @@ export default function AdminCoursesPage() {
                     value={order}
                     onChange={(e) => setOrder(Number(e.target.value))}
                     min={1}
-                    className="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-portal-border/60 text-white focus:outline-none focus:border-portal-primary text-sm"
+                    className="w-full px-4 py-2.5 rounded-xl bg-slate-50 border border-portal-border text-portal-text-primary focus:outline-none focus:border-portal-primary text-sm"
                   />
                 </div>
               </div>
@@ -814,9 +814,9 @@ export default function AdminCoursesPage() {
                     value={pdfUrl}
                     onChange={(e) => setPdfUrl(e.target.value)}
                     placeholder="PDF URL or upload a file..."
-                    className="flex-1 px-4 py-2.5 rounded-xl bg-slate-950 border border-portal-border/60 text-white focus:outline-none focus:border-portal-primary text-sm"
+                    className="flex-1 px-4 py-2.5 rounded-xl bg-slate-50 border border-portal-border text-portal-text-primary focus:outline-none focus:border-portal-primary text-sm"
                   />
-                  <label className="px-4 py-2.5 rounded-xl bg-slate-900 border border-portal-border hover:border-portal-primary text-xs font-bold text-portal-primary flex items-center justify-center cursor-pointer transition-all hover:bg-slate-850">
+                  <label className="px-4 py-2.5 rounded-xl bg-slate-50 border border-portal-border hover:border-portal-primary text-xs font-bold text-portal-primary flex items-center justify-center cursor-pointer transition-all hover:bg-slate-850">
                     {uploadingPdf ? <Loader2 className="w-4 h-4 animate-spin" /> : "Upload PDF"}
                     <input
                       type="file"
@@ -843,18 +843,18 @@ export default function AdminCoursesPage() {
               </div>
             </div>
 
-            <div className="flex gap-4 pt-4 border-t border-portal-border/60">
+            <div className="flex gap-4 pt-4 border-t border-portal-border">
               <button
                 type="button"
                 onClick={() => { setIsAddLessonOpen(false); setLessonToEdit(null); }}
-                className="flex-1 py-3 rounded-xl border border-portal-border hover:bg-slate-900 text-xs font-bold transition-all"
+                className="flex-1 py-3 rounded-xl border border-portal-border hover:bg-slate-50 text-xs font-bold text-portal-text-secondary transition-all"
               >
                 Cancel
               </button>
               <button
                 type="submit"
                 disabled={submittingLesson}
-                className="flex-1 py-3 rounded-xl bg-portal-primary hover:bg-portal-primary/90 text-white text-xs font-bold flex items-center justify-center gap-1.5 transition-all shadow-md"
+                className="flex-1 py-3 rounded-xl bg-portal-primary hover:bg-portal-primary/90 text-portal-text-primary text-xs font-bold flex items-center justify-center gap-1.5 transition-all shadow-md"
               >
                 {submittingLesson && <Loader2 className="w-4 h-4 animate-spin" />}
                 <span>{lessonToEdit ? "Save changes" : "Add Lesson"}</span>

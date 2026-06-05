@@ -198,7 +198,7 @@ export default function CommunicationsCenterPage() {
   };
 
   return (
-    <div className="space-y-6 animate-fade-in text-slate-100">
+    <div className="space-y-6 animate-fade-in text-portal-text-primary">
       {/* Back Link */}
       <div>
         <Link
@@ -211,8 +211,8 @@ export default function CommunicationsCenterPage() {
       </div>
 
       {/* Header */}
-      <div className="border-b border-portal-border/60 pb-6">
-        <h1 className="text-3xl font-extrabold text-white tracking-tight sm:text-4xl flex items-center gap-2">
+      <div className="border-b border-portal-border pb-6">
+        <h1 className="text-3xl font-extrabold text-portal-text-primary tracking-tight sm:text-4xl flex items-center gap-2">
           <Mail className="w-8 h-8 text-portal-primary" />
           <span>Communications Center</span>
         </h1>
@@ -226,8 +226,8 @@ export default function CommunicationsCenterPage() {
         <div
           className={`fixed top-4 right-4 z-50 flex gap-3 p-4 rounded-xl text-sm border shadow-lg animate-fade-in ${
             toast.type === "success"
-              ? "bg-portal-success/10 border-portal-success/20 text-portal-success"
-              : "bg-red-500/10 border-red-500/20 text-red-200"
+              ? "bg-emerald-50 border-emerald-200 text-emerald-800"
+              : "bg-red-50 border-red-200 text-red-800"
           }`}
         >
           {toast.type === "success" ? (
@@ -242,8 +242,8 @@ export default function CommunicationsCenterPage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Left Form Panel */}
         <div className="lg:col-span-1">
-          <form onSubmit={handleSendBroadcast} className="p-6 rounded-2xl bg-portal-card border border-portal-border/60 space-y-4 shadow-lg">
-            <h3 className="text-sm font-bold uppercase tracking-wider text-portal-text-secondary border-b border-portal-border/40 pb-3 flex items-center gap-2">
+          <form onSubmit={handleSendBroadcast} className="p-6 rounded-2xl bg-white border border-portal-border space-y-4 shadow-sm">
+            <h3 className="text-sm font-bold uppercase tracking-wider text-portal-text-secondary border-b border-portal-border pb-3 flex items-center gap-2">
               <Send className="w-4 h-4 text-portal-primary" />
               <span>Compose Broadcast</span>
             </h3>
@@ -254,7 +254,7 @@ export default function CommunicationsCenterPage() {
               <select
                 value={targetRole}
                 onChange={(e) => setTargetRole(e.target.value)}
-                className="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-portal-border/60 text-slate-300 focus:outline-none focus:border-portal-primary text-xs font-semibold cursor-pointer"
+                className="w-full px-4 py-2.5 rounded-xl bg-slate-50 border border-portal-border text-portal-text-primary focus:outline-none focus:border-portal-primary text-xs font-semibold cursor-pointer"
               >
                 <option value="all">All Users (Free + Paid + Admin)</option>
                 <option value="free">Free Tier Users Only</option>
@@ -267,24 +267,24 @@ export default function CommunicationsCenterPage() {
             <div className="space-y-2.5 py-1">
               <span className="block text-[10px] font-bold text-portal-text-secondary uppercase">Delivery Channels</span>
               <div className="flex flex-col gap-2">
-                <label className="flex items-center gap-2.5 text-xs text-slate-200 cursor-pointer">
+                <label className="flex items-center gap-2.5 text-xs text-portal-text-primary cursor-pointer">
                   <input
                     type="checkbox"
                     checked={sentAsNotification}
                     onChange={(e) => setSentAsNotification(e.target.checked)}
-                    className="rounded text-portal-primary focus:ring-portal-primary bg-slate-950 border-portal-border"
+                    className="rounded text-portal-primary focus:ring-portal-primary bg-white border-portal-border"
                   />
                   <div className="flex items-center gap-1">
                     <Bell className="w-3.5 h-3.5 text-portal-secondary" />
                     <span>In-App Notification Banner</span>
                   </div>
                 </label>
-                <label className="flex items-center gap-2.5 text-xs text-slate-200 cursor-pointer">
+                <label className="flex items-center gap-2.5 text-xs text-portal-text-primary cursor-pointer">
                   <input
                     type="checkbox"
                     checked={sentAsEmail}
                     onChange={(e) => setSentAsEmail(e.target.checked)}
-                    className="rounded text-portal-primary focus:ring-portal-primary bg-slate-950 border-portal-border"
+                    className="rounded text-portal-primary focus:ring-portal-primary bg-white border-portal-border"
                   />
                   <div className="flex items-center gap-1">
                     <Mail className="w-3.5 h-3.5 text-portal-primary" />
@@ -303,7 +303,7 @@ export default function CommunicationsCenterPage() {
                 placeholder="e.g. Server Maintenance Notice"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
-                className="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-portal-border/60 text-white focus:outline-none focus:border-portal-primary text-xs font-semibold"
+                className="w-full px-4 py-2.5 rounded-xl bg-slate-50 border border-portal-border text-portal-text-primary focus:outline-none focus:border-portal-primary text-xs font-semibold"
               />
             </div>
 
@@ -316,7 +316,7 @@ export default function CommunicationsCenterPage() {
                 placeholder="Compose announcement details here..."
                 value={body}
                 onChange={(e) => setBody(e.target.value)}
-                className="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-portal-border/60 text-white focus:outline-none focus:border-portal-primary text-xs font-medium"
+                className="w-full px-4 py-2.5 rounded-xl bg-slate-50 border border-portal-border text-portal-text-primary focus:outline-none focus:border-portal-primary text-xs font-medium"
               />
             </div>
 
@@ -341,10 +341,10 @@ export default function CommunicationsCenterPage() {
         </div>
 
         {/* Right History Panel */}
-        <div className="lg:col-span-2 p-6 rounded-2xl bg-portal-card border border-portal-border/60 space-y-4 shadow-lg h-[580px] flex flex-col justify-between">
+        <div className="lg:col-span-2 p-6 rounded-2xl bg-white border border-portal-border space-y-4 shadow-sm h-[580px] flex flex-col justify-between">
           <div>
-            <h3 className="text-sm font-bold uppercase tracking-wider text-portal-text-secondary border-b border-portal-border/40 pb-3 flex items-center gap-2">
-              <History className="w-4.5 h-4.5 text-portal-secondary animate-pulse" />
+            <h3 className="text-sm font-bold uppercase tracking-wider text-portal-text-secondary border-b border-portal-border pb-3 flex items-center gap-2">
+              <History className="w-4 h-4 text-portal-secondary animate-pulse" />
               <span>Broadcast Dispatch History</span>
             </h3>
 
@@ -356,8 +356,8 @@ export default function CommunicationsCenterPage() {
                 </div>
               ) : history.length === 0 ? (
                 <div className="p-12 text-center text-portal-text-secondary space-y-2">
-                  <Info className="w-10 h-10 text-slate-700 mx-auto" />
-                  <p className="font-bold text-white text-xs">No Broadcast Logs</p>
+                  <Info className="w-10 h-10 text-slate-300 mx-auto" />
+                  <p className="font-bold text-portal-text-primary text-xs">No Broadcast Logs</p>
                   <p className="text-[11px]">Announcements composed will appear here in chronological order.</p>
                 </div>
               ) : (
@@ -365,16 +365,16 @@ export default function CommunicationsCenterPage() {
                   <div key={item.id} className="py-4 space-y-2 text-xs">
                     <div className="flex justify-between items-start gap-4">
                       <div>
-                        <h4 className="font-bold text-white text-sm line-clamp-1">{item.title}</h4>
+                        <h4 className="font-bold text-portal-text-primary text-sm line-clamp-1">{item.title}</h4>
                         <span className="text-[9px] text-portal-text-secondary font-semibold">
                           By {item.senderEmail} &bull; {new Date(item.createdAt).toLocaleString()}
                         </span>
                       </div>
-                      <span className="px-2 py-0.5 rounded text-[8px] font-bold uppercase bg-slate-900 border border-portal-border/50 text-portal-primary">
+                      <span className="px-2 py-0.5 rounded text-[8px] font-bold uppercase bg-blue-50 border border-blue-100 text-blue-700">
                         Target: {item.targetRole.toUpperCase()}
                       </span>
                     </div>
-                    <p className="text-slate-300 leading-normal text-xs whitespace-pre-wrap">{item.body}</p>
+                    <p className="text-portal-text-secondary leading-normal text-xs whitespace-pre-wrap">{item.body}</p>
                     <div className="flex items-center gap-4 pt-1">
                       <span className={`inline-flex items-center gap-1 text-[9px] font-bold uppercase ${
                         item.sentAsNotification ? "text-portal-success" : "text-slate-650"

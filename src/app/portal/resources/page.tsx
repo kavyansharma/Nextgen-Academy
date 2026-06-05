@@ -214,12 +214,12 @@ export default function ResourcesPage() {
   }
 
   return (
-    <div className="space-y-8 animate-fade-in text-slate-100">
+    <div className="space-y-8 animate-fade-in text-slate-900">
       {/* Header */}
-      <div className="border-b border-portal-border/60 pb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="border-b border-slate-200 pb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-extrabold text-white tracking-tight sm:text-4xl">Learning Resources</h1>
-          <p className="text-sm text-portal-text-secondary mt-1">Access technical guides, operational playbooks, and corporate frameworks.</p>
+          <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight sm:text-4xl">Learning Resources</h1>
+          <p className="text-sm text-slate-500 mt-1">Access technical guides, operational playbooks, and corporate frameworks.</p>
         </div>
 
         {user.role === "admin" && (
@@ -236,7 +236,7 @@ export default function ResourcesPage() {
       <div className="flex flex-col md:flex-row gap-4 items-stretch md:items-center justify-between">
         {/* Search Input */}
         <div className="relative flex-grow max-w-md">
-          <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-portal-text-secondary">
+          <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
             <Search className="w-4 h-4" />
           </span>
           <input
@@ -244,18 +244,18 @@ export default function ResourcesPage() {
             placeholder="Search by title, description or tag..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-4 py-3 rounded-xl bg-portal-card border border-portal-border/60 text-white placeholder-portal-text-secondary focus:outline-none focus:border-portal-primary focus:ring-1 focus:ring-portal-primary transition-all duration-200 text-sm"
+            className="w-full pl-10 pr-4 py-3 rounded-xl bg-white border border-slate-200 text-slate-900 placeholder-slate-400 focus:outline-none focus:border-portal-primary focus:ring-1 focus:ring-portal-primary transition-all duration-200 text-sm shadow-sm"
           />
         </div>
 
         {/* Sort Controls */}
-        <div className="flex items-center gap-3 bg-portal-card border border-portal-border/60 rounded-xl px-4 py-2 self-start md:self-auto">
-          <SlidersHorizontal className="w-4 h-4 text-portal-text-secondary" />
-          <span className="text-xs text-portal-text-secondary font-semibold">Sort By:</span>
+        <div className="flex items-center gap-3 bg-white border border-slate-200 rounded-xl px-4 py-2 self-start md:self-auto shadow-sm">
+          <SlidersHorizontal className="w-4 h-4 text-slate-400" />
+          <span className="text-xs text-slate-500 font-semibold">Sort By:</span>
           <select
             value={sortBy}
             onChange={(e) => setSortBy(e.target.value as "popularity" | "title")}
-            className="bg-transparent text-xs text-white font-bold focus:outline-none cursor-pointer"
+            className="bg-transparent text-xs text-slate-700 font-bold focus:outline-none cursor-pointer"
           >
             <option value="popularity">Popularity (Downloads)</option>
             <option value="title">Alphabetical (A-Z)</option>
@@ -272,7 +272,7 @@ export default function ResourcesPage() {
             className={`px-4 py-2.5 rounded-xl border text-xs font-semibold transition-all duration-200 cursor-pointer ${
               selectedCategory.toLowerCase() === cat.toLowerCase()
                 ? "bg-portal-primary text-white border-portal-primary shadow-md shadow-portal-primary/20"
-                : "bg-portal-card border-portal-border/60 text-portal-text-secondary hover:text-white hover:border-slate-600"
+                : "bg-white border-slate-200 text-slate-600 hover:text-slate-900 hover:bg-slate-50 hover:border-slate-300 shadow-sm"
             }`}
           >
             {cat}
@@ -282,13 +282,13 @@ export default function ResourcesPage() {
 
       {/* Resources Grid */}
       {sortedResources.length === 0 ? (
-        <div className="p-16 rounded-3xl bg-portal-card border border-portal-border/60 text-center max-w-xl mx-auto space-y-6">
-          <div className="inline-flex w-16 h-16 rounded-2xl bg-portal-primary/10 border border-portal-primary/20 items-center justify-center text-portal-primary">
+        <div className="p-16 rounded-3xl bg-white border border-slate-200 text-center max-w-xl mx-auto space-y-6 shadow-sm">
+          <div className="inline-flex w-16 h-16 rounded-2xl bg-slate-50 border border-slate-100 items-center justify-center text-portal-primary">
             <FileText className="w-8 h-8" />
           </div>
           <div className="space-y-2">
-            <h2 className="text-2xl font-bold text-white">No Resources Found</h2>
-            <p className="text-sm text-portal-text-secondary leading-relaxed">
+            <h2 className="text-2xl font-bold text-slate-900">No Resources Found</h2>
+            <p className="text-sm text-slate-500 leading-relaxed">
               We couldn&apos;t find any resources matching your search query or selected category filter.
             </p>
           </div>
@@ -297,7 +297,7 @@ export default function ResourcesPage() {
               setSearchQuery("");
               setSelectedCategory("All");
             }}
-            className="px-6 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-850 border border-portal-border text-xs font-semibold text-slate-300 hover:text-white transition-all cursor-pointer"
+            className="px-6 py-2.5 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 text-xs font-semibold text-slate-700 hover:text-slate-900 transition-all shadow-sm cursor-pointer"
           >
             Clear Filters
           </button>
@@ -308,13 +308,13 @@ export default function ResourcesPage() {
             const userHasAccess = hasAccess(res.accessLevel);
             const accessBadgeColor =
               res.accessLevel.toLowerCase() === "free"
-                ? "bg-portal-success/10 border-portal-success/20 text-portal-success"
-                : "bg-portal-warning/10 border-portal-warning/20 text-portal-warning";
+                ? "bg-emerald-50 border-emerald-200 text-emerald-750"
+                : "bg-amber-50 border-amber-200 text-amber-750";
 
             return (
               <div
                 key={res.id}
-                className={`bg-portal-card border border-portal-border/50 rounded-3xl p-6 flex flex-col justify-between hover:border-portal-primary/40 hover:scale-[1.01] transition-all duration-300 relative overflow-hidden group h-[340px] ${
+                className={`bg-white border border-slate-200 rounded-3xl p-6 flex flex-col justify-between hover:border-portal-primary/40 hover:shadow-md hover:scale-[1.01] transition-all duration-300 relative overflow-hidden group h-[340px] shadow-sm ${
                   !userHasAccess ? "opacity-90 hover:opacity-100" : ""
                 }`}
               >
@@ -324,7 +324,7 @@ export default function ResourcesPage() {
                 <div className="space-y-4 relative z-10">
                   {/* Header: Category & Access Badge */}
                   <div className="flex items-center justify-between gap-4">
-                    <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full bg-slate-900/60 text-portal-secondary border border-portal-border/50">
+                    <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full bg-slate-50 text-slate-600 border border-slate-150">
                       {getUICategory(res)}
                     </span>
                     <span className={`inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full border ${accessBadgeColor}`}>
@@ -335,16 +335,16 @@ export default function ResourcesPage() {
 
                   {/* Icon & Title */}
                   <div className="flex items-start gap-3 mt-2">
-                    <div className="w-10 h-10 rounded-lg bg-slate-900 border border-portal-border/80 flex items-center justify-center text-portal-primary group-hover:scale-105 transition-transform flex-shrink-0">
+                    <div className="w-10 h-10 rounded-lg bg-slate-50 border border-slate-200 flex items-center justify-center text-portal-primary group-hover:scale-105 transition-transform flex-shrink-0">
                       <FileText className="w-5 h-5" />
                     </div>
-                    <h2 className="text-base font-bold text-white group-hover:text-portal-primary transition-colors duration-200 line-clamp-2 mt-0.5" title={res.title}>
+                    <h2 className="text-base font-bold text-slate-900 group-hover:text-portal-primary transition-colors duration-200 line-clamp-2 mt-0.5" title={res.title}>
                       {res.title}
                     </h2>
                   </div>
 
                   {/* Description */}
-                  <p className="text-xs text-portal-text-secondary leading-relaxed line-clamp-3">
+                  <p className="text-xs text-slate-550 leading-relaxed line-clamp-3">
                     {res.description}
                   </p>
 
@@ -354,7 +354,7 @@ export default function ResourcesPage() {
                       {res.tags.map((tag) => (
                         <span
                           key={tag}
-                          className="text-[9px] font-medium bg-slate-950/40 text-slate-300 border border-portal-border/30 px-2 py-0.5 rounded"
+                          className="text-[9px] font-medium bg-slate-50 text-slate-600 border border-slate-150 px-2 py-0.5 rounded"
                         >
                           {tag}
                         </span>
@@ -364,8 +364,8 @@ export default function ResourcesPage() {
                 </div>
 
                 {/* Footer details & Action */}
-                <div className="pt-4 relative z-10 flex items-center justify-between gap-4 border-t border-portal-border/40 mt-3">
-                  <div className="flex items-center gap-1 text-xs text-portal-text-secondary font-semibold">
+                <div className="pt-4 relative z-10 flex items-center justify-between gap-4 border-t border-slate-100 mt-3">
+                  <div className="flex items-center gap-1 text-xs text-slate-500 font-semibold">
                     <Download className="w-3.5 h-3.5 text-portal-primary" />
                     <span>{res.downloadCount || 0} downloads</span>
                   </div>
@@ -374,7 +374,7 @@ export default function ResourcesPage() {
                     {/* Preview Button */}
                     <button
                       onClick={() => setPreviewResource(res)}
-                      className="p-2.5 rounded-xl bg-slate-900 border border-portal-border hover:border-portal-secondary text-portal-text-secondary hover:text-white transition-all cursor-pointer"
+                      className="p-2.5 rounded-xl bg-white border border-slate-200 hover:border-slate-350 text-slate-500 hover:text-slate-800 hover:bg-slate-50 transition-all shadow-sm cursor-pointer"
                       title="Quick Preview"
                     >
                       <Eye className="w-4 h-4" />
@@ -384,17 +384,17 @@ export default function ResourcesPage() {
                     {userHasAccess ? (
                       <Link
                         href={`/resources/${res.slug || res.id}`}
-                        className="py-2.5 px-4 rounded-xl bg-portal-primary hover:bg-portal-primary/95 text-white font-bold text-xs flex items-center gap-1.5 transition-all cursor-pointer"
+                        className="py-2.5 px-4 rounded-xl bg-portal-primary hover:bg-portal-primary/95 text-white font-bold text-xs flex items-center gap-1.5 transition-all shadow-sm cursor-pointer"
                       >
                         <span>Open</span>
                         <ExternalLink className="w-3.5 h-3.5" />
                       </Link>
                     ) : (
                       <button
-                        className="py-2.5 px-4 rounded-xl bg-slate-800 border border-portal-border text-portal-text-secondary font-bold text-xs flex items-center gap-1.5 cursor-pointer"
+                        className="py-2.5 px-4 rounded-xl bg-slate-50 border border-slate-200 text-slate-400 font-bold text-xs flex items-center gap-1.5 cursor-pointer shadow-sm"
                         onClick={() => alert("Premium subscription required! Upgrade your plan via a premium course.")}
                       >
-                        <Lock className="w-3 h-3 text-portal-warning" />
+                        <Lock className="w-3 h-3 text-amber-550" />
                         <span>Locked</span>
                       </button>
                     )}
@@ -409,53 +409,53 @@ export default function ResourcesPage() {
       {/* Preview Modal */}
       {previewResource && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-slate-950/70 backdrop-blur-sm" onClick={() => setPreviewResource(null)}></div>
+          <div className="absolute inset-0 bg-slate-950/60 backdrop-blur-sm" onClick={() => setPreviewResource(null)}></div>
           
-          <div className="relative w-full max-w-lg bg-portal-card border border-portal-border rounded-3xl p-6 sm:p-8 shadow-2xl animate-fade-in z-10 text-slate-100">
+          <div className="relative w-full max-w-lg bg-white border border-slate-250 rounded-3xl p-6 sm:p-8 shadow-2xl animate-fade-in z-10 text-slate-900">
             <button
               onClick={() => setPreviewResource(null)}
-              className="absolute top-4 right-4 p-2 rounded-xl text-portal-text-secondary hover:text-white hover:bg-slate-850"
+              className="absolute top-4 right-4 p-2 rounded-xl text-slate-400 hover:text-slate-800 hover:bg-slate-50"
             >
               <X className="w-5 h-5" />
             </button>
 
             <div className="space-y-6">
               <div className="flex items-center gap-3">
-                <span className="text-xs font-bold uppercase tracking-wider px-2.5 py-1 rounded-full bg-slate-900 text-portal-secondary border border-portal-border/50">
+                <span className="text-xs font-bold uppercase tracking-wider px-2.5 py-1 rounded-full bg-slate-50 text-slate-700 border border-slate-200">
                   {getUICategory(previewResource)}
                 </span>
                 <span className={`text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full border ${
                   previewResource.accessLevel.toLowerCase() === "free"
-                    ? "bg-portal-success/10 border-portal-success/20 text-portal-success"
-                    : "bg-portal-warning/10 border-portal-warning/20 text-portal-warning"
+                    ? "bg-emerald-50 border-emerald-200 text-emerald-700"
+                    : "bg-amber-50 border-amber-200 text-amber-700"
                 }`}>
                   {previewResource.accessLevel}
                 </span>
               </div>
 
               <div className="flex items-start gap-4">
-                <div className="w-12 h-12 rounded-xl bg-slate-900 border border-portal-border/80 flex items-center justify-center text-portal-primary flex-shrink-0">
+                <div className="w-12 h-12 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-center text-portal-primary flex-shrink-0">
                   <FileText className="w-6 h-6" />
                 </div>
                 <div>
-                  <h3 className="text-xl font-bold text-white leading-snug">{previewResource.title}</h3>
-                  <p className="text-xs text-portal-text-secondary mt-1">{previewResource.downloadCount || 0} times downloaded</p>
+                  <h3 className="text-xl font-bold text-slate-900 leading-snug">{previewResource.title}</h3>
+                  <p className="text-xs text-slate-500 mt-1">{previewResource.downloadCount || 0} times downloaded</p>
                 </div>
               </div>
 
               <div className="space-y-2">
-                <h4 className="text-xs font-bold uppercase text-portal-text-secondary tracking-wider">Overview</h4>
-                <p className="text-sm text-slate-200 leading-relaxed bg-slate-900/40 p-4 rounded-2xl border border-portal-border/30">
+                <h4 className="text-xs font-bold uppercase text-slate-400 tracking-wider">Overview</h4>
+                <p className="text-sm text-slate-600 leading-relaxed bg-slate-50 p-4 rounded-2xl border border-slate-150">
                   {previewResource.description}
                 </p>
               </div>
 
               {previewResource.tags && previewResource.tags.length > 0 && (
                 <div className="space-y-2">
-                  <h4 className="text-xs font-bold uppercase text-portal-text-secondary tracking-wider">Tags</h4>
+                  <h4 className="text-xs font-bold uppercase text-slate-400 tracking-wider">Tags</h4>
                   <div className="flex flex-wrap gap-1.5">
                     {previewResource.tags.map((tag) => (
-                      <span key={tag} className="text-xs bg-slate-900 border border-portal-border/40 px-2.5 py-1 rounded-lg text-slate-300">
+                      <span key={tag} className="text-xs bg-slate-50 border border-slate-200 px-2.5 py-1 rounded-lg text-slate-655 font-medium">
                         {tag}
                       </span>
                     ))}
@@ -466,7 +466,7 @@ export default function ResourcesPage() {
               <div className="flex gap-4 pt-2">
                 <button
                   onClick={() => setPreviewResource(null)}
-                  className="flex-1 py-3 rounded-xl border border-portal-border hover:bg-slate-800 text-xs font-bold transition-all cursor-pointer"
+                  className="flex-1 py-3 rounded-xl border border-slate-200 hover:bg-slate-50 text-xs font-bold text-slate-700 transition-all cursor-pointer"
                 >
                   Close Preview
                 </button>
@@ -481,7 +481,7 @@ export default function ResourcesPage() {
                 ) : (
                   <button
                     onClick={() => alert("Upgrade to Paid membership to unlock this premium resource! Select any premium course to process.")}
-                    className="flex-grow flex-1 py-3 rounded-xl bg-portal-warning hover:bg-portal-warning/90 text-slate-950 text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer"
+                    className="flex-grow flex-1 py-3 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer"
                   >
                     <Lock className="w-4 h-4" />
                     <span>Unlock Premium</span>

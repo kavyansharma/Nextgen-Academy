@@ -180,7 +180,7 @@ export default function AdminUsersPage() {
   }
 
   return (
-    <div className="space-y-6 animate-fade-in text-slate-100">
+    <div className="space-y-6 animate-fade-in text-portal-text-primary">
       {/* Back button */}
       <div>
         <Link
@@ -193,9 +193,9 @@ export default function AdminUsersPage() {
       </div>
 
       {/* Header */}
-      <div className="border-b border-portal-border/60 pb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="border-b border-portal-border pb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-extrabold text-white tracking-tight sm:text-4xl flex items-center gap-2">
+          <h1 className="text-3xl font-extrabold text-portal-text-primary tracking-tight sm:text-4xl flex items-center gap-2">
             <Users className="w-8 h-8 text-portal-primary" />
             <span>User Management</span>
           </h1>
@@ -204,7 +204,7 @@ export default function AdminUsersPage() {
 
         <button
           onClick={fetchUsers}
-          className="px-4 py-2.5 rounded-xl border border-portal-border hover:border-slate-500 bg-slate-900 text-xs font-bold text-slate-200 hover:text-white transition-all flex items-center gap-1.5 cursor-pointer self-start sm:self-center"
+          className="px-4 py-2.5 rounded-xl border border-portal-border hover:border-slate-500 bg-slate-900 text-xs font-bold text-portal-text-secondary hover:text-portal-primary transition-all flex items-center gap-1.5 cursor-pointer self-start sm:self-center"
         >
           <RefreshCcw className="w-3.5 h-3.5" />
           <span>Refresh Directory</span>
@@ -215,8 +215,8 @@ export default function AdminUsersPage() {
       {toast && (
         <div className={`fixed top-4 right-4 z-50 flex gap-3 p-4 rounded-xl text-sm border shadow-lg animate-fade-in ${
           toast.type === "success" 
-            ? "bg-portal-success/10 border-portal-success/20 text-portal-success" 
-            : "bg-red-500/10 border-red-500/20 text-red-200"
+            ? "bg-emerald-50 border-emerald-200 text-emerald-700" 
+            : "bg-red-50 border-red-200 text-red-800"
         }`}>
           {toast.type === "success" ? (
             <CheckCircle2 className="w-5 h-5 flex-shrink-0" />
@@ -228,7 +228,7 @@ export default function AdminUsersPage() {
       )}
 
       {/* Search & Filter Toolbar */}
-      <div className="flex flex-col md:flex-row gap-4 items-stretch md:items-center justify-between bg-slate-900/40 p-4 border border-portal-border/60 rounded-2xl">
+      <div className="flex flex-col md:flex-row gap-4 items-stretch md:items-center justify-between bg-white p-4 border border-portal-border rounded-2xl">
         {/* Search */}
         <div className="relative flex-grow max-w-md">
           <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-portal-text-secondary">
@@ -239,7 +239,7 @@ export default function AdminUsersPage() {
             placeholder="Search users by name, email, or username..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-portal-card border border-portal-border/60 text-white placeholder-portal-text-secondary focus:outline-none focus:border-portal-primary focus:ring-1 focus:ring-portal-primary text-sm"
+            className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-white border border-portal-border text-portal-text-primary placeholder-portal-text-secondary focus:outline-none focus:border-portal-primary focus:ring-1 focus:ring-portal-primary text-sm"
           />
         </div>
 
@@ -248,7 +248,7 @@ export default function AdminUsersPage() {
           <select
             value={roleFilter}
             onChange={(e) => setRoleFilter(e.target.value)}
-            className="w-full px-4 py-2.5 rounded-xl bg-portal-card border border-portal-border/60 text-slate-300 focus:outline-none focus:border-portal-primary text-sm cursor-pointer"
+            className="w-full px-4 py-2.5 rounded-xl bg-white border border-portal-border text-portal-text-secondary focus:outline-none focus:border-portal-primary text-sm cursor-pointer"
           >
             <option value="all">All Roles</option>
             <option value="free">Free Tier</option>
@@ -259,7 +259,7 @@ export default function AdminUsersPage() {
       </div>
 
       {/* Table grid */}
-      <div className="overflow-x-auto bg-portal-card border border-portal-border/60 shadow-xl rounded-2xl">
+      <div className="overflow-x-auto bg-white border border-portal-border shadow-xl rounded-2xl">
         {fetchLoading ? (
           <div className="p-12 text-center text-portal-text-secondary">
             <Loader2 className="w-8 h-8 animate-spin mx-auto text-portal-primary mb-3" />
@@ -268,13 +268,13 @@ export default function AdminUsersPage() {
         ) : filteredUsers.length === 0 ? (
           <div className="p-12 text-center text-portal-text-secondary space-y-2">
             <XCircle className="w-12 h-12 text-slate-650 mx-auto" />
-            <p className="font-bold text-white">No Users Found</p>
+            <p className="font-bold text-portal-text-primary">No Users Found</p>
             <p className="text-sm">We couldn&apos;t find any users matching your query parameters.</p>
           </div>
         ) : (
           <table className="w-full text-left border-collapse text-sm">
             <thead>
-              <tr className="border-b border-portal-border/60 text-xs font-bold text-portal-text-secondary uppercase tracking-wider bg-slate-950/45">
+              <tr className="border-b border-portal-border text-xs font-bold text-portal-text-secondary uppercase tracking-wider bg-slate-50/45">
                 <th className="p-4.5 pl-6">Full Name</th>
                 <th className="p-4.5">Username</th>
                 <th className="p-4.5">Email</th>
@@ -284,7 +284,7 @@ export default function AdminUsersPage() {
                 <th className="p-4.5 pr-6 text-right">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-portal-border/30">
+            <tbody className="divide-y divide-slate-100">
               {filteredUsers.map((u) => {
                 const isSelf = u.uid === user?.uid;
                 const roleBadgeColor =
@@ -292,12 +292,12 @@ export default function AdminUsersPage() {
                     ? "bg-portal-primary/10 border-portal-primary/20 text-portal-primary"
                     : u.role === "paid"
                     ? "bg-portal-secondary/10 border-portal-secondary/20 text-portal-secondary"
-                    : "bg-portal-success/10 border-portal-success/20 text-portal-success";
+                    : "bg-emerald-50 border-emerald-200 text-emerald-700";
 
                 return (
-                  <tr key={u.uid} className={`hover:bg-slate-900/25 transition-colors duration-150 ${isSelf ? "bg-portal-primary/5" : ""}`}>
+                  <tr key={u.uid} className={`hover:bg-slate-50/70 transition-colors duration-150 ${isSelf ? "bg-portal-primary/5" : ""}`}>
                     {/* Full Name */}
-                    <td className="p-4.5 pl-6 font-bold text-white flex items-center gap-2">
+                    <td className="p-4.5 pl-6 font-bold text-portal-text-primary flex items-center gap-2">
                       <span>{u.fullName}</span>
                       {isSelf && (
                         <span className="text-[9px] font-extrabold uppercase px-2 py-0.5 rounded bg-portal-primary/20 text-portal-primary border border-portal-primary/30">
@@ -307,7 +307,7 @@ export default function AdminUsersPage() {
                     </td>
 
                     {/* Username */}
-                    <td className="p-4.5 text-slate-300">@{u.username}</td>
+                    <td className="p-4.5 text-portal-text-secondary">@{u.username}</td>
 
                     {/* Email */}
                     <td className="p-4.5 text-portal-text-secondary">{u.email}</td>
@@ -351,7 +351,7 @@ export default function AdminUsersPage() {
                         value={u.role}
                         disabled={isSelf}
                         onChange={(e) => handleUpdateRole(u.uid, e.target.value)}
-                        className="px-2.5 py-1.5 rounded-lg bg-slate-950 border border-portal-border/60 text-slate-300 focus:outline-none focus:border-portal-primary text-xs cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="px-2.5 py-1.5 rounded-lg bg-slate-50 border border-portal-border text-portal-text-secondary focus:outline-none focus:border-portal-primary text-xs cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                       >
                         <option value="free">Free Tier</option>
                         <option value="paid">Paid Tier</option>
@@ -364,8 +364,8 @@ export default function AdminUsersPage() {
                         disabled={isSelf}
                         className={`inline-flex px-2.5 py-1.5 rounded-lg border text-xs font-bold transition-all cursor-pointer ${
                           u.suspended
-                            ? "bg-portal-success/10 border-portal-success/20 text-portal-success hover:bg-portal-success/20"
-                            : "bg-portal-warning/10 border-portal-warning/20 text-portal-warning hover:bg-portal-warning/20"
+                            ? "bg-emerald-50 border-emerald-200 text-emerald-700 hover:bg-portal-success/20"
+                            : "bg-amber-50 border-amber-200 text-amber-700 hover:bg-portal-warning/20"
                         } disabled:opacity-50 disabled:cursor-not-allowed`}
                         title={u.suspended ? "Unsuspend Account" : "Suspend Account"}
                       >
@@ -376,7 +376,7 @@ export default function AdminUsersPage() {
                       <button
                         onClick={() => handleDeleteUser(u)}
                         disabled={isSelf}
-                        className="inline-flex p-2 rounded-lg bg-slate-950 border border-portal-border/60 text-red-400 hover:text-white hover:bg-red-500 hover:border-red-500 transition-all cursor-pointer disabled:opacity-40 disabled:hover:bg-transparent disabled:hover:border-portal-border/60 disabled:hover:text-red-400 disabled:cursor-not-allowed"
+                        className="inline-flex p-2 rounded-lg bg-slate-50 border border-portal-border text-red-400 hover:text-portal-primary hover:bg-red-500 hover:border-red-500 transition-all cursor-pointer disabled:opacity-40 disabled:hover:bg-transparent disabled:hover:border-portal-border disabled:hover:text-red-400 disabled:cursor-not-allowed"
                         title="Delete Account"
                       >
                         <Trash2 className="w-3.5 h-3.5" />

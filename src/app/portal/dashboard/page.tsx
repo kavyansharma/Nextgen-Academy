@@ -322,27 +322,27 @@ export default function DashboardPage() {
   const subscriptionLabel = user.role === "admin" ? "Enterprise Administrator" : user.role === "paid" ? "Paid Premium Member" : "Free Learning Tier";
 
   return (
-    <div className="space-y-8 animate-fade-in text-slate-100 font-sans">
+    <div className="space-y-8 animate-fade-in text-slate-800 font-sans">
       {/* Top Welcome Banner */}
-      <div className="relative p-6 sm:p-8 rounded-3xl bg-gradient-to-r from-slate-900 via-slate-850 to-slate-900 border border-slate-800 shadow-xl overflow-hidden group">
-        <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-portal-primary/10 rounded-full blur-[100px] pointer-events-none group-hover:bg-portal-primary/15 transition-all duration-700"></div>
-        <div className="absolute -bottom-20 -left-20 w-[300px] h-[300px] bg-portal-secondary/10 rounded-full blur-[80px] pointer-events-none"></div>
+      <div className="relative p-6 sm:p-8 rounded-3xl bg-gradient-to-r from-blue-600 to-indigo-700 border border-blue-700 shadow-md overflow-hidden group text-white">
+        <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-white/10 rounded-full blur-[100px] pointer-events-none group-hover:bg-white/15 transition-all duration-700"></div>
+        <div className="absolute -bottom-20 -left-20 w-[300px] h-[300px] bg-white/5 rounded-full blur-[80px] pointer-events-none"></div>
 
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="flex items-center gap-5">
-            <div className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-portal-primary to-portal-secondary flex items-center justify-center text-white text-2xl font-bold shadow-lg shadow-portal-primary/25 border border-portal-border/40">
+            <div className="w-16 h-16 rounded-2xl bg-white/15 flex items-center justify-center text-white text-2xl font-bold shadow-lg border border-white/20">
               {user.fullName.charAt(0).toUpperCase()}
             </div>
             <div>
               <div className="flex items-center gap-2.5">
                 <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">Welcome, {user.fullName}</h1>
-                <Sparkles className="w-5.5 h-5.5 text-portal-warning animate-pulse" />
+                <Sparkles className="w-5.5 h-5.5 text-amber-300 animate-pulse" />
               </div>
-              <div className="flex flex-wrap items-center gap-x-4 gap-y-2 mt-1.5 text-xs text-portal-text-secondary">
-                <span className="font-semibold text-slate-300">@{user.username}</span>
-                <span className="w-1.5 h-1.5 rounded-full bg-slate-700"></span>
-                <span>System Role: <span className="font-semibold text-portal-secondary">{formattedRole}</span></span>
-                <span className="w-1.5 h-1.5 rounded-full bg-slate-700"></span>
+              <div className="flex flex-wrap items-center gap-x-4 gap-y-2 mt-1.5 text-xs text-blue-100">
+                <span className="font-semibold text-white">@{user.username}</span>
+                <span className="w-1.5 h-1.5 rounded-full bg-white/30"></span>
+                <span>System Role: <span className="font-bold bg-white/20 px-2 py-0.5 rounded text-[10px]">{formattedRole}</span></span>
+                <span className="w-1.5 h-1.5 rounded-full bg-white/30"></span>
                 <span className="flex items-center gap-1">
                   <Clock className="w-3.5 h-3.5" />
                   Last login: {new Date().toLocaleDateString()}
@@ -352,7 +352,7 @@ export default function DashboardPage() {
           </div>
 
           <div className="flex items-center gap-3">
-            <span className="inline-flex items-center gap-1.5 px-4.5 py-2 rounded-full border border-portal-primary/30 bg-portal-primary/10 text-portal-primary text-xs font-bold shadow-sm uppercase tracking-wider">
+            <span className="inline-flex items-center gap-1.5 px-4.5 py-2 rounded-full border border-white/30 bg-white/10 text-white text-xs font-bold shadow-sm uppercase tracking-wider">
               <Shield className="w-3.5 h-3.5" />
               <span>{subscriptionLabel}</span>
             </span>
@@ -363,57 +363,57 @@ export default function DashboardPage() {
       {/* KPI Stats Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-6 gap-4">
         {/* Enrolled */}
-        <div className="p-5 rounded-2xl bg-portal-card border border-portal-border/60 shadow-md flex flex-col justify-between group">
+        <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-sm shadow-slate-100 flex flex-col justify-between group hover:border-slate-300 hover:shadow-md transition-all duration-300">
           <div className="flex justify-between items-start">
-            <span className="text-[10px] font-bold text-portal-text-secondary uppercase tracking-wider">Enrolled</span>
-            <BookOpen className="w-4 h-4 text-portal-primary" />
+            <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Enrolled</span>
+            <BookOpen className="w-4 h-4 text-blue-600" />
           </div>
-          <p className="text-2xl font-extrabold text-white mt-4">{enrolledCourses.length}</p>
+          <p className="text-2xl font-extrabold text-slate-900 mt-4">{enrolledCourses.length}</p>
         </div>
 
         {/* Completed */}
-        <div className="p-5 rounded-2xl bg-portal-card border border-portal-border/60 shadow-md flex flex-col justify-between group">
+        <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-sm shadow-slate-100 flex flex-col justify-between group hover:border-slate-300 hover:shadow-md transition-all duration-300">
           <div className="flex justify-between items-start">
-            <span className="text-[10px] font-bold text-portal-text-secondary uppercase tracking-wider">Completed</span>
-            <CheckCircle2 className="w-4 h-4 text-portal-success" />
+            <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Completed</span>
+            <CheckCircle2 className="w-4 h-4 text-emerald-600" />
           </div>
-          <p className="text-2xl font-extrabold text-white mt-4">{completedCount}</p>
+          <p className="text-2xl font-extrabold text-slate-900 mt-4">{completedCount}</p>
         </div>
 
         {/* Certificates */}
-        <div className="p-5 rounded-2xl bg-portal-card border border-portal-border/60 shadow-md flex flex-col justify-between group">
+        <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-sm shadow-slate-100 flex flex-col justify-between group hover:border-slate-300 hover:shadow-md transition-all duration-300">
           <div className="flex justify-between items-start">
-            <span className="text-[10px] font-bold text-portal-text-secondary uppercase tracking-wider">Certificates</span>
-            <Award className="w-4 h-4 text-portal-warning" />
+            <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Certificates</span>
+            <Award className="w-4 h-4 text-amber-600" />
           </div>
-          <p className="text-2xl font-extrabold text-white mt-4">{certificatesCount}</p>
+          <p className="text-2xl font-extrabold text-slate-900 mt-4">{certificatesCount}</p>
         </div>
 
         {/* Learning Hours */}
-        <div className="p-5 rounded-2xl bg-portal-card border border-portal-border/60 shadow-md flex flex-col justify-between group">
+        <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-sm shadow-slate-100 flex flex-col justify-between group hover:border-slate-300 hover:shadow-md transition-all duration-300">
           <div className="flex justify-between items-start">
-            <span className="text-[10px] font-bold text-portal-text-secondary uppercase tracking-wider">Hours</span>
-            <Clock className="w-4 h-4 text-portal-secondary" />
+            <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Hours</span>
+            <Clock className="w-4 h-4 text-sky-600" />
           </div>
-          <p className="text-2xl font-extrabold text-white mt-4">{learningHours}h</p>
+          <p className="text-2xl font-extrabold text-slate-900 mt-4">{learningHours}h</p>
         </div>
 
         {/* Downloads */}
-        <div className="p-5 rounded-2xl bg-portal-card border border-portal-border/60 shadow-md flex flex-col justify-between group">
+        <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-sm shadow-slate-100 flex flex-col justify-between group hover:border-slate-300 hover:shadow-md transition-all duration-300">
           <div className="flex justify-between items-start">
-            <span className="text-[10px] font-bold text-portal-text-secondary uppercase tracking-wider">Downloads</span>
-            <Download className="w-4 h-4 text-purple-400" />
+            <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Downloads</span>
+            <Download className="w-4 h-4 text-purple-600" />
           </div>
-          <p className="text-2xl font-extrabold text-white mt-4">{downloadCount}</p>
+          <p className="text-2xl font-extrabold text-slate-900 mt-4">{downloadCount}</p>
         </div>
 
         {/* Streak */}
-        <div className="p-5 rounded-2xl bg-portal-card border border-portal-border/60 shadow-md flex flex-col justify-between group">
+        <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-sm shadow-slate-100 flex flex-col justify-between group hover:border-slate-300 hover:shadow-md transition-all duration-300">
           <div className="flex justify-between items-start">
-            <span className="text-[10px] font-bold text-portal-text-secondary uppercase tracking-wider">Streak</span>
-            <Flame className="w-4 h-4 text-orange-500" />
+            <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Streak</span>
+            <Flame className="w-4 h-4 text-orange-600" />
           </div>
-          <p className="text-2xl font-extrabold text-white mt-4">{streakDays} days</p>
+          <p className="text-2xl font-extrabold text-slate-900 mt-4">{streakDays} days</p>
         </div>
       </div>
 
@@ -425,32 +425,32 @@ export default function DashboardPage() {
           
           {/* Continue Learning Card */}
           {lastViewedCourse ? (
-            <div className="p-6 rounded-3xl bg-gradient-to-r from-slate-900 via-slate-850 to-slate-900 border border-portal-border/80 shadow-xl overflow-hidden relative group">
-              <div className="absolute top-0 right-0 w-60 h-60 bg-portal-primary/5 rounded-full blur-[60px] pointer-events-none"></div>
+            <div className="p-6 rounded-3xl bg-white border border-slate-200 shadow-sm overflow-hidden relative group">
+              <div className="absolute top-0 right-0 w-60 h-60 bg-blue-50/30 rounded-full blur-[60px] pointer-events-none"></div>
               
               <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 relative z-10">
                 <div className="space-y-2.5 flex-1">
                   <div className="flex items-center gap-2">
-                    <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full bg-slate-955/80 text-portal-primary border border-portal-border/40">
+                    <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full bg-blue-50 text-blue-600 border border-blue-100">
                       Continue Learning
                     </span>
                   </div>
                   <div>
-                    <h3 className="text-lg font-bold text-white leading-tight">{lastViewedCourse.courseName}</h3>
-                    <p className="text-xs text-portal-text-secondary mt-1">
-                      Current Lesson: <span className="font-semibold text-white">{lastViewedCourse.lessonTitle}</span>
+                    <h3 className="text-lg font-bold text-slate-900 leading-tight">{lastViewedCourse.courseName}</h3>
+                    <p className="text-xs text-slate-500 mt-1">
+                      Current Lesson: <span className="font-semibold text-slate-850">{lastViewedCourse.lessonTitle}</span>
                     </p>
                   </div>
                   
                   {/* Progress bar */}
                   <div className="space-y-1 max-w-md">
                     <div className="flex justify-between text-[11px] font-medium">
-                      <span className="text-portal-text-secondary">Syllabus Progress</span>
-                      <span className="text-white font-bold">{continueCourseProgress}%</span>
+                      <span className="text-slate-500">Syllabus Progress</span>
+                      <span className="text-slate-900 font-bold">{continueCourseProgress}%</span>
                     </div>
-                    <div className="w-full h-1.5 bg-slate-955 rounded-full border border-portal-border/20 overflow-hidden">
+                    <div className="w-full h-1.5 bg-slate-100 rounded-full border border-slate-200 overflow-hidden">
                       <div
-                        className="h-full bg-gradient-to-r from-portal-primary to-portal-secondary rounded-full transition-all duration-500"
+                        className="h-full bg-blue-650 rounded-full transition-all duration-500"
                         style={{ width: `${continueCourseProgress}%` }}
                       ></div>
                     </div>
@@ -459,7 +459,7 @@ export default function DashboardPage() {
 
                 <Link
                   href={`/portal/courses/${lastViewedCourse.courseId}`}
-                  className="px-6 py-3 rounded-xl bg-portal-primary hover:bg-portal-primary/90 hover:scale-[1.02] text-xs font-bold text-white transition-all cursor-pointer shadow-lg shadow-portal-primary/10 flex items-center gap-2 whitespace-nowrap self-stretch md:self-auto justify-center"
+                  className="px-6 py-3 rounded-xl bg-blue-600 hover:bg-blue-750 hover:scale-[1.02] text-xs font-bold text-white transition-all cursor-pointer shadow-md flex items-center gap-2 justify-center whitespace-nowrap self-stretch md:self-auto"
                 >
                   <span>Resume Lesson</span>
                   <ArrowRight className="w-4 h-4" />
@@ -467,41 +467,41 @@ export default function DashboardPage() {
               </div>
             </div>
           ) : (
-            <div className="p-6 rounded-3xl bg-slate-900 border border-portal-border/60 text-center space-y-3">
-              <BookOpen className="w-8 h-8 text-slate-550 mx-auto" />
-              <p className="text-sm font-semibold text-white">Start your learning journey</p>
-              <p className="text-xs text-portal-text-secondary">Select an enrolled course below to resume or start watching lessons.</p>
+            <div className="p-6 rounded-3xl bg-white border border-slate-200 text-center space-y-3 shadow-sm">
+              <BookOpen className="w-8 h-8 text-slate-400 mx-auto" />
+              <p className="text-sm font-semibold text-slate-800">Start your learning journey</p>
+              <p className="text-xs text-slate-500">Select an enrolled course below to resume or start watching lessons.</p>
             </div>
           )}
 
           {/* Continue Learning Courses List */}
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <h2 className="text-xl font-bold text-white tracking-tight flex items-center gap-2">
-                <TrendingUp className="w-5 h-5 text-portal-primary" />
+              <h2 className="text-xl font-bold text-slate-900 tracking-tight flex items-center gap-2">
+                <TrendingUp className="w-5 h-5 text-blue-600" />
                 <span>Enrolled Syllabus Tracker</span>
               </h2>
-              <Link href="/portal/courses" className="text-xs text-portal-primary hover:underline font-semibold flex items-center gap-1">
+              <Link href="/portal/courses" className="text-xs text-blue-600 hover:underline font-semibold flex items-center gap-1">
                 <span>See All Courses</span>
                 <ArrowRight className="w-3 h-3" />
               </Link>
             </div>
 
             {loading ? (
-              <div className="p-6 rounded-2xl bg-portal-card border border-portal-border/60 text-center">
-                <Loader2 className="w-8 h-8 animate-spin mx-auto text-portal-primary mb-2" />
-                <p className="text-xs text-portal-text-secondary">Syncing learning timeline...</p>
+              <div className="p-6 rounded-2xl bg-white border border-slate-200 text-center shadow-sm">
+                <Loader2 className="w-8 h-8 animate-spin mx-auto text-blue-600 mb-2" />
+                <p className="text-xs text-slate-500">Syncing learning timeline...</p>
               </div>
             ) : enrolledCourses.length === 0 ? (
-              <div className="p-8 rounded-2xl bg-portal-card border border-portal-border/60 text-center space-y-4 shadow-sm">
-                <BookOpen className="w-10 h-10 text-slate-650 mx-auto" />
+              <div className="p-8 rounded-2xl bg-white border border-slate-200 text-center space-y-4 shadow-sm">
+                <BookOpen className="w-10 h-10 text-slate-400 mx-auto" />
                 <div>
-                  <p className="font-bold text-white">No active course enrollments</p>
-                  <p className="text-xs text-portal-text-secondary mt-1">Explore our professional training catalog to start learning.</p>
+                  <p className="font-bold text-slate-900">No active course enrollments</p>
+                  <p className="text-xs text-slate-500 mt-1">Explore our professional training catalog to start learning.</p>
                 </div>
                 <Link
                   href="/portal/courses"
-                  className="inline-flex px-5 py-2.5 rounded-xl bg-portal-primary hover:bg-portal-primary/90 text-xs font-bold text-white transition-all shadow-md"
+                  className="inline-flex px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-xs font-bold text-white transition-all shadow-md"
                 >
                   Browse Courses
                 </Link>
@@ -509,28 +509,28 @@ export default function DashboardPage() {
             ) : (
               <div className="space-y-3">
                 {enrolledCourses.map((c) => (
-                  <div key={c.id} className="p-5 rounded-2xl bg-portal-card border border-portal-border/60 hover:border-slate-700 transition-colors flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                  <div key={c.id} className="p-5 rounded-2xl bg-white border border-slate-200 hover:border-slate-350 hover:shadow-md transition-all duration-300 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                     <div className="space-y-1">
-                      <span className="text-[10px] uppercase font-bold text-portal-secondary px-2.5 py-0.5 rounded-full bg-slate-900 border border-portal-border/50">
+                      <span className="text-[10px] uppercase font-bold text-blue-600 px-2.5 py-0.5 rounded-full bg-blue-50/50 border border-blue-100">
                         {c.category}
                       </span>
-                      <h3 className="font-bold text-white text-md pt-1">{c.title}</h3>
-                      <p className="text-xs text-portal-text-secondary">Progress: {c.completedCount} of {c.totalCount} modules completed</p>
+                      <h3 className="font-bold text-slate-900 text-md pt-1">{c.title}</h3>
+                      <p className="text-xs text-slate-550 font-medium">Progress: {c.completedCount} of {c.totalCount} modules completed</p>
                     </div>
 
                     <div className="w-full sm:w-48 space-y-1">
                       <div className="flex justify-between text-xs font-semibold">
-                        <span className="text-portal-text-secondary">Progress</span>
-                        <span className="text-white">{c.progressPercentage}%</span>
+                        <span className="text-slate-500">Progress</span>
+                        <span className="text-slate-900 font-bold">{c.progressPercentage}%</span>
                       </div>
-                      <div className="w-full h-1.5 rounded-full bg-slate-955 overflow-hidden border border-slate-800">
-                        <div className="h-full bg-gradient-to-r from-portal-primary to-portal-secondary rounded-full" style={{ width: `${c.progressPercentage}%` }}></div>
+                      <div className="w-full h-1.5 rounded-full bg-slate-100 overflow-hidden border border-slate-200">
+                        <div className="h-full bg-blue-600 rounded-full" style={{ width: `${c.progressPercentage}%` }}></div>
                       </div>
                     </div>
 
                     <Link
                       href={`/portal/courses/${c.id}`}
-                      className="px-4.5 py-2.5 rounded-xl bg-slate-900 border border-portal-border hover:border-portal-primary text-xs font-bold text-slate-200 hover:text-white transition-all cursor-pointer self-stretch sm:self-auto text-center"
+                      className="px-4.5 py-2.5 rounded-xl bg-white border border-slate-200 hover:border-slate-350 text-xs font-bold text-slate-700 hover:text-slate-900 transition-all cursor-pointer self-stretch sm:self-auto text-center shadow-sm"
                     >
                       Resume
                     </Link>
@@ -543,24 +543,24 @@ export default function DashboardPage() {
           {/* Recently Viewed Courses */}
           {recentlyViewedCourses.length > 0 && (
             <div className="space-y-4">
-              <h2 className="text-xl font-bold text-white tracking-tight flex items-center gap-2">
-                <Clock className="w-5 h-5 text-portal-primary" />
+              <h2 className="text-xl font-bold text-slate-900 tracking-tight flex items-center gap-2">
+                <Clock className="w-5 h-5 text-blue-600" />
                 <span>Recently Viewed Courses</span>
               </h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {recentlyViewedCourses.slice(0, 2).map((c) => (
-                  <div key={c.id} className="p-4 rounded-2xl bg-portal-card border border-portal-border/60 hover:border-portal-primary/30 flex flex-col justify-between h-36 shadow-sm group">
+                  <div key={c.id} className="p-4 rounded-2xl bg-white border border-slate-200 hover:border-slate-300 hover:shadow-md transition-all duration-300 flex flex-col justify-between h-36 shadow-sm group">
                     <div className="space-y-1">
-                      <span className="text-[9px] font-bold uppercase px-2 py-0.5 rounded-full bg-slate-900 text-portal-secondary border border-portal-border/50">
+                      <span className="text-[9px] font-bold uppercase px-2 py-0.5 rounded-full bg-blue-50/50 text-blue-600 border border-blue-100">
                         {c.category}
                       </span>
-                      <h3 className="font-bold text-white text-sm line-clamp-1 group-hover:text-portal-primary transition-colors">{c.title}</h3>
-                      <p className="text-xs text-portal-text-secondary line-clamp-2 leading-relaxed">{c.description}</p>
+                      <h3 className="font-bold text-slate-900 text-sm line-clamp-1 group-hover:text-blue-600 transition-colors">{c.title}</h3>
+                      <p className="text-xs text-slate-500 line-clamp-2 leading-relaxed">{c.description}</p>
                     </div>
-                    <div className="pt-2 border-t border-portal-border/40 flex justify-end">
+                    <div className="pt-2 border-t border-slate-100 flex justify-end">
                       <Link
                         href={`/portal/courses/${c.id}`}
-                        className="text-xs font-bold text-portal-primary hover:underline flex items-center gap-1"
+                        className="text-xs font-bold text-blue-650 hover:underline flex items-center gap-1"
                       >
                         <span>Resume Course</span>
                         <ArrowRight className="w-3.5 h-3.5" />
@@ -575,24 +575,24 @@ export default function DashboardPage() {
           {/* Recently Viewed Resources */}
           {recentlyViewedResources.length > 0 && (
             <div className="space-y-4">
-              <h2 className="text-xl font-bold text-white tracking-tight flex items-center gap-2">
-                <Bookmark className="w-5 h-5 text-portal-secondary" />
+              <h2 className="text-xl font-bold text-slate-900 tracking-tight flex items-center gap-2">
+                <Bookmark className="w-5 h-5 text-blue-600" />
                 <span>Recently Viewed Resources</span>
               </h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {recentlyViewedResources.slice(0, 2).map((r) => (
-                  <div key={r.id} className="p-4 rounded-2xl bg-portal-card border border-portal-border/60 hover:border-portal-secondary/35 flex flex-col justify-between h-36 shadow-sm group">
+                  <div key={r.id} className="p-4 rounded-2xl bg-white border border-slate-200 hover:border-slate-300 hover:shadow-md transition-all duration-300 flex flex-col justify-between h-36 shadow-sm group">
                     <div className="space-y-1">
-                      <span className="text-[9px] font-bold uppercase px-2 py-0.5 rounded-full bg-slate-900 text-portal-secondary border border-portal-border/50">
+                      <span className="text-[9px] font-bold uppercase px-2 py-0.5 rounded-full bg-blue-50/50 text-blue-600 border border-blue-100">
                         {r.category}
                       </span>
-                      <h3 className="font-bold text-white text-sm line-clamp-1 group-hover:text-portal-secondary transition-colors">{r.title}</h3>
-                      <p className="text-xs text-portal-text-secondary line-clamp-2 leading-relaxed">{r.description}</p>
+                      <h3 className="font-bold text-slate-900 text-sm line-clamp-1 group-hover:text-blue-600 transition-colors">{r.title}</h3>
+                      <p className="text-xs text-slate-500 line-clamp-2 leading-relaxed">{r.description}</p>
                     </div>
-                    <div className="pt-2 border-t border-portal-border/40 flex justify-end">
+                    <div className="pt-2 border-t border-slate-100 flex justify-end">
                       <Link
                         href={`/resources/${r.slug}`}
-                        className="text-xs font-bold text-portal-secondary hover:underline flex items-center gap-1"
+                        className="text-xs font-bold text-blue-650 hover:underline flex items-center gap-1"
                       >
                         <span>View Resource</span>
                         <ArrowRight className="w-3.5 h-3.5" />
@@ -606,43 +606,43 @@ export default function DashboardPage() {
 
           {/* Recommended Courses */}
           <div className="space-y-4">
-            <h2 className="text-xl font-bold text-white tracking-tight flex items-center gap-2">
-              <Bookmark className="w-5 h-5 text-portal-secondary" />
+            <h2 className="text-xl font-bold text-slate-900 tracking-tight flex items-center gap-2">
+              <Bookmark className="w-5 h-5 text-blue-600" />
               <span>Recommended Courses</span>
             </h2>
 
             {loading ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                <div className="h-44 rounded-2xl bg-portal-card border border-portal-border/60 animate-pulse"></div>
-                <div className="h-44 rounded-2xl bg-portal-card border border-portal-border/60 animate-pulse"></div>
+                <div className="h-44 rounded-2xl bg-white border border-slate-200 animate-pulse"></div>
+                <div className="h-44 rounded-2xl bg-white border border-slate-200 animate-pulse"></div>
               </div>
             ) : recommendedCourses.length === 0 ? (
-              <div className="p-6 rounded-2xl bg-portal-card border border-portal-border/60 text-center text-xs text-portal-text-secondary">
+              <div className="p-6 rounded-2xl bg-white border border-slate-200 text-center text-xs text-slate-500 shadow-sm">
                 <span>You are currently enrolled in all of our active courses!</span>
               </div>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 {recommendedCourses.map((c) => (
-                  <div key={c.id} className="p-5 rounded-2xl bg-portal-card border border-portal-border/60 hover:border-portal-primary/30 flex flex-col justify-between h-44 shadow-sm group">
+                  <div key={c.id} className="p-5 rounded-2xl bg-white border border-slate-200 hover:border-slate-350 hover:shadow-md transition-all duration-300 flex flex-col justify-between h-44 shadow-sm group">
                     <div className="space-y-1.5">
                       <div className="flex justify-between items-start gap-4">
-                        <span className="text-[9px] font-bold uppercase px-2 py-0.5 rounded-full bg-slate-900 text-portal-secondary border border-portal-border/50">
+                        <span className="text-[9px] font-bold uppercase px-2 py-0.5 rounded-full bg-blue-50/50 text-blue-600 border border-blue-100">
                           {c.category}
                         </span>
                         <span className={`text-[9px] font-bold uppercase px-2 py-0.5 rounded-full border ${
-                          c.type === "free" ? "bg-portal-success/10 border-portal-success/20 text-portal-success" : "bg-portal-warning/10 border-portal-warning/20 text-portal-warning"
+                          c.type === "free" ? "bg-emerald-50 border-emerald-200 text-emerald-700" : "bg-amber-50 border-amber-200 text-amber-700"
                         }`}>
                           {c.type}
                         </span>
                       </div>
-                      <h3 className="font-bold text-white text-sm line-clamp-1 group-hover:text-portal-primary transition-colors">{c.title}</h3>
-                      <p className="text-xs text-portal-text-secondary line-clamp-2 leading-relaxed">{c.description}</p>
+                      <h3 className="font-bold text-slate-900 text-sm line-clamp-1 group-hover:text-blue-600 transition-colors">{c.title}</h3>
+                      <p className="text-xs text-slate-500 line-clamp-2 leading-relaxed">{c.description}</p>
                     </div>
 
-                    <div className="pt-3 border-t border-portal-border/40 flex justify-end">
+                    <div className="pt-3 border-t border-slate-100 flex justify-end">
                       <Link
                         href="/portal/courses"
-                        className="text-xs font-bold text-portal-primary hover:underline flex items-center gap-1"
+                        className="text-xs font-bold text-blue-650 hover:underline flex items-center gap-1"
                       >
                         <span>Enroll Now</span>
                         <ArrowRight className="w-3.5 h-3.5" />
@@ -660,25 +660,25 @@ export default function DashboardPage() {
           
           {/* Notifications Panel */}
           <div className="space-y-4">
-            <h2 className="text-xl font-bold text-white tracking-tight flex items-center gap-2">
-              <Bell className="w-5 h-5 text-portal-primary" />
+            <h2 className="text-xl font-bold text-slate-900 tracking-tight flex items-center gap-2">
+              <Bell className="w-5 h-5 text-blue-650" />
               <span>In-App Notifications</span>
             </h2>
 
-            <div className="p-5 rounded-2xl bg-portal-card border border-portal-border/60 shadow-md divide-y divide-portal-border/30">
+            <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-sm divide-y divide-slate-100">
               {latestNotifications.length === 0 ? (
-                <p className="py-4 text-xs text-portal-text-secondary italic text-center">No notifications yet.</p>
+                <p className="py-4 text-xs text-slate-500 italic text-center">No notifications yet.</p>
               ) : (
                 latestNotifications.map((notif, idx) => (
                   <div key={idx} className="py-3 first:pt-0 last:pb-0 space-y-1 text-xs">
                     <div className="flex justify-between items-center">
-                      <span className="font-bold text-white leading-normal">{notif.title}</span>
+                      <span className="font-bold text-slate-800 leading-normal">{notif.title}</span>
                       {!notif.read && (
-                        <span className="w-2 h-2 rounded-full bg-portal-primary" />
+                        <span className="w-2 h-2 rounded-full bg-blue-650" />
                       )}
                     </div>
-                    <p className="text-portal-text-secondary leading-relaxed text-[11px]">{notif.message}</p>
-                    <span className="text-[9px] text-slate-600 block mt-1">
+                    <p className="text-slate-500 leading-relaxed text-[11px]">{notif.message}</p>
+                    <span className="text-[9px] text-slate-400 block mt-1">
                       {new Date(notif.createdAt).toLocaleDateString()}
                     </span>
                   </div>
@@ -689,31 +689,31 @@ export default function DashboardPage() {
 
           {/* Recent Activity Timeline */}
           <div className="space-y-4">
-            <h2 className="text-xl font-bold text-white tracking-tight flex items-center gap-2">
-              <Activity className="w-5 h-5 text-portal-warning" />
+            <h2 className="text-xl font-bold text-slate-900 tracking-tight flex items-center gap-2">
+              <Activity className="w-5 h-5 text-amber-600" />
               <span>Recent Activity Timeline</span>
             </h2>
 
-            <div className="p-5 rounded-2xl bg-gradient-to-b from-portal-card to-slate-950 border border-portal-border/60 text-xs text-portal-text-secondary">
+            <div className="p-5 rounded-2xl bg-white border border-slate-200 text-xs text-slate-500 shadow-sm">
               {recentActivities.length === 0 ? (
-                <p className="py-4 text-xs text-portal-text-secondary italic text-center">No recent activities logged.</p>
+                <p className="py-4 text-xs text-slate-500 italic text-center">No recent activities logged.</p>
               ) : (
-                <div className="space-y-6 relative before:absolute before:top-2 before:bottom-2 before:left-[11px] before:w-0.5 before:bg-slate-800 ml-1">
+                <div className="space-y-6 relative before:absolute before:top-2 before:bottom-2 before:left-[11px] before:w-0.5 before:bg-slate-100 ml-1">
                   {recentActivities.map((act, idx) => {
-                    let dotColor = "bg-portal-primary border-portal-primary";
-                    if (act.type === "login") dotColor = "bg-brand-blue border-brand-blue";
-                    else if (act.type === "course_view") dotColor = "bg-portal-primary border-portal-primary";
-                    else if (act.type === "lesson_view") dotColor = "bg-portal-secondary border-portal-secondary";
-                    else if (act.type === "resource_download") dotColor = "bg-purple-400 border-purple-400";
+                    let dotColor = "bg-blue-600";
+                    if (act.type === "login") dotColor = "bg-sky-500";
+                    else if (act.type === "course_view") dotColor = "bg-blue-650";
+                    else if (act.type === "lesson_view") dotColor = "bg-indigo-550";
+                    else if (act.type === "resource_download") dotColor = "bg-purple-500";
 
                     return (
                       <div key={idx} className="flex gap-4 items-start relative pl-8">
-                        <div className={`absolute left-0 top-1 w-6 h-6 rounded-full bg-slate-900 border flex items-center justify-center ${dotColor}`}>
-                          <div className={`w-2 h-2 rounded-full ${act.type === "login" ? "bg-brand-blue" : act.type === "lesson_view" ? "bg-portal-secondary" : act.type === "resource_download" ? "bg-purple-400" : "bg-portal-primary"}`} />
+                        <div className="absolute left-0 top-1 w-6 h-6 rounded-full bg-white border border-slate-200 flex items-center justify-center">
+                          <div className={`w-2 h-2 rounded-full ${dotColor}`} />
                         </div>
                         <div className="space-y-0.5 flex-1 min-w-0">
-                          <p className="font-semibold text-white text-[11px] leading-snug">{act.details}</p>
-                          <span className="text-[9px] text-slate-500 block">
+                          <p className="font-semibold text-slate-800 text-[11px] leading-snug">{act.details}</p>
+                          <span className="text-[9px] text-slate-400 block">
                             {new Date(act.timestamp).toLocaleDateString()} &bull; {new Date(act.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
                           </span>
                         </div>
@@ -727,21 +727,21 @@ export default function DashboardPage() {
 
           {/* Latest Resources */}
           <div className="space-y-4">
-            <h2 className="text-xl font-bold text-white tracking-tight flex items-center gap-2">
-              <FolderOpen className="w-5 h-5 text-portal-secondary" />
+            <h2 className="text-xl font-bold text-slate-900 tracking-tight flex items-center gap-2">
+              <FolderOpen className="w-5 h-5 text-blue-600" />
               <span>Recent Library Guides</span>
             </h2>
 
             <div className="space-y-3">
               {resourcesList.slice(0, 3).map((res) => (
-                <div key={res.id} className="p-4 rounded-xl bg-portal-card border border-portal-border/50 hover:border-slate-700 transition-colors flex items-center justify-between gap-4">
+                <div key={res.id} className="p-4 rounded-xl bg-white border border-slate-200 hover:border-slate-350 shadow-sm transition-colors flex items-center justify-between gap-4">
                   <div className="min-w-0">
-                    <h4 className="text-xs font-bold text-white truncate" title={res.title}>{res.title}</h4>
-                    <p className="text-[10px] text-portal-text-secondary mt-0.5">{res.category} &bull; {(res.type || res.accessLevel || "free").toUpperCase()}</p>
+                    <h4 className="text-xs font-bold text-slate-800 truncate" title={res.title}>{res.title}</h4>
+                    <p className="text-[10px] text-slate-500 mt-0.5">{res.category} &bull; {(res.type || res.accessLevel || "free").toUpperCase()}</p>
                   </div>
                   <Link
                     href={`/resources/${res.slug}`}
-                    className="p-2 bg-slate-900 border border-portal-border hover:border-portal-primary rounded-lg text-portal-text-secondary hover:text-white transition-colors flex-shrink-0"
+                    className="p-2 bg-white border border-slate-200 hover:bg-slate-50 hover:border-slate-350 rounded-lg text-slate-500 hover:text-slate-800 transition-colors flex-shrink-0 shadow-sm"
                   >
                     <ArrowRight className="w-3.5 h-3.5" />
                   </Link>

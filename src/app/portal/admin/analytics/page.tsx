@@ -133,7 +133,7 @@ export default function AdminAnalyticsPage() {
   if (!user || user.role !== "admin") return null;
 
   return (
-    <div className="space-y-6 animate-fade-in text-slate-100">
+    <div className="space-y-6 animate-fade-in text-portal-text-primary">
       {/* Back button */}
       <div>
         <Link
@@ -146,8 +146,8 @@ export default function AdminAnalyticsPage() {
       </div>
 
       {/* Header */}
-      <div className="border-b border-portal-border/60 pb-6">
-        <h1 className="text-3xl font-extrabold text-white tracking-tight sm:text-4xl flex items-center gap-2">
+      <div className="border-b border-portal-border pb-6">
+        <h1 className="text-3xl font-extrabold text-portal-text-primary tracking-tight sm:text-4xl flex items-center gap-2">
           <BarChart3 className="w-8 h-8 text-portal-primary" />
           <span>Platform Analytics</span>
         </h1>
@@ -155,9 +155,9 @@ export default function AdminAnalyticsPage() {
       </div>
 
       {loadingData ? (
-        <div className="min-h-[50vh] flex items-center justify-center bg-portal-bg text-portal-text-primary">
+        <div className="min-h-[50vh] flex items-center justify-center bg-slate-50">
           <div className="text-center space-y-4">
-            <Loader2 className="w-12 h-12 border-4 border-portal-primary border-t-transparent rounded-full animate-spin mx-auto text-portal-primary" />
+            <Loader2 className="w-12 h-12 animate-spin mx-auto text-portal-primary" />
             <p className="text-portal-text-secondary text-sm tracking-wide">Aggregating platform audit metrics...</p>
           </div>
         </div>
@@ -166,83 +166,82 @@ export default function AdminAnalyticsPage() {
           {/* Metrics grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {/* KPI 1: Subscribers */}
-            <div className="p-6 rounded-2xl bg-portal-card border border-portal-border/60 shadow-md">
+            <div className="p-6 rounded-2xl bg-white border border-portal-border shadow-sm hover:shadow-md transition-all duration-300">
               <div className="flex justify-between items-start">
                 <div className="space-y-1">
                   <p className="text-xs font-bold text-portal-text-secondary uppercase tracking-wider">Total Subscribers</p>
-                  <p className="text-3xl font-extrabold text-white">{totalUsers}</p>
+                  <p className="text-3xl font-extrabold text-portal-text-primary">{totalUsers}</p>
                 </div>
-                <div className="p-2.5 rounded-xl bg-portal-primary/10 border border-portal-primary/20 text-portal-primary">
+                <div className="p-2.5 rounded-xl bg-blue-50 border border-blue-100 text-blue-600">
                   <Users className="w-5 h-5" />
                 </div>
               </div>
-              <div className="flex items-center gap-1 mt-3.5 text-[10px] text-portal-success font-bold">
+              <div className="flex items-center gap-1 mt-3.5 text-[10px] text-emerald-600 font-bold">
                 <TrendingUp className="w-3.5 h-3.5" />
                 <span>Active User Directories</span>
               </div>
             </div>
 
             {/* KPI 2: Sales Revenue */}
-            <div className="p-6 rounded-2xl bg-portal-card border border-portal-border/60 shadow-md">
+            <div className="p-6 rounded-2xl bg-white border border-portal-border shadow-sm hover:shadow-md transition-all duration-300">
               <div className="flex justify-between items-start">
                 <div className="space-y-1">
                   <p className="text-xs font-bold text-portal-text-secondary uppercase tracking-wider">Net Sales Revenue</p>
-                  <p className="text-3xl font-extrabold text-white">₹{totalRevenue.toLocaleString()}</p>
+                  <p className="text-3xl font-extrabold text-portal-text-primary">₹{totalRevenue.toLocaleString()}</p>
                 </div>
-                <div className="p-2.5 rounded-xl bg-portal-success/10 border border-portal-success/20 text-portal-success">
+                <div className="p-2.5 rounded-xl bg-emerald-50 border border-emerald-100 text-emerald-600">
                   <CreditCard className="w-5 h-5" />
                 </div>
               </div>
-              <div className="flex items-center gap-1 mt-3.5 text-[10px] text-portal-success font-bold">
+              <div className="flex items-center gap-1 mt-3.5 text-[10px] text-emerald-600 font-bold">
                 <TrendingUp className="w-3.5 h-3.5" />
                 <span>Live payment database</span>
               </div>
             </div>
 
             {/* KPI 3: Certificates Issued */}
-            <div className="p-6 rounded-2xl bg-portal-card border border-portal-border/60 shadow-md">
+            <div className="p-6 rounded-2xl bg-white border border-portal-border shadow-sm hover:shadow-md transition-all duration-300">
               <div className="flex justify-between items-start">
                 <div className="space-y-1">
                   <p className="text-xs font-bold text-portal-text-secondary uppercase tracking-wider">Certificates Issued</p>
-                  <p className="text-3xl font-extrabold text-white">{certificatesCount}</p>
+                  <p className="text-3xl font-extrabold text-portal-text-primary">{certificatesCount}</p>
                 </div>
-                <div className="p-2.5 rounded-xl bg-portal-warning/10 border border-portal-warning/20 text-portal-warning">
+                <div className="p-2.5 rounded-xl bg-amber-50 border border-amber-100 text-amber-600">
                   <Award className="w-5 h-5" />
                 </div>
               </div>
-              <div className="flex items-center gap-1 mt-3.5 text-[10px] text-portal-success font-bold">
+              <div className="flex items-center gap-1 mt-3.5 text-[10px] text-emerald-600 font-bold">
                 <TrendingUp className="w-3.5 h-3.5" />
                 <span>Verified credentials online</span>
               </div>
             </div>
 
             {/* KPI 4: Resources Published */}
-            <div className="p-6 rounded-2xl bg-portal-card border border-portal-border/60 shadow-md">
+            <div className="p-6 rounded-2xl bg-white border border-portal-border shadow-sm hover:shadow-md transition-all duration-300">
               <div className="flex justify-between items-start">
                 <div className="space-y-1">
                   <p className="text-xs font-bold text-portal-text-secondary uppercase tracking-wider">Resources Catalogued</p>
-                  <p className="text-3xl font-extrabold text-white">{resourcesCount}</p>
+                  <p className="text-3xl font-extrabold text-portal-text-primary">{resourcesCount}</p>
                 </div>
-                <div className="p-2.5 rounded-xl bg-purple-500/10 border border-purple-500/20 text-purple-400">
+                <div className="p-2.5 rounded-xl bg-purple-50 border border-purple-100 text-purple-600">
                   <FileText className="w-5 h-5" />
                 </div>
               </div>
               <div className="flex items-center gap-1 mt-3.5 text-[10px] text-portal-text-secondary font-bold">
-                <Layers className="w-3.5 h-3.5 text-purple-400" />
-                <span>Cheat sheets & operational guides</span>
+                <Layers className="w-3.5 h-3.5 text-purple-500" />
+                <span>Cheat sheets &amp; operational guides</span>
               </div>
             </div>
           </div>
 
-          {/* Graphical charts mockup using raw pure CSS/SVGs for compatibility */}
+          {/* Charts */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div className="lg:col-span-2 p-6 rounded-2xl bg-portal-card border border-portal-border/60 space-y-6 shadow-sm">
-              <div className="flex justify-between items-center border-b border-portal-border/40 pb-3">
+            <div className="lg:col-span-2 p-6 rounded-2xl bg-white border border-portal-border space-y-6 shadow-sm">
+              <div className="flex justify-between items-center border-b border-portal-border pb-3">
                 <h3 className="text-sm font-bold uppercase tracking-wider text-portal-text-secondary">Subscribers Registration Growth</h3>
                 <span className="text-[10px] font-bold text-portal-primary uppercase">Year 2026</span>
               </div>
 
-              {/* Pure SVG Bar chart */}
               <div className="h-64 flex items-end justify-between gap-4 pt-4 px-2 font-mono text-[9px] text-portal-text-secondary">
                 {[
                   { month: "Jan", val: Math.round(totalUsers * 0.2) + 1 },
@@ -253,9 +252,9 @@ export default function AdminAnalyticsPage() {
                   { month: "Jun", val: totalUsers }
                 ].map((item, idx) => (
                   <div key={idx} className="flex-1 flex flex-col items-center gap-2 group">
-                    <span className="text-white font-bold opacity-0 group-hover:opacity-100 transition-opacity duration-150">{item.val}</span>
+                    <span className="text-portal-text-primary font-bold opacity-0 group-hover:opacity-100 transition-opacity duration-150">{item.val}</span>
                     <div
-                      className="w-full bg-gradient-to-t from-portal-primary/60 to-portal-primary hover:to-portal-secondary rounded-lg transition-all duration-500 shadow-md group-hover:scale-x-105"
+                      className="w-full bg-gradient-to-t from-portal-primary/60 to-portal-primary hover:to-portal-secondary rounded-lg transition-all duration-500 shadow-sm group-hover:scale-x-105"
                       style={{ height: `${(item.val / (totalUsers || 1)) * 90 + 10}%` }}
                     ></div>
                     <span className="mt-1 font-bold">{item.month}</span>
@@ -264,27 +263,16 @@ export default function AdminAnalyticsPage() {
               </div>
             </div>
 
-            <div className="p-6 rounded-2xl bg-portal-card border border-portal-border/60 space-y-6 shadow-sm">
-              <div className="flex justify-between items-center border-b border-portal-border/40 pb-3">
+            <div className="p-6 rounded-2xl bg-white border border-portal-border space-y-6 shadow-sm">
+              <div className="flex justify-between items-center border-b border-portal-border pb-3">
                 <h3 className="text-sm font-bold uppercase tracking-wider text-portal-text-secondary">Subscribers Breakdown</h3>
               </div>
 
-              {/* Donut representation */}
               <div className="relative h-48 flex items-center justify-center">
                 <svg className="w-36 h-36 transform -rotate-90">
-                  {/* Outer circle */}
+                  <circle cx="72" cy="72" r="55" className="stroke-slate-100 fill-transparent" strokeWidth="16" />
                   <circle
-                    cx="72"
-                    cy="72"
-                    r="55"
-                    className="stroke-slate-950 fill-transparent"
-                    strokeWidth="16"
-                  />
-                  {/* Paid portion */}
-                  <circle
-                    cx="72"
-                    cy="72"
-                    r="55"
+                    cx="72" cy="72" r="55"
                     className="stroke-portal-primary fill-transparent transition-all duration-1000"
                     strokeWidth="16"
                     strokeDasharray={`${2 * Math.PI * 55}`}
@@ -294,7 +282,7 @@ export default function AdminAnalyticsPage() {
 
                 <div className="absolute text-center space-y-0.5">
                   <p className="text-[10px] font-bold text-portal-text-secondary uppercase">Paid users</p>
-                  <p className="text-xl font-extrabold text-white">
+                  <p className="text-xl font-extrabold text-portal-text-primary">
                     {totalUsers > 0 ? Math.round((paidUsers / totalUsers) * 100) : 0}%
                   </p>
                 </div>
@@ -303,23 +291,23 @@ export default function AdminAnalyticsPage() {
               <div className="flex justify-center gap-6 text-[10px] font-semibold">
                 <div className="flex items-center gap-1.5">
                   <span className="w-2.5 h-2.5 rounded bg-portal-primary"></span>
-                  <span className="text-slate-300">Paid/Admin: {paidUsers}</span>
+                  <span className="text-portal-text-secondary">Paid/Admin: {paidUsers}</span>
                 </div>
                 <div className="flex items-center gap-1.5">
-                  <span className="w-2.5 h-2.5 rounded bg-slate-950 border border-portal-border"></span>
-                  <span className="text-slate-300">Free: {freeUsers}</span>
+                  <span className="w-2.5 h-2.5 rounded bg-slate-100 border border-portal-border"></span>
+                  <span className="text-portal-text-secondary">Free: {freeUsers}</span>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Action audit logs trail snippet */}
-          <div className="p-6 rounded-2xl bg-portal-card border border-portal-border/60 space-y-4 shadow-sm">
-            <h3 className="text-sm font-bold uppercase tracking-wider text-portal-text-secondary border-b border-portal-border/40 pb-3">
+          {/* Audit logs */}
+          <div className="p-6 rounded-2xl bg-white border border-portal-border space-y-4 shadow-sm">
+            <h3 className="text-sm font-bold uppercase tracking-wider text-portal-text-secondary border-b border-portal-border pb-3">
               Action Audit Trail (Audit Logs Collection)
             </h3>
 
-            <div className="divide-y divide-portal-border/30">
+            <div className="divide-y divide-slate-100">
               {recentLogs.length === 0 ? (
                 <p className="p-6 text-xs text-portal-text-secondary italic text-center">No platform audit logs generated yet.</p>
               ) : (
@@ -327,12 +315,12 @@ export default function AdminAnalyticsPage() {
                   <div key={idx} className="py-3 flex items-start justify-between gap-4 text-xs">
                     <div className="space-y-1">
                       <div className="flex items-center gap-2">
-                        <span className="font-bold text-white uppercase tracking-wider px-2 py-0.5 rounded text-[8px] bg-slate-900 border border-portal-border/50 text-portal-secondary">
+                        <span className="font-bold uppercase tracking-wider px-2 py-0.5 rounded text-[8px] bg-blue-50 border border-blue-100 text-blue-700">
                           {log.action}
                         </span>
                         <span className="text-[10px] text-portal-text-secondary font-mono">@{log.adminEmail}</span>
                       </div>
-                      <p className="text-slate-300 text-xs leading-normal">{log.details}</p>
+                      <p className="text-portal-text-primary text-xs leading-normal">{log.details}</p>
                     </div>
 
                     <div className="flex items-center gap-1 text-[10px] text-portal-text-secondary font-semibold whitespace-nowrap">

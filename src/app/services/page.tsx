@@ -5,12 +5,9 @@ import {
   Briefcase, 
   BookOpen, 
   TrendingUp, 
-  UserCheck, 
-  Cpu, 
   ChevronRight, 
   CheckCircle,
-  FileCheck,
-  ShieldAlert
+  FileCheck
 } from "lucide-react";
 
 export const metadata: Metadata = {
@@ -34,9 +31,9 @@ export default function Services() {
         "Transition Coaching for newly onboarded industrial heads"
       ],
       cta: { text: "Submit Hiring Requirement", href: "/get-in-touch/recruiter" },
-      bgColor: "from-brand-orange/10 to-transparent",
-      accentColor: "text-brand-orange",
-      borderGlow: "group-hover:border-brand-orange/30"
+      bgColor: "from-blue-50/20 to-transparent",
+      accentColor: "text-blue-600",
+      borderGlow: "group-hover:border-blue-600/30"
     },
     {
       id: "performance-academy",
@@ -52,9 +49,9 @@ export default function Services() {
         "Joint certification programs with leading technical institutes"
       ],
       cta: { text: "Learn More / Inquire", href: "/get-in-touch/book-call" },
-      bgColor: "from-brand-blue/10 to-transparent",
-      accentColor: "text-brand-blue",
-      borderGlow: "group-hover:border-brand-blue/30"
+      bgColor: "from-sky-50/20 to-transparent",
+      accentColor: "text-sky-600",
+      borderGlow: "group-hover:border-sky-600/30"
     },
     {
       id: "strategic-solutions",
@@ -70,30 +67,30 @@ export default function Services() {
         "Change Management consulting for industrial scaling"
       ],
       cta: { text: "Book Advisory Discovery Call", href: "/get-in-touch/book-call" },
-      bgColor: "from-amber-500/5 to-transparent",
-      accentColor: "text-amber-400",
-      borderGlow: "group-hover:border-amber-400/30"
+      bgColor: "from-amber-50/20 to-transparent",
+      accentColor: "text-amber-600",
+      borderGlow: "group-hover:border-amber-600/30"
     }
   ];
 
   return (
-    <div className="relative min-h-screen bg-brand-dark py-20 overflow-hidden">
+    <div className="relative min-h-screen bg-slate-50 py-20 overflow-hidden">
       
       {/* Background decoration */}
-      <div className="absolute top-1/4 left-1/4 -translate-x-1/2 w-[400px] h-[400px] bg-brand-orange/5 rounded-full blur-[100px] pointer-events-none"></div>
-      <div className="absolute bottom-1/4 right-1/4 translate-x-1/2 w-[400px] h-[400px] bg-brand-blue/5 rounded-full blur-[100px] pointer-events-none"></div>
+      <div className="absolute top-1/4 left-1/4 -translate-x-1/2 w-[400px] h-[400px] bg-blue-500/5 rounded-full blur-[100px] pointer-events-none"></div>
+      <div className="absolute bottom-1/4 right-1/4 translate-x-1/2 w-[400px] h-[400px] bg-sky-500/5 rounded-full blur-[100px] pointer-events-none"></div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative space-y-24">
         
         {/* Header Title */}
         <div className="text-center space-y-4 max-w-3xl mx-auto">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-900 border border-slate-800 text-brand-blue text-xs font-semibold uppercase tracking-wider">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-blue-50 border border-blue-100 text-blue-600 text-xs font-semibold uppercase tracking-wider">
             <span>Capabilities Portfolio</span>
           </div>
-          <h1 className="text-4xl font-extrabold text-white sm:text-5xl leading-tight">
-            Consulting & Training <span className="text-brand-blue">Solutions</span>
+          <h1 className="text-4xl font-extrabold text-slate-900 sm:text-5xl leading-tight">
+            Consulting & Training <span className="text-blue-600">Solutions</span>
           </h1>
-          <p className="text-lg text-brand-text-muted leading-relaxed">
+          <p className="text-lg text-slate-650 leading-relaxed">
             We deliver modular, end-to-end consulting blueprints that drive organizational competence, operational uptime, and bottom-line expansion.
           </p>
         </div>
@@ -106,7 +103,7 @@ export default function Services() {
               <section 
                 key={service.id} 
                 id={service.id}
-                className="group relative rounded-3xl bg-brand-dark-light border border-slate-800/80 p-8 md:p-12 hover:border-slate-700 transition-all duration-300 overflow-hidden"
+                className="group relative rounded-3xl bg-white border border-slate-200 p-8 md:p-12 hover:border-slate-350 shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden"
               >
                 {/* Visual gradient backdrop */}
                 <div className={`absolute inset-0 bg-gradient-to-br ${service.bgColor} opacity-60 pointer-events-none`}></div>
@@ -116,26 +113,26 @@ export default function Services() {
                   {/* Left Column: Title and details */}
                   <div className="lg:col-span-7 space-y-6">
                     <div className="flex items-center gap-4">
-                      <div className={`p-3.5 rounded-2xl bg-slate-950 border border-slate-850 ${service.accentColor}`}>
+                      <div className={`p-3.5 rounded-2xl bg-slate-50 border border-slate-100 ${service.accentColor}`}>
                         <Icon className="w-7 h-7" />
                       </div>
                       <div>
                         <span className={`text-xs font-bold tracking-widest uppercase ${service.accentColor}`}>
                           SERVICE 0{index + 1}
                         </span>
-                        <h2 className="text-2xl md:text-3xl font-extrabold text-white mt-0.5">
+                        <h2 className="text-2xl md:text-3xl font-extrabold text-slate-900 mt-0.5">
                           {service.title}
                         </h2>
                       </div>
                     </div>
 
-                    <div className="border-t border-slate-800/80 my-4"></div>
+                    <div className="border-t border-slate-100 my-4"></div>
 
                     <div className="space-y-4">
-                      <h4 className="text-white font-semibold text-lg italic">
+                      <h4 className="text-slate-800 font-semibold text-lg italic">
                         {service.tagline}
                       </h4>
-                      <p className="text-sm md:text-base text-brand-text-muted leading-relaxed">
+                      <p className="text-sm md:text-base text-slate-650 leading-relaxed">
                         {service.description}
                       </p>
                     </div>
@@ -143,7 +140,7 @@ export default function Services() {
                     <div className="pt-4">
                       <Link 
                         href={service.cta.href}
-                        className="inline-flex items-center justify-center px-6 py-3 rounded-xl bg-slate-900 border border-slate-700 hover:border-brand-orange hover:bg-slate-800 text-white text-sm font-semibold transition-all duration-300 group-hover:scale-[1.01]"
+                        className="inline-flex items-center justify-center px-6 py-3 rounded-xl bg-slate-50 border border-slate-200 hover:border-blue-600 text-slate-700 hover:text-blue-600 text-sm font-semibold transition-all duration-300 group-hover:scale-[1.01]"
                       >
                         <span>{service.cta.text}</span>
                         <ChevronRight className="w-4 h-4 ml-1.5 group-hover:translate-x-1 transition-transform duration-200" />
@@ -152,8 +149,8 @@ export default function Services() {
                   </div>
 
                   {/* Right Column: Key feature bullets */}
-                  <div className="lg:col-span-5 bg-slate-950/40 p-6 md:p-8 rounded-2xl border border-slate-850 glass">
-                    <h3 className="text-white font-bold text-sm tracking-wider uppercase mb-6 flex items-center gap-2">
+                  <div className="lg:col-span-5 bg-slate-50 p-6 md:p-8 rounded-2xl border border-slate-100">
+                    <h3 className="text-slate-900 font-bold text-sm tracking-wider uppercase mb-6 flex items-center gap-2">
                       <FileCheck className={`w-5 h-5 ${service.accentColor}`} />
                       <span>Deliverables & Focus Areas</span>
                     </h3>
@@ -161,7 +158,7 @@ export default function Services() {
                       {service.features.map((feature, idx) => (
                         <li key={idx} className="flex items-start gap-3">
                           <CheckCircle className={`w-4.5 h-4.5 mt-0.5 flex-shrink-0 ${service.accentColor}`} />
-                          <span className="text-xs md:text-sm text-slate-300 leading-relaxed">{feature}</span>
+                          <span className="text-xs md:text-sm text-slate-600 leading-relaxed">{feature}</span>
                         </li>
                       ))}
                     </ul>

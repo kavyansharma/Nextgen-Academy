@@ -6,8 +6,6 @@ import {
   Factory, 
   ShoppingBag, 
   Network,
-  Users2,
-  Cpu,
   ShieldCheck,
   ChevronRight
 } from "lucide-react";
@@ -31,8 +29,8 @@ export default function Industries() {
         "Automation and CNC engineering specialists",
         "Custom upskilling in high-voltage safety standards"
       ],
-      color: "text-brand-orange",
-      borderGlow: "group-hover:border-brand-orange/20"
+      color: "text-blue-600",
+      borderGlow: "group-hover:border-blue-600/20"
     },
     {
       id: "engineering",
@@ -45,8 +43,8 @@ export default function Industries() {
         "Quality assurance & structural engineering talent",
         "On-site safety audits & compliance courses"
       ],
-      color: "text-brand-blue",
-      borderGlow: "group-hover:border-brand-blue/20"
+      color: "text-sky-650",
+      borderGlow: "group-hover:border-sky-650/20"
     },
     {
       id: "manufacturing",
@@ -59,8 +57,8 @@ export default function Industries() {
         "Shopfloor technician competency training",
         "Maintenance & reliability engineering roles"
       ],
-      color: "text-amber-400",
-      borderGlow: "group-hover:border-amber-400/20"
+      color: "text-amber-600",
+      borderGlow: "group-hover:border-amber-600/20"
     },
     {
       id: "fmcg",
@@ -73,8 +71,8 @@ export default function Industries() {
         "Food safety (HACCP) & compliance training",
         "Warehouse automation & distribution talent"
       ],
-      color: "text-emerald-400",
-      borderGlow: "group-hover:border-emerald-400/20"
+      color: "text-emerald-600",
+      borderGlow: "group-hover:border-emerald-600/20"
     },
     {
       id: "it",
@@ -87,28 +85,28 @@ export default function Industries() {
         "Industrial OT cybersecurity specialists placement",
         "Factory automation systems software training"
       ],
-      color: "text-indigo-400",
-      borderGlow: "group-hover:border-indigo-400/20"
+      color: "text-indigo-650",
+      borderGlow: "group-hover:border-indigo-650/20"
     }
   ];
 
   return (
-    <div className="relative min-h-screen bg-brand-dark py-20 overflow-hidden">
+    <div className="relative min-h-screen bg-slate-50 py-20 overflow-hidden">
       
       {/* Background glow */}
-      <div className="absolute top-1/3 right-1/4 w-[400px] h-[400px] bg-brand-orange/5 rounded-full blur-[100px] pointer-events-none"></div>
+      <div className="absolute top-1/3 right-1/4 w-[400px] h-[400px] bg-blue-500/5 rounded-full blur-[100px] pointer-events-none"></div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative space-y-20">
         
         {/* Page Header */}
         <div className="text-center space-y-4 max-w-3xl mx-auto">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-900 border border-slate-800 text-brand-orange text-xs font-semibold uppercase tracking-wider">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-blue-50 border border-blue-100 text-blue-600 text-xs font-semibold uppercase tracking-wider">
             <span>Sectors of Influence</span>
           </div>
-          <h1 className="text-4xl font-extrabold text-white sm:text-5xl leading-tight">
-            Industrial Expertise <span className="text-brand-orange">Sectors</span>
+          <h1 className="text-4xl font-extrabold text-slate-900 sm:text-5xl leading-tight">
+            Industrial Expertise <span className="text-blue-600">Sectors</span>
           </h1>
-          <p className="text-lg text-brand-text-muted leading-relaxed">
+          <p className="text-lg text-slate-650 leading-relaxed">
             We deliver targeted consulting blueprints and leadership recruitment solutions across the backbone of the global industrial economy.
           </p>
         </div>
@@ -121,38 +119,38 @@ export default function Industries() {
               <section 
                 key={industry.id} 
                 id={industry.id}
-                className="group relative rounded-3xl bg-brand-dark-light border border-slate-800 p-8 hover:border-slate-700 transition-all duration-300 flex flex-col justify-between"
+                className="group relative rounded-3xl bg-white border border-slate-200 p-8 shadow-sm hover:border-blue-600/30 hover:shadow-md transition-all duration-300 flex flex-col justify-between"
               >
                 {/* Glow border overlay effect */}
                 <div className={`absolute inset-0 border border-transparent rounded-3xl transition-colors duration-300 pointer-events-none ${industry.borderGlow}`}></div>
                 
                 <div className="space-y-6">
                   <div className="flex items-center justify-between">
-                    <div className={`p-3 rounded-xl bg-slate-900 border border-slate-850 ${industry.color}`}>
+                    <div className={`p-3 rounded-xl bg-slate-50 border border-slate-100 ${industry.color}`}>
                       <Icon className="w-6 h-6" />
                     </div>
-                    <span className="text-xs text-brand-text-muted font-mono uppercase">
+                    <span className="text-xs text-slate-400 font-mono uppercase">
                       #{industry.id}
                     </span>
                   </div>
 
-                  <h2 className="text-xl font-bold text-white group-hover:text-brand-orange transition-colors duration-200">
+                  <h2 className="text-xl font-bold text-slate-900 group-hover:text-blue-600 transition-colors duration-200">
                     {industry.name}
                   </h2>
                   
-                  <p className="text-sm text-brand-text-muted leading-relaxed">
+                  <p className="text-sm text-slate-600 leading-relaxed">
                     {industry.description}
                   </p>
 
-                  <div className="border-t border-slate-800/80 my-4"></div>
+                  <div className="border-t border-slate-100 my-4"></div>
 
                   <div className="space-y-3">
-                    <h3 className="text-xs font-bold text-white tracking-widest uppercase">
+                    <h3 className="text-xs font-bold text-slate-900 tracking-widest uppercase">
                       NextGen Deliverables:
                     </h3>
                     <ul className="space-y-2">
                       {industry.deliverables.map((item, idx) => (
-                        <li key={idx} className="flex items-start gap-2.5 text-xs text-slate-300 leading-relaxed">
+                        <li key={idx} className="flex items-start gap-2.5 text-xs text-slate-600 leading-relaxed">
                           <ShieldCheck className={`w-4 h-4 flex-shrink-0 mt-0.5 ${industry.color}`} />
                           <span>{item}</span>
                         </li>
@@ -164,7 +162,7 @@ export default function Industries() {
                 <div className="pt-8">
                   <Link 
                     href="/get-in-touch/recruiter"
-                    className="inline-flex items-center gap-1 text-xs font-semibold text-brand-orange hover:text-brand-orange-hover"
+                    className="inline-flex items-center gap-1 text-xs font-semibold text-blue-600 hover:text-blue-700"
                   >
                     <span>Request sector profile</span>
                     <ChevronRight className="w-3.5 h-3.5" />

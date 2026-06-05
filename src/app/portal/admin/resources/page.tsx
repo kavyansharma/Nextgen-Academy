@@ -238,7 +238,7 @@ export default function AdminResourcesPage() {
   });
 
   return (
-    <div className="space-y-6 animate-fade-in text-slate-100">
+    <div className="space-y-6 animate-fade-in text-portal-text-primary">
       {/* Back button */}
       <div>
         <Link
@@ -251,9 +251,9 @@ export default function AdminResourcesPage() {
       </div>
 
       {/* Header */}
-      <div className="border-b border-portal-border/60 pb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="border-b border-portal-border pb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-extrabold text-white tracking-tight sm:text-4xl flex items-center gap-2">
+          <h1 className="text-3xl font-extrabold text-portal-text-primary tracking-tight sm:text-4xl flex items-center gap-2">
             <FileText className="w-8 h-8 text-portal-primary" />
             <span>Resource Manager</span>
           </h1>
@@ -272,7 +272,7 @@ export default function AdminResourcesPage() {
             setFormError(null);
             setIsAddOpen(true);
           }}
-          className="px-5 py-2.5 rounded-xl bg-portal-primary hover:bg-portal-primary/95 text-white font-bold text-xs flex items-center justify-center gap-1.5 transition-all shadow-md cursor-pointer self-start sm:self-center"
+          className="px-5 py-2.5 rounded-xl bg-portal-primary hover:bg-portal-primary/95 text-portal-text-primary font-bold text-xs flex items-center justify-center gap-1.5 transition-all shadow-md cursor-pointer self-start sm:self-center"
         >
           <Plus className="w-4 h-4" />
           <span>Add Resource file</span>
@@ -283,8 +283,8 @@ export default function AdminResourcesPage() {
       {toast && (
         <div className={`fixed top-4 right-4 z-50 flex gap-3 p-4 rounded-xl text-sm border shadow-lg animate-fade-in ${
           toast.type === "success" 
-            ? "bg-portal-success/10 border-portal-success/20 text-portal-success" 
-            : "bg-red-500/10 border-red-500/20 text-red-200"
+            ? "bg-emerald-50 border-emerald-200 text-emerald-700" 
+            : "bg-red-50 border-red-200 text-red-800"
         }`}>
           {toast.type === "success" ? (
             <CheckCircle2 className="w-5 h-5 flex-shrink-0" />
@@ -296,7 +296,7 @@ export default function AdminResourcesPage() {
       )}
 
       {/* Search & Filter Toolbar */}
-      <div className="flex flex-col md:flex-row gap-4 items-stretch md:items-center justify-between bg-slate-900/40 p-4 border border-portal-border/60 rounded-2xl">
+      <div className="flex flex-col md:flex-row gap-4 items-stretch md:items-center justify-between bg-white p-4 border border-portal-border rounded-2xl">
         {/* Search */}
         <div className="relative flex-grow max-w-md">
           <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-portal-text-secondary">
@@ -307,7 +307,7 @@ export default function AdminResourcesPage() {
             placeholder="Search resources by title, category, description..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-portal-card border border-portal-border/60 text-white placeholder-portal-text-secondary focus:outline-none focus:border-portal-primary focus:ring-1 focus:ring-portal-primary text-sm"
+            className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-white border border-portal-border text-portal-text-primary placeholder-portal-text-secondary focus:outline-none focus:border-portal-primary focus:ring-1 focus:ring-portal-primary text-sm"
           />
         </div>
 
@@ -316,7 +316,7 @@ export default function AdminResourcesPage() {
           <select
             value={filterAccess}
             onChange={(e) => setFilterAccess(e.target.value)}
-            className="w-full px-4 py-2.5 rounded-xl bg-portal-card border border-portal-border/60 text-slate-300 focus:outline-none focus:border-portal-primary text-sm cursor-pointer"
+            className="w-full px-4 py-2.5 rounded-xl bg-white border border-portal-border text-portal-text-secondary focus:outline-none focus:border-portal-primary text-sm cursor-pointer"
           >
             <option value="all">All Access Levels</option>
             <option value="free">Free Access</option>
@@ -326,7 +326,7 @@ export default function AdminResourcesPage() {
       </div>
 
       {/* Resources Table */}
-      <div className="overflow-x-auto bg-portal-card border border-portal-border/60 shadow-xl rounded-2xl">
+      <div className="overflow-x-auto bg-white border border-portal-border shadow-xl rounded-2xl">
         {loadingData ? (
           <div className="p-12 text-center text-portal-text-secondary">
             <Loader2 className="w-8 h-8 animate-spin mx-auto text-portal-primary mb-3" />
@@ -335,13 +335,13 @@ export default function AdminResourcesPage() {
         ) : filteredResources.length === 0 ? (
           <div className="p-12 text-center text-portal-text-secondary space-y-2">
             <FileText className="w-12 h-12 text-slate-700 mx-auto" />
-            <p className="font-bold text-white">No Resources Found</p>
+            <p className="font-bold text-portal-text-primary">No Resources Found</p>
             <p className="text-sm">We couldn&apos;t find any resources matching your query.</p>
           </div>
         ) : (
           <table className="w-full text-left border-collapse text-sm">
             <thead>
-              <tr className="border-b border-portal-border/60 text-xs font-bold text-portal-text-secondary uppercase tracking-wider bg-slate-950/45">
+              <tr className="border-b border-portal-border text-xs font-bold text-portal-text-secondary uppercase tracking-wider bg-slate-50/45">
                 <th className="p-4.5 pl-6">Document Title</th>
                 <th className="p-4.5">Category</th>
                 <th className="p-4.5">Access Level</th>
@@ -349,18 +349,18 @@ export default function AdminResourcesPage() {
                 <th className="p-4.5 pr-6 text-right">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-portal-border/30">
+            <tbody className="divide-y divide-slate-100">
               {filteredResources.map((res) => {
                 const badgeColor =
                   res.accessLevel === "paid"
-                    ? "bg-portal-warning/10 border-portal-warning/20 text-portal-warning"
-                    : "bg-portal-success/10 border-portal-success/20 text-portal-success";
+                    ? "bg-amber-50 border-amber-200 text-amber-700"
+                    : "bg-emerald-50 border-emerald-200 text-emerald-700";
 
                 return (
-                  <tr key={res.id} className="hover:bg-slate-900/25 transition-colors duration-150">
+                  <tr key={res.id} className="hover:bg-slate-50/70 transition-colors duration-150">
                     {/* Title */}
                     <td className="p-4.5 pl-6">
-                      <div className="font-bold text-white flex items-center gap-2">
+                      <div className="font-bold text-portal-text-primary flex items-center gap-2">
                         <FileDown className="w-4 h-4 text-portal-primary" />
                         <span>{res.title}</span>
                       </div>
@@ -368,8 +368,8 @@ export default function AdminResourcesPage() {
                     </td>
 
                     {/* Category */}
-                    <td className="p-4.5 text-slate-300">
-                      <span className="text-xs font-semibold px-2 py-0.5 rounded bg-slate-950 border border-portal-border/40">
+                    <td className="p-4.5 text-portal-text-secondary">
+                      <span className="text-xs font-semibold px-2 py-0.5 rounded bg-slate-50 border border-portal-border">
                         {res.category}
                       </span>
                     </td>
@@ -392,14 +392,14 @@ export default function AdminResourcesPage() {
                     <td className="p-4.5 pr-6 text-right space-x-2">
                       <button
                         onClick={() => handleOpenEdit(res)}
-                        className="inline-flex p-2 rounded-lg bg-slate-900 border border-portal-border text-portal-secondary hover:text-white transition-all cursor-pointer"
+                        className="inline-flex p-2 rounded-lg bg-white border border-portal-border text-portal-secondary hover:text-portal-primary hover:border-portal-primary transition-all cursor-pointer"
                         title="Edit Resource"
                       >
                         <Edit className="w-3.5 h-3.5" />
                       </button>
                       <button
                         onClick={() => handleDeleteResource(res.id, res.title)}
-                        className="inline-flex p-2 rounded-lg bg-slate-900 border border-portal-border text-red-400 hover:text-white hover:bg-red-500/15 transition-all cursor-pointer"
+                        className="inline-flex p-2 rounded-lg bg-slate-50 border border-portal-border text-red-400 hover:text-portal-primary hover:bg-red-500/15 transition-all cursor-pointer"
                         title="Delete Resource"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
@@ -416,18 +416,18 @@ export default function AdminResourcesPage() {
       {/* CRUD Modal Form */}
       {(isAddOpen || resourceToEdit) && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-slate-950/70 backdrop-blur-sm" onClick={() => { if (!submitting) { setIsAddOpen(false); setResourceToEdit(null); } }}></div>
+          <div className="absolute inset-0 bg-slate-50/70 backdrop-blur-sm" onClick={() => { if (!submitting) { setIsAddOpen(false); setResourceToEdit(null); } }}></div>
           
           <form
             onSubmit={resourceToEdit ? handleEditResource : handleAddResource}
-            className="relative w-full max-w-lg bg-portal-card border border-portal-border rounded-3xl p-6 sm:p-8 shadow-2xl z-10 text-slate-100 space-y-4 max-h-[90vh] overflow-y-auto"
+            className="relative w-full max-w-lg bg-white border border-portal-border rounded-3xl p-6 sm:p-8 shadow-2xl z-10 text-portal-text-primary space-y-4 max-h-[90vh] overflow-y-auto"
           >
-            <div className="flex justify-between items-center border-b border-portal-border/60 pb-3">
-              <h3 className="text-lg font-bold text-white">{resourceToEdit ? "Modify Resource details" : "Publish Resource PDF"}</h3>
+            <div className="flex justify-between items-center border-b border-portal-border pb-3">
+              <h3 className="text-lg font-bold text-portal-text-primary">{resourceToEdit ? "Modify Resource details" : "Publish Resource PDF"}</h3>
               <button
                 type="button"
                 onClick={() => { setIsAddOpen(false); setResourceToEdit(null); }}
-                className="p-1.5 rounded-lg text-portal-text-secondary hover:text-white"
+                className="p-1.5 rounded-lg text-portal-text-secondary hover:text-portal-primary"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -449,7 +449,7 @@ export default function AdminResourcesPage() {
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
                   placeholder="e.g. DMAIC Quality Playbook"
-                  className="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-portal-border/60 text-white focus:outline-none focus:border-portal-primary text-sm"
+                  className="w-full px-4 py-2.5 rounded-xl bg-slate-50 border border-portal-border text-portal-text-primary focus:outline-none focus:border-portal-primary text-sm"
                 />
               </div>
 
@@ -461,7 +461,7 @@ export default function AdminResourcesPage() {
                   onChange={(e) => setDescription(e.target.value)}
                   rows={3}
                   placeholder="Provide a summary of the guide details..."
-                  className="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-portal-border/60 text-white focus:outline-none focus:border-portal-primary text-sm"
+                  className="w-full px-4 py-2.5 rounded-xl bg-slate-50 border border-portal-border text-portal-text-primary focus:outline-none focus:border-portal-primary text-sm"
                 />
               </div>
 
@@ -474,7 +474,7 @@ export default function AdminResourcesPage() {
                     value={category}
                     onChange={(e) => setCategory(e.target.value)}
                     placeholder="e.g. Strategy"
-                    className="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-portal-border/60 text-white focus:outline-none focus:border-portal-primary text-sm"
+                    className="w-full px-4 py-2.5 rounded-xl bg-slate-50 border border-portal-border text-portal-text-primary focus:outline-none focus:border-portal-primary text-sm"
                   />
                 </div>
 
@@ -483,7 +483,7 @@ export default function AdminResourcesPage() {
                   <select
                     value={accessLevel}
                     onChange={(e) => setAccessLevel(e.target.value as any)}
-                    className="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-portal-border/60 text-white focus:outline-none focus:border-portal-primary text-sm cursor-pointer"
+                    className="w-full px-4 py-2.5 rounded-xl bg-slate-50 border border-portal-border text-portal-text-primary focus:outline-none focus:border-portal-primary text-sm cursor-pointer"
                   >
                     <option value="free">Free Access</option>
                     <option value="paid">Premium Tier (Paid/Admin)</option>
@@ -500,9 +500,9 @@ export default function AdminResourcesPage() {
                     value={driveLink}
                     onChange={(e) => setDriveLink(e.target.value)}
                     placeholder="URL address or upload below..."
-                    className="flex-grow flex-1 px-4 py-2.5 rounded-xl bg-slate-950 border border-portal-border/60 text-white focus:outline-none focus:border-portal-primary text-sm font-mono text-xs"
+                    className="flex-grow flex-1 px-4 py-2.5 rounded-xl bg-slate-50 border border-portal-border text-portal-text-primary focus:outline-none focus:border-portal-primary text-sm font-mono text-xs"
                   />
-                  <label className="px-4 py-2.5 rounded-xl bg-slate-900 border border-portal-border hover:border-portal-primary text-xs font-bold text-portal-primary flex items-center justify-center cursor-pointer transition-all hover:bg-slate-850">
+                  <label className="px-4 py-2.5 rounded-xl bg-slate-50 border border-portal-border hover:border-portal-primary text-xs font-bold text-portal-primary flex items-center justify-center cursor-pointer transition-all hover:bg-slate-850">
                     {uploadingPdf ? <Loader2 className="w-4 h-4 animate-spin" /> : "Upload PDF"}
                     <input
                       type="file"
@@ -536,7 +536,7 @@ export default function AdminResourcesPage() {
                     value={tagsString}
                     onChange={(e) => setTagsString(e.target.value)}
                     placeholder="e.g. Lean Six Sigma, Automation"
-                    className="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-portal-border/60 text-white focus:outline-none focus:border-portal-primary text-sm"
+                    className="w-full px-4 py-2.5 rounded-xl bg-slate-50 border border-portal-border text-portal-text-primary focus:outline-none focus:border-portal-primary text-sm"
                   />
                 </div>
 
@@ -547,24 +547,24 @@ export default function AdminResourcesPage() {
                     value={downloadCount}
                     onChange={(e) => setDownloadCount(Number(e.target.value))}
                     min={0}
-                    className="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-portal-border/60 text-white focus:outline-none focus:border-portal-primary text-sm"
+                    className="w-full px-4 py-2.5 rounded-xl bg-slate-50 border border-portal-border text-portal-text-primary focus:outline-none focus:border-portal-primary text-sm"
                   />
                 </div>
               </div>
             </div>
 
-            <div className="flex gap-4 pt-4 border-t border-portal-border/60">
+            <div className="flex gap-4 pt-4 border-t border-portal-border">
               <button
                 type="button"
                 onClick={() => { setIsAddOpen(false); setResourceToEdit(null); }}
-                className="flex-grow flex-1 py-3 rounded-xl border border-portal-border hover:bg-slate-900 text-xs font-bold transition-all"
+                className="flex-grow flex-1 py-3 rounded-xl border border-portal-border hover:bg-slate-50 text-xs font-bold text-portal-text-secondary transition-all"
               >
                 Cancel
               </button>
               <button
                 type="submit"
                 disabled={submitting}
-                className="flex-grow flex-1 py-3 rounded-xl bg-portal-primary hover:bg-portal-primary/90 text-white text-xs font-bold flex items-center justify-center gap-1.5 transition-all shadow-md disabled:opacity-50"
+                className="flex-grow flex-1 py-3 rounded-xl bg-portal-primary hover:bg-portal-primary/90 text-portal-text-primary text-xs font-bold flex items-center justify-center gap-1.5 transition-all shadow-md disabled:opacity-50"
               >
                 {submitting && <Loader2 className="w-4.5 h-4.5 animate-spin" />}
                 <span>{resourceToEdit ? "Save Changes" : "Publish Document"}</span>

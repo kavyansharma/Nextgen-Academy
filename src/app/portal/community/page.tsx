@@ -292,19 +292,19 @@ export default function CommunityPage() {
   };
 
   return (
-    <div className="space-y-6 animate-fade-in text-slate-100 font-sans relative">
+    <div className="space-y-6 animate-fade-in text-portal-text-primary font-sans relative">
       {/* Toast Alert */}
       {toastMessage && (
-        <div className="fixed top-24 right-8 p-4 rounded-xl bg-slate-900 border border-brand-orange/30 shadow-2xl text-xs text-brand-orange font-bold flex items-center gap-2 z-50 animate-bounce">
-          <AlertTriangle className="w-4 h-4" />
+        <div className="fixed top-24 right-8 p-4 rounded-xl bg-white border border-blue-200 shadow-2xl text-xs text-blue-700 font-bold flex items-center gap-2 z-50 animate-bounce">
+          <AlertTriangle className="w-4 h-4 text-blue-600" />
           <span>{toastMessage}</span>
         </div>
       )}
 
       {/* Header */}
-      <div className="border-b border-portal-border/60 pb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="border-b border-portal-border pb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-extrabold text-white tracking-tight sm:text-4xl flex items-center gap-2">
+          <h1 className="text-3xl font-extrabold text-portal-text-primary tracking-tight sm:text-4xl flex items-center gap-2">
             <MessageSquare className="w-8 h-8 text-portal-primary" />
             <span>Community Forum</span>
           </h1>
@@ -313,7 +313,7 @@ export default function CommunityPage() {
 
         <button
           onClick={() => setIsCreatingPost(true)}
-          className="px-5 py-2.5 rounded-xl bg-portal-primary hover:bg-portal-primary/95 text-white font-bold text-xs flex items-center justify-center gap-1.5 transition-all shadow-md cursor-pointer self-start sm:self-center"
+          className="px-5 py-2.5 rounded-xl bg-portal-primary hover:bg-portal-primary/95 text-white font-bold text-xs flex items-center justify-center gap-1.5 transition-all shadow-md cursor-pointer self-start sm:self-center font-sans"
         >
           <Plus className="w-4 h-4" />
           <span>New Discussion Thread</span>
@@ -332,7 +332,7 @@ export default function CommunityPage() {
               <span>Channels</span>
             </h3>
 
-            <div className="bg-portal-card border border-portal-border/60 rounded-2xl overflow-hidden p-2.5 space-y-1 shadow-sm">
+            <div className="bg-portal-card border border-portal-border rounded-2xl overflow-hidden p-2.5 space-y-1 shadow-sm">
               {CHANNELS.map((ch) => {
                 const isActive = activeChannel === ch.id;
                 return (
@@ -345,12 +345,12 @@ export default function CommunityPage() {
                     }}
                     className={`w-full text-left p-3 rounded-xl flex flex-col transition-all cursor-pointer ${
                       isActive
-                        ? "bg-slate-900 border border-portal-primary/45 text-white"
-                        : "hover:bg-slate-900/40 border border-transparent text-slate-400 hover:text-slate-200"
+                        ? "bg-blue-50/70 border border-blue-100 text-blue-700 font-bold"
+                        : "hover:bg-slate-50 border border-transparent text-portal-text-secondary hover:text-portal-text-primary"
                     }`}
                   >
                     <span className="font-extrabold text-xs flex items-center gap-1">
-                      <Hash className={`w-3.5 h-3.5 ${isActive ? "text-portal-primary" : "text-slate-600"}`} />
+                      <Hash className={`w-3.5 h-3.5 ${isActive ? "text-portal-primary" : "text-slate-400"}`} />
                       {ch.label}
                     </span>
                     <span className="text-[10px] text-portal-text-secondary mt-1 line-clamp-1">{ch.desc}</span>
@@ -367,12 +367,12 @@ export default function CommunityPage() {
               <span>Course Linked Threads</span>
             </h3>
 
-            <div className="bg-portal-card border border-portal-border/60 rounded-2xl p-4 shadow-sm">
-              <label className="block text-[10px] font-bold text-slate-400 uppercase mb-2">Filter by Syllabus</label>
+            <div className="bg-portal-card border border-portal-border rounded-2xl p-4 shadow-sm">
+              <label className="block text-[10px] font-bold text-slate-500 uppercase mb-2">Filter by Syllabus</label>
               <select
                 value={selectedCourseId}
                 onChange={(e) => setSelectedCourseId(e.target.value)}
-                className="w-full px-3 py-2 rounded-lg bg-slate-950 border border-portal-border/60 text-white focus:outline-none focus:border-portal-secondary text-xs cursor-pointer"
+                className="w-full px-3 py-2 rounded-lg bg-slate-50 border border-portal-border text-portal-text-primary focus:outline-none focus:border-portal-secondary text-xs cursor-pointer"
               >
                 <option value="all">All Courses</option>
                 {courses.map(c => (
@@ -399,9 +399,9 @@ export default function CommunityPage() {
           {isCreatingPost && (
             <form
               onSubmit={handlePublishPost}
-              className="bg-portal-card border border-portal-border/70 p-6 rounded-2xl space-y-4 shadow-xl"
+              className="bg-portal-card border border-portal-border p-6 rounded-2xl space-y-4 shadow-md"
             >
-              <h3 className="font-bold text-white text-md flex items-center gap-2">
+              <h3 className="font-bold text-portal-text-primary text-md flex items-center gap-2">
                 <Sparkles className="w-4.5 h-4.5 text-portal-warning" />
                 <span>Publish Thread in #{activeChannel}</span>
               </h3>
@@ -415,7 +415,7 @@ export default function CommunityPage() {
                     value={newPostTitle}
                     onChange={(e) => setNewPostTitle(e.target.value)}
                     placeholder="e.g. Lean manufacturing optimization on smart factory floor"
-                    className="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-portal-border/60 text-white focus:outline-none focus:border-portal-primary text-xs"
+                    className="w-full px-4 py-2.5 rounded-xl bg-slate-50 border border-portal-border text-portal-text-primary focus:outline-none focus:border-portal-primary focus:ring-1 focus:ring-portal-primary/20 text-xs"
                   />
                 </div>
 
@@ -425,7 +425,7 @@ export default function CommunityPage() {
                     <select
                       value={newPostCourseId}
                       onChange={(e) => setNewPostCourseId(e.target.value)}
-                      className="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-portal-border/60 text-white focus:outline-none focus:border-portal-primary text-xs"
+                      className="w-full px-4 py-2.5 rounded-xl bg-slate-50 border border-portal-border text-portal-text-primary focus:outline-none focus:border-portal-primary focus:ring-1 focus:ring-portal-primary/20 text-xs cursor-pointer"
                     >
                       <option value="">No Course Link</option>
                       {courses.map(c => (
@@ -443,7 +443,7 @@ export default function CommunityPage() {
                     onChange={(e) => setNewPostContent(e.target.value)}
                     rows={4}
                     placeholder="Provide details, code blocks, process specs, or recruitment metrics..."
-                    className="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-portal-border/60 text-white focus:outline-none focus:border-portal-primary text-xs resize-none"
+                    className="w-full px-4 py-2.5 rounded-xl bg-slate-50 border border-portal-border text-portal-text-primary focus:outline-none focus:border-portal-primary focus:ring-1 focus:ring-portal-primary/20 text-xs resize-none"
                   />
                 </div>
               </div>
@@ -452,7 +452,7 @@ export default function CommunityPage() {
                 <button
                   type="button"
                   onClick={() => setIsCreatingPost(false)}
-                  className="px-4 py-2 rounded-xl border border-portal-border hover:bg-slate-900 text-xs font-bold transition-all cursor-pointer"
+                  className="px-4 py-2 rounded-xl border border-portal-border hover:bg-slate-50 text-portal-text-secondary hover:text-portal-text-primary text-xs font-bold transition-all cursor-pointer"
                 >
                   Cancel
                 </button>
@@ -470,20 +470,20 @@ export default function CommunityPage() {
 
           {/* Posts Threads List */}
           {loadingPosts ? (
-            <div className="bg-portal-card border border-portal-border/60 p-16 rounded-2xl text-center text-portal-text-secondary shadow-sm">
+            <div className="bg-portal-card border border-portal-border p-16 rounded-2xl text-center text-portal-text-secondary shadow-sm">
               <Loader2 className="w-8 h-8 animate-spin mx-auto text-portal-primary mb-3" />
               <span>Querying channel discussion boards...</span>
             </div>
           ) : posts.length === 0 ? (
-            <div className="bg-portal-card border border-portal-border/60 p-16 rounded-2xl text-center space-y-4 shadow-sm">
-              <MessageCircle className="w-12 h-12 text-slate-700 mx-auto" />
+            <div className="bg-portal-card border border-portal-border p-16 rounded-2xl text-center space-y-4 shadow-sm">
+              <MessageCircle className="w-12 h-12 text-slate-400 mx-auto" />
               <div>
-                <p className="font-bold text-white text-md">Channel Board is Clear</p>
+                <p className="font-bold text-portal-text-primary text-md">Channel Board is Clear</p>
                 <p className="text-xs text-portal-text-secondary mt-1">No active queries found here. Be the first to start a discussion thread!</p>
               </div>
               <button
                 onClick={() => setIsCreatingPost(true)}
-                className="inline-flex px-5 py-2.5 rounded-xl bg-slate-900 border border-portal-border text-xs font-bold text-portal-primary hover:bg-portal-primary hover:text-white transition-all cursor-pointer shadow-sm"
+                className="inline-flex px-5 py-2.5 rounded-xl bg-white border border-portal-border text-xs font-bold text-portal-primary hover:bg-portal-primary hover:text-white transition-all cursor-pointer shadow-sm animate-pulse-glow"
               >
                 Start Topic
               </button>
@@ -492,10 +492,12 @@ export default function CommunityPage() {
             <div className="space-y-4">
               {posts.map((post) => {
                 const isSelected = selectedPostId === post.id;
+                
+                // Light theme badge styles
                 const authorBadge =
-                  post.authorRole === "admin" ? "text-portal-primary bg-portal-primary/10 border-portal-primary/20" :
-                  post.authorRole === "paid" ? "text-portal-secondary bg-portal-secondary/10 border-portal-secondary/20" :
-                  "text-portal-success bg-portal-success/10 border-portal-success/20";
+                  post.authorRole === "admin" ? "text-blue-700 bg-blue-50 border-blue-200" :
+                  post.authorRole === "paid" ? "text-cyan-700 bg-cyan-50 border-cyan-200" :
+                  "text-emerald-700 bg-emerald-50 border-emerald-200";
 
                 const hasLiked = post.likedBy?.includes(user.uid);
                 const postReplies = replies[post.id] || [];
@@ -504,12 +506,12 @@ export default function CommunityPage() {
                 return (
                   <div
                     key={post.id}
-                    className="bg-portal-card border border-portal-border/60 rounded-2xl p-5 sm:p-6 space-y-4 shadow-sm hover:border-slate-800 transition-colors relative"
+                    className="bg-portal-card border border-portal-border rounded-2xl p-5 sm:p-6 space-y-4 shadow-sm hover:border-slate-350 transition-colors relative"
                   >
                     <div className="space-y-2.5">
                       <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 text-xs">
-                        <div className="flex items-center gap-1.5 font-bold text-slate-200">
-                          <div className="w-6 h-6 rounded-full bg-slate-950 border border-portal-border/80 flex items-center justify-center text-[10px] text-white">
+                        <div className="flex items-center gap-1.5 font-bold text-portal-text-primary">
+                          <div className="w-6 h-6 rounded-full bg-slate-100 border border-portal-border flex items-center justify-center text-[10px] text-portal-text-primary font-bold">
                             {post.authorName.charAt(0).toUpperCase()}
                           </div>
                           <span>{post.authorName}</span>
@@ -520,7 +522,7 @@ export default function CommunityPage() {
                         
                         {/* Course link indicator */}
                         {post.courseTitle && (
-                          <span className="text-[9px] bg-slate-900 border border-slate-850 px-2 py-0.5 rounded-full text-portal-secondary font-bold truncate max-w-[150px]" title={post.courseTitle}>
+                          <span className="text-[9px] bg-slate-100 border border-slate-200 px-2 py-0.5 rounded-full text-portal-primary font-bold truncate max-w-[150px]" title={post.courseTitle}>
                             Course: {post.courseTitle}
                           </span>
                         )}
@@ -530,17 +532,17 @@ export default function CommunityPage() {
                         </span>
                       </div>
 
-                      <h4 className="text-md sm:text-lg font-extrabold text-white leading-snug">{post.title}</h4>
-                      <p className="text-xs sm:text-sm text-slate-300 leading-relaxed whitespace-pre-wrap">{post.content}</p>
+                      <h4 className="text-md sm:text-lg font-extrabold text-portal-text-primary leading-snug">{post.title}</h4>
+                      <p className="text-xs sm:text-sm text-portal-text-secondary leading-relaxed whitespace-pre-wrap">{post.content}</p>
                     </div>
 
                     {/* Action Bar */}
-                    <div className="flex items-center justify-between pt-3 border-t border-portal-border/30 text-xs">
+                    <div className="flex items-center justify-between pt-3 border-t border-portal-border text-xs">
                       <div className="flex items-center gap-4">
                         <button
                           onClick={() => handleLikePost(post.id)}
                           className={`flex items-center gap-1.5 font-bold cursor-pointer transition-all hover:scale-105 ${
-                            hasLiked ? "text-portal-primary" : "text-portal-text-secondary hover:text-slate-200"
+                            hasLiked ? "text-portal-primary" : "text-portal-text-secondary hover:text-portal-text-primary"
                           }`}
                         >
                           <ThumbsUp className="w-4 h-4" />
@@ -550,7 +552,7 @@ export default function CommunityPage() {
                         <button
                           onClick={() => setSelectedPostId(isSelected ? null : post.id)}
                           className={`flex items-center gap-1.5 font-bold cursor-pointer transition-all hover:scale-105 ${
-                            isSelected ? "text-portal-secondary" : "text-portal-text-secondary hover:text-slate-200"
+                            isSelected ? "text-portal-secondary" : "text-portal-text-secondary hover:text-portal-text-primary"
                           }`}
                         >
                           <MessageCircle className="w-4 h-4" />
@@ -564,8 +566,8 @@ export default function CommunityPage() {
                         disabled={post.isReported}
                         className={`flex items-center gap-1 px-2.5 py-1 rounded-lg border transition-all ${
                           post.isReported 
-                            ? "bg-red-500/10 border-red-500/25 text-red-400" 
-                            : "bg-slate-900 border-slate-800 text-slate-500 hover:text-red-400 hover:border-red-500/20 cursor-pointer"
+                            ? "bg-red-50 text-red-700 border-red-200" 
+                            : "bg-white border-slate-200 text-slate-400 hover:text-red-600 hover:border-red-200 hover:bg-red-50/50 cursor-pointer"
                         }`}
                         title="Report Content"
                       >
@@ -576,7 +578,7 @@ export default function CommunityPage() {
 
                     {/* Replies Thread */}
                     {isSelected && (
-                      <div className="space-y-4 pt-4 border-t border-portal-border/30 bg-slate-950/20 p-4.5 rounded-2xl border border-portal-border/40 animate-slide-down">
+                      <div className="space-y-4 pt-4 border-t border-portal-border bg-slate-50/50 p-4.5 rounded-2xl border border-portal-border/80 animate-slide-down">
                         <h5 className="text-[10px] font-bold text-portal-text-secondary uppercase tracking-wider">Responses</h5>
 
                         {postRepliesLoading ? (
@@ -589,13 +591,13 @@ export default function CommunityPage() {
                           <div className="space-y-3">
                             {postReplies.map((rep) => {
                               const repBadge =
-                                rep.authorRole === "admin" ? "text-portal-primary bg-portal-primary/10 border-portal-primary/20" :
-                                rep.authorRole === "paid" ? "text-portal-secondary bg-portal-secondary/10 border-portal-secondary/20" :
-                                "text-portal-success bg-portal-success/10 border-portal-success/20";
+                                rep.authorRole === "admin" ? "text-blue-700 bg-blue-50 border-blue-200" :
+                                rep.authorRole === "paid" ? "text-cyan-700 bg-cyan-50 border-cyan-200" :
+                                "text-emerald-700 bg-emerald-50 border-emerald-200";
                               return (
-                                <div key={rep.id} className="p-3 bg-slate-950/40 border border-portal-border/45 rounded-xl space-y-1.5">
+                                <div key={rep.id} className="p-3 bg-white border border-portal-border/60 rounded-xl space-y-1.5 shadow-xs">
                                   <div className="flex items-center gap-2 text-[10px]">
-                                    <span className="font-bold text-slate-200">{rep.authorName}</span>
+                                    <span className="font-bold text-portal-text-primary">{rep.authorName}</span>
                                     <span className={`px-1.5 py-0.2 rounded text-[7px] font-bold uppercase tracking-wider border ${repBadge}`}>
                                       {rep.authorRole}
                                     </span>
@@ -609,15 +611,15 @@ export default function CommunityPage() {
                                       disabled={rep.isReported}
                                       className={`ml-auto flex items-center gap-0.5 px-2 py-0.5 rounded border transition-all ${
                                         rep.isReported 
-                                          ? "bg-red-500/10 border-red-500/20 text-red-400" 
-                                          : "bg-slate-900 border-slate-800 text-slate-500 hover:text-red-400 hover:border-red-500/20 cursor-pointer"
+                                          ? "bg-red-50 text-red-700 border-red-200" 
+                                          : "bg-white border-slate-200 text-slate-400 hover:text-red-650 hover:border-red-200 hover:bg-red-50/50 cursor-pointer"
                                       }`}
                                     >
                                       <Flag className="w-3 h-3" />
                                       <span className="text-[8px] font-bold">{rep.isReported ? "Flagged" : "Report"}</span>
                                     </button>
                                   </div>
-                                  <p className="text-xs text-slate-300 leading-relaxed whitespace-pre-wrap">{rep.content}</p>
+                                  <p className="text-xs text-portal-text-secondary leading-relaxed whitespace-pre-wrap">{rep.content}</p>
                                 </div>
                               );
                             })}
@@ -631,7 +633,7 @@ export default function CommunityPage() {
                             value={replyContent}
                             onChange={(e) => setReplyContent(e.target.value)}
                             placeholder="Add your expert comment..."
-                            className="flex-1 px-3.5 py-2 rounded-xl bg-slate-955 border border-portal-border/60 text-white placeholder-portal-text-secondary focus:outline-none focus:border-portal-primary text-xs"
+                            className="flex-1 px-3.5 py-2 rounded-xl bg-white border border-portal-border text-portal-text-primary placeholder:text-slate-400 focus:outline-none focus:border-portal-primary focus:ring-1 focus:ring-portal-primary/20 text-xs"
                           />
                           <button
                             onClick={() => handleSendReply(post.id)}

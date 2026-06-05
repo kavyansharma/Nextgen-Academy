@@ -608,12 +608,12 @@ export default function CourseDetailsPage({ params }: { params: Promise<{ course
     : "5.0";
 
   return (
-    <div className="space-y-6 animate-fade-in text-slate-100 font-sans">
+    <div className="space-y-6 animate-fade-in text-slate-900 font-sans">
       {/* Back button */}
       <div>
         <Link
           href="/portal/courses"
-          className="inline-flex items-center gap-1.5 text-xs font-semibold text-portal-text-secondary hover:text-portal-primary transition-colors duration-200"
+          className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-portal-primary transition-colors duration-200"
         >
           <ArrowLeft className="w-3.5 h-3.5" />
           <span>Back to Catalog</span>
@@ -621,46 +621,46 @@ export default function CourseDetailsPage({ params }: { params: Promise<{ course
       </div>
 
       {/* Course Banner */}
-      <div className="p-6 sm:p-8 rounded-3xl bg-portal-card border border-portal-border/60 shadow-xl overflow-hidden relative group">
-        <div className="absolute top-0 right-0 w-80 h-80 bg-portal-primary/5 rounded-full blur-[80px] pointer-events-none"></div>
+      <div className="p-6 sm:p-8 rounded-3xl bg-white border border-slate-200 shadow-sm overflow-hidden relative group">
+        <div className="absolute top-0 right-0 w-80 h-80 bg-blue-50/50 rounded-full blur-[80px] pointer-events-none"></div>
 
         <div className="flex flex-col md:flex-row gap-6 justify-between items-start md:items-center relative z-10">
           <div className="space-y-3">
             <div className="flex items-center gap-2">
-              <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full bg-slate-900/60 text-portal-secondary border border-portal-border/50">
+              <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full bg-slate-150 text-slate-750 border border-slate-250">
                 {course.category}
               </span>
-              <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full bg-portal-primary/10 border border-portal-primary/20 text-portal-primary">
+              <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full bg-blue-50 border border-blue-200 text-blue-700">
                 {course.type} Course
               </span>
             </div>
-            <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">{course.title}</h1>
+            <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">{course.title}</h1>
             
-            <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-portal-text-secondary">
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-slate-500">
               <span className="flex items-center gap-1 font-semibold">
                 <Clock className="w-3.5 h-3.5 text-portal-primary" />
                 {course.duration || "Self-paced"}
               </span>
-              <span className="w-1 h-1 rounded-full bg-slate-700"></span>
+              <span className="w-1 h-1 rounded-full bg-slate-350"></span>
               <span className="flex items-center gap-1 font-semibold">
-                <User className="w-3.5 h-3.5 text-portal-secondary" />
+                <User className="w-3.5 h-3.5 text-slate-550" />
                 Instructor: {course.instructor || "Expert Faculty"}
               </span>
-              <span className="w-1 h-1 rounded-full bg-slate-700"></span>
+              <span className="w-1 h-1 rounded-full bg-slate-350"></span>
               <span className="flex items-center gap-1 font-semibold">
-                <Star className="w-3.5 h-3.5 text-portal-warning fill-portal-warning" />
+                <Star className="w-3.5 h-3.5 text-amber-500 fill-amber-550" />
                 <span>{avgRating}/5 Rating ({totalReviews} Reviews)</span>
               </span>
             </div>
           </div>
 
           {/* Progress Bar */}
-          <div className="w-full md:w-64 space-y-2 bg-slate-900/40 p-4 rounded-2xl border border-portal-border/40">
+          <div className="w-full md:w-64 space-y-2 bg-slate-50 p-4 rounded-2xl border border-slate-200">
             <div className="flex justify-between items-center text-xs">
-              <span className="text-portal-text-secondary font-bold">Course Completed</span>
-              <span className="text-white font-extrabold">{progressPercentage}%</span>
+              <span className="text-slate-500 font-bold">Course Completed</span>
+              <span className="text-slate-900 font-extrabold">{progressPercentage}%</span>
             </div>
-            <div className="w-full h-2 bg-slate-955 rounded-full border border-portal-border/30 overflow-hidden">
+            <div className="w-full h-2 bg-slate-200 rounded-full border border-slate-300 overflow-hidden">
               <div
                 className="h-full bg-gradient-to-r from-portal-primary to-portal-secondary rounded-full transition-all duration-500"
                 style={{ width: `${progressPercentage}%` }}
@@ -672,19 +672,19 @@ export default function CourseDetailsPage({ params }: { params: Promise<{ course
 
       {/* Completion Banner */}
       {progressPercentage === 100 && (
-        <div className="p-5 rounded-2xl bg-portal-success/10 border border-portal-success/20 flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left">
+        <div className="p-5 rounded-2xl bg-emerald-50 border border-emerald-255 flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left">
           <div className="flex items-center gap-3.5">
-            <div className="p-2 bg-portal-success/20 rounded-xl text-portal-success flex-shrink-0">
+            <div className="p-2 bg-emerald-100 rounded-xl text-emerald-600 flex-shrink-0">
               <Award className="w-6 h-6 animate-bounce" />
             </div>
             <div>
-              <h3 className="font-bold text-white text-md">Congratulations! You&apos;ve Completed the Course!</h3>
-              <p className="text-xs text-portal-text-secondary mt-0.5">Your credentials are now active. Premium users can download the PDF certificate.</p>
+              <h3 className="font-bold text-slate-900 text-md">Congratulations! You&apos;ve Completed the Course!</h3>
+              <p className="text-xs text-slate-500 mt-0.5">Your credentials are now active. Premium users can download the PDF certificate.</p>
             </div>
           </div>
           <Link
             href="/portal/certificates"
-            className="px-5 py-2.5 rounded-xl bg-portal-success hover:bg-portal-success/90 text-slate-950 font-bold text-xs shadow-md transition-all whitespace-nowrap animate-pulse"
+            className="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-750 text-white font-bold text-xs shadow-md transition-all whitespace-nowrap animate-pulse"
           >
             Claim Certificate
           </Link>
@@ -699,9 +699,9 @@ export default function CourseDetailsPage({ params }: { params: Promise<{ course
           {activeLesson ? (
             <div className="space-y-4">
               {/* Video Player */}
-              <div className="rounded-3xl border border-portal-border/60 bg-slate-950 overflow-hidden shadow-xl aspect-video relative">
+              <div className="rounded-3xl border border-slate-200 bg-black overflow-hidden shadow-xl aspect-video relative">
                 {loadingVideo ? (
-                  <div className="absolute inset-0 flex items-center justify-center bg-slate-950">
+                  <div className="absolute inset-0 flex items-center justify-center bg-black">
                     <Loader2 className="w-10 h-10 animate-spin text-portal-primary" />
                   </div>
                 ) : resolvedVideoUrl.startsWith("http") && !resolvedVideoUrl.includes("youtube.com") && !resolvedVideoUrl.includes("embed") ? (
@@ -723,11 +723,11 @@ export default function CourseDetailsPage({ params }: { params: Promise<{ course
               </div>
 
               {/* Lesson controls */}
-              <div className="p-6 rounded-2xl bg-portal-card border border-portal-border/60 space-y-6 shadow-sm">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-portal-border/40 pb-4">
+              <div className="p-6 rounded-2xl bg-white border border-slate-200 space-y-6 shadow-sm">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-4">
                   <div>
-                    <h3 className="text-lg font-bold text-white leading-snug">{activeLesson.title}</h3>
-                    <p className="text-xs text-portal-text-secondary mt-1">{activeLesson.duration || "Self-paced"} module</p>
+                    <h3 className="text-lg font-bold text-slate-900 leading-snug">{activeLesson.title}</h3>
+                    <p className="text-xs text-slate-500 mt-1">{activeLesson.duration || "Self-paced"} module</p>
                   </div>
 
                   <div className="flex items-center gap-2">
@@ -737,8 +737,8 @@ export default function CourseDetailsPage({ params }: { params: Promise<{ course
                       disabled={isUpdatingProgress}
                       className={`px-5 py-2.5 rounded-xl font-bold text-xs flex items-center gap-2 cursor-pointer border transition-all ${
                         isCompleted(activeLesson.id)
-                          ? "bg-slate-900 border-portal-success/40 text-portal-success"
-                          : "bg-portal-primary hover:bg-portal-primary/90 border-portal-primary text-white shadow-md shadow-portal-primary/10"
+                          ? "bg-slate-100 border-emerald-200 text-emerald-700 hover:bg-slate-200"
+                          : "bg-portal-primary hover:bg-portal-primary/95 border-portal-primary text-white shadow-md shadow-portal-primary/10"
                       } disabled:opacity-50`}
                     >
                       <CheckCircle2 className="w-4 h-4" />
@@ -751,12 +751,12 @@ export default function CourseDetailsPage({ params }: { params: Promise<{ course
                       disabled={togglingBookmark}
                       className={`p-2.5 rounded-xl border transition-all ${
                         isBookmarked
-                          ? "bg-portal-secondary/15 border-portal-secondary/35 text-portal-secondary"
-                          : "bg-slate-900 border-portal-border text-portal-text-secondary hover:text-white"
+                          ? "bg-blue-50 border-blue-200 text-blue-600"
+                          : "bg-white border-slate-200 text-slate-500 hover:text-slate-800 hover:bg-slate-50 shadow-sm"
                       }`}
                       title={isBookmarked ? "Remove Bookmark" : "Bookmark Lesson"}
                     >
-                      <Bookmark className={`w-4.5 h-4.5 ${isBookmarked ? "fill-portal-secondary" : ""}`} />
+                      <Bookmark className={`w-4.5 h-4.5 ${isBookmarked ? "fill-blue-500" : ""}`} />
                     </button>
 
                     {/* PDF Materials */}
@@ -765,7 +765,7 @@ export default function CourseDetailsPage({ params }: { params: Promise<{ course
                         href={activeLesson.pdfUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="p-2.5 rounded-xl bg-slate-900 border border-portal-border hover:border-portal-secondary text-portal-text-secondary hover:text-white transition-all"
+                        className="p-2.5 rounded-xl bg-white border border-slate-200 hover:border-slate-350 text-slate-500 hover:text-slate-800 hover:bg-slate-50 transition-all shadow-sm"
                         title="Download Lesson PDF"
                       >
                         <FileText className="w-4.5 h-4.5" />
@@ -775,8 +775,8 @@ export default function CourseDetailsPage({ params }: { params: Promise<{ course
                 </div>
 
                 {activeLesson.description && (
-                  <div className="text-xs text-portal-text-secondary leading-relaxed bg-slate-950/20 p-4 rounded-xl border border-portal-border/30">
-                    <p className="font-semibold text-white mb-1">Module Overview</p>
+                  <div className="text-xs text-slate-500 leading-relaxed bg-slate-50 p-4 rounded-xl border border-slate-150">
+                    <p className="font-semibold text-slate-900 mb-1">Module Overview</p>
                     {activeLesson.description}
                   </div>
                 )}
@@ -786,7 +786,7 @@ export default function CourseDetailsPage({ params }: { params: Promise<{ course
                   <button
                     onClick={handlePrev}
                     disabled={!hasPrev}
-                    className="px-4 py-2.5 rounded-xl border border-portal-border hover:bg-slate-900 text-xs font-bold text-portal-text-secondary hover:text-white transition-all disabled:opacity-30 disabled:hover:bg-transparent flex items-center gap-1 cursor-pointer"
+                    className="px-4 py-2.5 rounded-xl border border-slate-200 hover:bg-slate-50 text-xs font-bold text-slate-600 hover:text-slate-900 transition-all disabled:opacity-30 disabled:hover:bg-transparent flex items-center gap-1 cursor-pointer shadow-sm"
                   >
                     <ChevronLeft className="w-4 h-4" />
                     <span>Previous Lesson</span>
@@ -795,7 +795,7 @@ export default function CourseDetailsPage({ params }: { params: Promise<{ course
                   <button
                     onClick={handleNext}
                     disabled={!hasNext}
-                    className="px-4 py-2.5 rounded-xl border border-portal-border hover:bg-slate-900 text-xs font-bold text-portal-text-secondary hover:text-white transition-all disabled:opacity-30 disabled:hover:bg-transparent flex items-center gap-1 cursor-pointer"
+                    className="px-4 py-2.5 rounded-xl border border-slate-200 hover:bg-slate-50 text-xs font-bold text-slate-600 hover:text-slate-900 transition-all disabled:opacity-30 disabled:hover:bg-transparent flex items-center gap-1 cursor-pointer shadow-sm"
                   >
                     <span>Next Lesson</span>
                     <ChevronRight className="w-4 h-4" />
@@ -804,8 +804,8 @@ export default function CourseDetailsPage({ params }: { params: Promise<{ course
               </div>
 
               {/* Student tools tabs */}
-              <div className="p-6 rounded-2xl bg-portal-card border border-portal-border/60 shadow-sm space-y-4">
-                <div className="flex border-b border-portal-border/30">
+              <div className="p-6 rounded-2xl bg-white border border-slate-200 shadow-sm space-y-4">
+                <div className="flex border-b border-slate-100">
                   {[
                     { id: "overview", label: "Overview", icon: Notebook },
                     { id: "notes", label: "Lesson Notes", icon: FileText },
@@ -819,7 +819,7 @@ export default function CourseDetailsPage({ params }: { params: Promise<{ course
                         className={`flex items-center gap-2 px-5 py-3 border-b-2 text-xs font-bold transition-all cursor-pointer ${
                           activeTab === tab.id
                             ? "border-portal-primary text-portal-primary"
-                            : "border-transparent text-portal-text-secondary hover:text-white"
+                            : "border-transparent text-slate-500 hover:text-slate-900"
                         }`}
                       >
                         <Icon className="w-4 h-4" />
@@ -831,10 +831,10 @@ export default function CourseDetailsPage({ params }: { params: Promise<{ course
 
                 {/* Tab content 1: Overview */}
                 {activeTab === "overview" && (
-                  <div className="text-xs text-portal-text-secondary leading-relaxed space-y-2 pt-2 animate-fade-in">
-                    <p className="font-semibold text-white">Course Overview</p>
+                  <div className="text-xs text-slate-600 leading-relaxed space-y-2 pt-2 animate-fade-in">
+                    <p className="font-semibold text-slate-900">Course Overview</p>
                     <p>{course.description}</p>
-                    <div className="flex items-center gap-2 mt-4 text-[10px] uppercase font-bold text-amber-500">
+                    <div className="flex items-center gap-2 mt-4 text-[10px] uppercase font-bold text-amber-600">
                       <Sparkles className="w-4 h-4 animate-pulse" />
                       <span>Certified Curriculum powered by NextGen Advisory Registry.</span>
                     </div>
@@ -845,9 +845,9 @@ export default function CourseDetailsPage({ params }: { params: Promise<{ course
                 {activeTab === "notes" && (
                   <div className="space-y-4 pt-2 animate-fade-in">
                     <div className="flex justify-between items-center">
-                      <span className="text-[10px] font-bold uppercase text-portal-text-secondary tracking-wide">Write study notes for this lesson:</span>
+                      <span className="text-[10px] font-bold uppercase text-slate-500 tracking-wide">Write study notes for this lesson:</span>
                       {noteSaved && (
-                        <span className="text-[10px] font-bold text-portal-success flex items-center gap-1 animate-pulse">
+                        <span className="text-[10px] font-bold text-emerald-600 flex items-center gap-1 animate-pulse">
                           <CheckCircle2 className="w-3.5 h-3.5" />
                           <span>Notes auto-saved!</span>
                         </span>
@@ -858,13 +858,13 @@ export default function CourseDetailsPage({ params }: { params: Promise<{ course
                       value={noteText}
                       onChange={(e) => setNoteText(e.target.value)}
                       placeholder="Type your summary, formulas, or observations here..."
-                      className="w-full p-4 rounded-xl bg-slate-950 border border-portal-border text-white text-xs placeholder-slate-650 focus:outline-none focus:border-portal-primary"
+                      className="w-full p-4 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 text-xs placeholder-slate-400 focus:outline-none focus:border-portal-primary focus:bg-white transition-colors"
                     />
                     <div className="flex justify-end">
                       <button
                         onClick={handleSaveNotes}
                         disabled={savingNote}
-                        className="px-5 py-2.5 rounded-xl bg-portal-primary hover:bg-portal-primary/90 text-white font-bold text-xs flex items-center gap-1.5 cursor-pointer shadow-md disabled:opacity-50"
+                        className="px-5 py-2.5 rounded-xl bg-portal-primary hover:bg-portal-primary/95 text-white font-bold text-xs flex items-center gap-1.5 cursor-pointer shadow-sm disabled:opacity-50"
                       >
                         {savingNote ? (
                           <>
@@ -884,19 +884,19 @@ export default function CourseDetailsPage({ params }: { params: Promise<{ course
                   <div className="space-y-6 pt-2 animate-fade-in">
                     
                     {/* Add Review Form */}
-                    <form onSubmit={handleSubmitReview} className="space-y-3 p-4 rounded-xl bg-slate-950/60 border border-portal-border/40">
-                      <h4 className="text-xs font-bold text-white uppercase tracking-wider">Leave a Review</h4>
+                    <form onSubmit={handleSubmitReview} className="space-y-3 p-4 rounded-xl bg-slate-50 border border-slate-200">
+                      <h4 className="text-xs font-bold text-slate-900 uppercase tracking-wider">Leave a Review</h4>
                       <div className="flex items-center gap-2">
-                        <span className="text-xs text-portal-text-secondary">Rating:</span>
+                        <span className="text-xs text-slate-500">Rating:</span>
                         <div className="flex gap-1">
                           {[1, 2, 3, 4, 5].map((star) => (
                             <button
                               type="button"
                               key={star}
                               onClick={() => setUserRating(star)}
-                              className="text-portal-warning cursor-pointer"
+                              className="text-amber-500 cursor-pointer"
                             >
-                              <Star className={`w-4 h-4 ${star <= userRating ? "fill-portal-warning" : ""}`} />
+                              <Star className={`w-4 h-4 ${star <= userRating ? "fill-amber-500" : ""}`} />
                             </button>
                           ))}
                         </div>
@@ -907,13 +907,13 @@ export default function CourseDetailsPage({ params }: { params: Promise<{ course
                         value={userReviewText}
                         onChange={(e) => setUserReviewText(e.target.value)}
                         placeholder="Write your feedback regarding instructor clarity, slides detail, or takeaways..."
-                        className="w-full p-3 rounded-xl bg-slate-950 border border-portal-border text-white text-xs placeholder-slate-600 focus:outline-none focus:border-portal-primary"
+                        className="w-full p-3 rounded-xl bg-white border border-slate-200 text-slate-900 text-xs placeholder-slate-400 focus:outline-none focus:border-portal-primary"
                       />
                       <div className="flex justify-end">
                         <button
                           type="submit"
                           disabled={submittingReview}
-                          className="px-4 py-2 rounded-xl bg-portal-primary hover:bg-portal-primary/90 text-white text-xs font-bold transition-all shadow-md cursor-pointer disabled:opacity-50"
+                          className="px-4 py-2 rounded-xl bg-portal-primary hover:bg-portal-primary/95 text-white text-xs font-bold transition-all shadow-sm cursor-pointer disabled:opacity-50"
                         >
                           {submittingReview ? (
                             <Loader2 className="w-3.5 h-3.5 animate-spin" />
@@ -926,23 +926,23 @@ export default function CourseDetailsPage({ params }: { params: Promise<{ course
 
                     {/* Review List */}
                     <div className="space-y-4">
-                      <h4 className="text-xs font-bold uppercase tracking-wider text-portal-text-secondary">Student Reviews ({totalReviews})</h4>
-                      <div className="divide-y divide-portal-border/30 max-h-56 overflow-y-auto pr-1">
+                      <h4 className="text-xs font-bold uppercase tracking-wider text-slate-500">Student Reviews ({totalReviews})</h4>
+                      <div className="divide-y divide-slate-100 max-h-56 overflow-y-auto pr-1">
                         {reviewsList.length === 0 ? (
-                          <p className="py-4 text-xs text-portal-text-secondary italic">No student reviews published for this course yet.</p>
+                          <p className="py-4 text-xs text-slate-500 italic">No student reviews published for this course yet.</p>
                         ) : (
                           reviewsList.map((rev) => (
                             <div key={rev.id || rev.createdAt} className="py-3.5 space-y-1.5">
                               <div className="flex justify-between items-center">
-                                <span className="text-xs font-bold text-white">@{rev.userName}</span>
-                                <div className="flex gap-0.5 text-portal-warning">
+                                <span className="text-xs font-bold text-slate-900">@{rev.userName}</span>
+                                <div className="flex gap-0.5 text-amber-500">
                                   {[1, 2, 3, 4, 5].map((star) => (
-                                    <Star key={star} className={`w-3.5 h-3.5 ${star <= rev.rating ? "fill-portal-warning" : ""}`} />
+                                    <Star key={star} className={`w-3.5 h-3.5 ${star <= rev.rating ? "fill-amber-500" : ""}`} />
                                   ))}
                                 </div>
                               </div>
-                              <p className="text-xs text-portal-text-secondary leading-relaxed">{rev.review}</p>
-                              <span className="text-[9px] text-slate-600 font-mono">{new Date(rev.createdAt).toLocaleDateString()}</span>
+                              <p className="text-xs text-slate-600 leading-relaxed">{rev.review}</p>
+                              <span className="text-[9px] text-slate-400 font-mono">{new Date(rev.createdAt).toLocaleDateString()}</span>
                             </div>
                           ))
                         )}
@@ -953,11 +953,11 @@ export default function CourseDetailsPage({ params }: { params: Promise<{ course
               </div>
             </div>
           ) : (
-            <div className="p-16 rounded-3xl bg-portal-card border border-portal-border/60 text-center space-y-4">
-              <Play className="w-12 h-12 text-slate-700 mx-auto" />
+            <div className="p-16 rounded-3xl bg-white border border-slate-200 text-center space-y-4 shadow-sm">
+              <Play className="w-12 h-12 text-slate-400 mx-auto" />
               <div>
-                <p className="font-bold text-white">No Lessons Seeded</p>
-                <p className="text-xs text-portal-text-secondary mt-1">This course syllabus is currently empty.</p>
+                <p className="font-bold text-slate-900">No Lessons Seeded</p>
+                <p className="text-xs text-slate-500 mt-1">This course syllabus is currently empty.</p>
               </div>
             </div>
           )}
@@ -965,17 +965,17 @@ export default function CourseDetailsPage({ params }: { params: Promise<{ course
         
         {/* Right: Lesson sidebar list */}
         <div className="space-y-4">
-          <h3 className="text-sm font-bold uppercase tracking-wider text-portal-text-secondary">Course Syllabus</h3>
+          <h3 className="text-sm font-bold uppercase tracking-wider text-slate-500">Course Syllabus</h3>
 
-          <div className="bg-portal-card border border-portal-border/60 rounded-2xl overflow-hidden shadow-sm">
-            <div className="p-4 bg-slate-950 border-b border-portal-border/60 flex items-center justify-between">
-              <span className="text-xs font-bold text-white uppercase tracking-wider">Lessons Progress</span>
-              <span className="text-xs font-semibold text-portal-text-secondary">
+          <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm">
+            <div className="p-4 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
+              <span className="text-xs font-bold text-slate-800 uppercase tracking-wider">Lessons Progress</span>
+              <span className="text-xs font-semibold text-slate-500">
                 {completedLessonIds.length} / {lessons.length} Modules
               </span>
             </div>
 
-            <div className="divide-y divide-portal-border/30 max-h-[480px] overflow-y-auto">
+            <div className="divide-y divide-slate-100 max-h-[480px] overflow-y-auto">
               {lessons.map((lesson) => {
                 const isActive = activeLesson?.id === lesson.id;
                 const isCompletedLesson = isCompleted(lesson.id);
@@ -985,7 +985,7 @@ export default function CourseDetailsPage({ params }: { params: Promise<{ course
                     key={lesson.id}
                     onClick={() => setActiveLesson(lesson)}
                     className={`w-full text-left p-4.5 flex items-start gap-3.5 transition-colors cursor-pointer ${
-                      isActive ? "bg-slate-900/60 border-l-2 border-portal-primary" : "hover:bg-slate-900/20"
+                      isActive ? "bg-blue-50/50 border-l-2 border-portal-primary" : "hover:bg-slate-50/70"
                     }`}
                   >
                     <div className="mt-0.5 flex-shrink-0">
@@ -994,18 +994,18 @@ export default function CourseDetailsPage({ params }: { params: Promise<{ course
                       ) : isActive ? (
                         <Video className="w-4.5 h-4.5 text-portal-primary animate-pulse" />
                       ) : (
-                        <Play className="w-4.5 h-4.5 text-slate-650" />
+                        <Play className="w-4.5 h-4.5 text-slate-400" />
                       )}
                     </div>
 
                     <div className="flex-1 min-w-0">
                       <div className="flex justify-between items-center">
-                        <span className={`text-[10px] font-bold uppercase ${isActive ? "text-portal-primary" : "text-portal-text-secondary"}`}>
+                        <span className={`text-[10px] font-bold uppercase ${isActive ? "text-portal-primary" : "text-slate-500"}`}>
                           Module {lesson.order}
                         </span>
-                        {lesson.duration && <span className="text-[9px] text-portal-text-secondary">{lesson.duration}</span>}
+                        {lesson.duration && <span className="text-[9px] text-slate-400">{lesson.duration}</span>}
                       </div>
-                      <h4 className={`text-xs font-bold truncate mt-0.5 ${isActive ? "text-white" : "text-slate-300"}`}>
+                      <h4 className={`text-xs font-bold truncate mt-0.5 ${isActive ? "text-slate-900" : "text-slate-700"}`}>
                         {lesson.title}
                       </h4>
                     </div>

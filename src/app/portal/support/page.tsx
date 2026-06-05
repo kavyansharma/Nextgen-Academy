@@ -229,11 +229,11 @@ export default function SupportPage() {
   if (!user) return null;
 
   return (
-    <div className="max-w-6xl mx-auto space-y-8 animate-fade-in text-slate-100 font-sans">
+    <div className="max-w-6xl mx-auto space-y-8 animate-fade-in text-slate-900 font-sans">
       {/* Header */}
-      <div className="border-b border-portal-border/60 pb-6">
-        <h1 className="text-3xl font-extrabold text-white tracking-tight sm:text-4xl">Support Desk</h1>
-        <p className="text-sm text-portal-text-secondary mt-1">
+      <div className="border-b border-slate-200 pb-6">
+        <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight sm:text-4xl">Support Desk</h1>
+        <p className="text-sm text-slate-500 mt-1">
           Resolve questions, open technical query tickets, or engage directly with plant advisories.
         </p>
       </div>
@@ -245,21 +245,21 @@ export default function SupportPage() {
           
           {/* FAQ Section */}
           <div className="space-y-4">
-            <h3 className="text-xs font-bold uppercase tracking-wider text-portal-text-secondary">Frequently Answered Credentials</h3>
+            <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500">Frequently Answered Credentials</h3>
             <div className="space-y-3">
               {faqs.map((faq, idx) => {
                 const isOpen = openFaq === idx;
                 return (
-                  <div key={idx} className="bg-portal-card border border-portal-border/60 rounded-2xl overflow-hidden shadow-sm">
+                  <div key={idx} className="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm">
                     <button
                       onClick={() => setOpenFaq(isOpen ? null : idx)}
-                      className="w-full text-left p-4.5 flex justify-between items-center gap-4 text-xs font-bold text-white hover:bg-slate-900/40 cursor-pointer"
+                      className="w-full text-left p-4.5 flex justify-between items-center gap-4 text-xs font-bold text-slate-800 hover:bg-slate-50 cursor-pointer"
                     >
                       <span>{faq.q}</span>
-                      <ChevronDown className={`w-4 h-4 text-portal-text-secondary transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`} />
+                      <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`} />
                     </button>
                     {isOpen && (
-                      <div className="p-4.5 pt-0 text-xs text-portal-text-secondary leading-relaxed border-t border-portal-border/30 bg-slate-950/20">
+                      <div className="p-4.5 pt-0 text-xs text-slate-600 leading-relaxed border-t border-slate-100 bg-slate-50/50">
                         {faq.a}
                       </div>
                     )}
@@ -270,22 +270,22 @@ export default function SupportPage() {
           </div>
 
           {/* Create Ticket Form */}
-          <form onSubmit={handleTicketSubmit} className="p-6 rounded-2xl bg-portal-card border border-portal-border/60 space-y-5 shadow-sm">
-            <h3 className="text-xs font-bold uppercase tracking-wider text-portal-text-secondary flex items-center gap-2">
+          <form onSubmit={handleTicketSubmit} className="p-6 rounded-2xl bg-white border border-slate-200 space-y-5 shadow-sm">
+            <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500 flex items-center gap-2">
               <MessageSquare className="w-4 h-4 text-portal-primary" />
               <span>Submit A New Ticket</span>
             </h3>
 
             {isSubmitted && (
-              <div className="p-3 bg-portal-success/10 border border-portal-success/20 rounded-xl text-[10px] text-portal-success flex items-center gap-2 leading-relaxed">
-                <CheckCircle2 className="w-4 h-4 flex-shrink-0" />
+              <div className="p-3 bg-emerald-50 border border-emerald-250 rounded-xl text-[10px] text-emerald-800 flex items-center gap-2 leading-relaxed">
+                <CheckCircle2 className="w-4 h-4 flex-shrink-0 text-emerald-600" />
                 <span>Ticket registered! Our tech administrators have been notified.</span>
               </div>
             )}
 
             <div className="space-y-4">
               <div>
-                <label className="block text-[10px] font-bold text-portal-text-secondary uppercase mb-1">Subject</label>
+                <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Subject</label>
                 <input
                   type="text"
                   value={ticketSubject}
@@ -293,12 +293,12 @@ export default function SupportPage() {
                   placeholder="e.g. Premium checkout verification failed"
                   required
                   disabled={isSubmitting}
-                  className="w-full px-3 py-2.5 rounded-xl bg-slate-950 border border-portal-border/60 text-white placeholder-slate-600 focus:outline-none focus:border-portal-primary text-xs"
+                  className="w-full px-3 py-2.5 rounded-xl bg-white border border-slate-200 text-slate-900 placeholder-slate-400 focus:outline-none focus:border-portal-primary focus:ring-1 focus:ring-portal-primary text-xs shadow-sm"
                 />
               </div>
 
               <div>
-                <label className="block text-[10px] font-bold text-portal-text-secondary uppercase mb-1">Details Message</label>
+                <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Details Message</label>
                 <textarea
                   value={ticketMessage}
                   onChange={(e) => setTicketMessage(e.target.value)}
@@ -306,7 +306,7 @@ export default function SupportPage() {
                   placeholder="Tell us what occurred, including steps, to help us assist you faster..."
                   required
                   disabled={isSubmitting}
-                  className="w-full px-3 py-2.5 rounded-xl bg-slate-950 border border-portal-border/60 text-white placeholder-slate-600 focus:outline-none focus:border-portal-primary text-xs resize-none"
+                  className="w-full px-3 py-2.5 rounded-xl bg-white border border-slate-200 text-slate-900 placeholder-slate-400 focus:outline-none focus:border-portal-primary focus:ring-1 focus:ring-portal-primary text-xs resize-none shadow-sm"
                 />
               </div>
             </div>
@@ -331,29 +331,29 @@ export default function SupportPage() {
 
         {/* Right Column: Ticket Lists & Chats (lg:col-span-5) */}
         <div className="lg:col-span-5 space-y-6">
-          <h3 className="text-xs font-bold uppercase tracking-wider text-portal-text-secondary">Your Ticket Workspace</h3>
+          <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500">Your Ticket Workspace</h3>
           
           <div className="grid grid-cols-1 gap-4">
             
             {/* Active Ticket Details Chat Desk */}
             {selectedTicket ? (
-              <div className="p-6 rounded-2xl bg-portal-card border border-portal-border/80 flex flex-col h-[400px] justify-between shadow-xl relative">
-                <div className="flex justify-between items-center border-b border-portal-border/40 pb-3 mb-3">
+              <div className="p-6 rounded-2xl bg-white border border-slate-250 flex flex-col h-[400px] justify-between shadow-sm relative">
+                <div className="flex justify-between items-center border-b border-slate-100 pb-3 mb-3">
                   <div>
-                    <span className="text-[9px] font-mono text-slate-500 font-bold">{selectedTicket.id}</span>
-                    <h4 className="text-xs font-bold text-white truncate max-w-[180px]">{selectedTicket.subject}</h4>
+                    <span className="text-[9px] font-mono text-slate-400 font-bold">{selectedTicket.id}</span>
+                    <h4 className="text-xs font-bold text-slate-900 truncate max-w-[180px]">{selectedTicket.subject}</h4>
                   </div>
                   <div className="flex items-center gap-2">
                     <span className={`text-[9px] font-bold px-2 py-0.5 rounded-full ${
-                      selectedTicket.status === "open" ? "bg-red-500/10 text-red-400 border border-red-500/20" :
-                      selectedTicket.status === "in_progress" ? "bg-amber-500/10 text-amber-400 border border-amber-500/20" :
-                      "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
+                      selectedTicket.status === "open" ? "bg-red-50 text-red-700 border border-red-200" :
+                      selectedTicket.status === "in_progress" ? "bg-amber-50 text-amber-700 border border-amber-200" :
+                      "bg-emerald-50 text-emerald-755 border border-emerald-200"
                     }`}>
                       {selectedTicket.status}
                     </span>
                     <button 
                       onClick={() => setSelectedTicket(null)} 
-                      className="text-[10px] text-portal-text-secondary hover:text-white hover:underline cursor-pointer"
+                      className="text-[10px] text-slate-500 hover:text-slate-800 hover:underline cursor-pointer"
                     >
                       Back
                     </button>
@@ -367,7 +367,7 @@ export default function SupportPage() {
                       <Loader2 className="w-6 h-6 animate-spin text-portal-primary" />
                     </div>
                   ) : messages.length === 0 ? (
-                    <p className="text-center text-[10px] text-slate-550 pt-10">No replies in thread.</p>
+                    <p className="text-center text-[10px] text-slate-400 pt-10">No replies in thread.</p>
                   ) : (
                     messages.map((msg, idx) => {
                       const isAdmin = msg.senderRole === "admin";
@@ -375,15 +375,15 @@ export default function SupportPage() {
                         <div key={idx} className={`flex flex-col ${isAdmin ? "items-start" : "items-end"}`}>
                           <div className={`p-3 rounded-2xl max-w-[85%] leading-relaxed ${
                             isAdmin 
-                              ? "bg-brand-orange/15 border border-brand-orange/20 text-slate-100 rounded-tl-none" 
-                              : "bg-slate-800 border border-slate-750 text-slate-200 rounded-tr-none"
+                              ? "bg-blue-50/70 border border-blue-150 text-slate-800 rounded-tl-none" 
+                              : "bg-slate-100 border border-slate-200 text-slate-700 rounded-tr-none"
                           }`}>
-                            <p className="text-[9px] font-bold text-slate-400 mb-0.5">
+                            <p className="text-[9px] font-bold text-slate-500 mb-0.5">
                               {msg.senderName} ({msg.senderRole})
                             </p>
                             <p>{msg.message}</p>
                           </div>
-                          <span className="text-[8px] text-slate-600 mt-0.5">
+                          <span className="text-[8px] text-slate-400 mt-0.5">
                             {new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                           </span>
                         </div>
@@ -401,7 +401,7 @@ export default function SupportPage() {
                     placeholder={selectedTicket.status === "resolved" ? "Ticket resolved. Send message to reopen..." : "Write a reply message..."}
                     required
                     disabled={isSendingReply}
-                    className="flex-1 px-3 py-2 rounded-xl bg-slate-950 border border-portal-border/60 text-white placeholder-slate-650 focus:outline-none focus:border-portal-primary text-xs"
+                    className="flex-1 px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 placeholder-slate-400 focus:outline-none focus:border-portal-primary focus:bg-white text-xs shadow-sm"
                   />
                   <button
                     type="submit"
@@ -419,39 +419,39 @@ export default function SupportPage() {
               </div>
             ) : (
               /* Ticket List desk */
-              <div className="p-5 rounded-2xl bg-portal-card border border-portal-border/60 flex flex-col justify-between shadow-sm min-h-[300px]">
+              <div className="p-5 rounded-2xl bg-white border border-slate-200 flex flex-col justify-between shadow-sm min-h-[300px]">
                 {loadingTickets ? (
                   <div className="py-12 text-center">
                     <Loader2 className="w-8 h-8 animate-spin mx-auto text-portal-primary" />
                   </div>
                 ) : tickets.length === 0 ? (
                   <div className="py-12 text-center space-y-3">
-                    <Inbox className="w-10 h-10 text-slate-700 mx-auto" />
-                    <p className="text-xs text-portal-text-secondary">You haven&apos;t opened any support queries yet.</p>
+                    <Inbox className="w-10 h-10 text-slate-350 mx-auto" />
+                    <p className="text-xs text-slate-500">You haven&apos;t opened any support queries yet.</p>
                   </div>
                 ) : (
-                  <div className="space-y-3 divide-y divide-portal-border/20">
+                  <div className="space-y-3 divide-y divide-slate-150">
                     {tickets.map((t) => (
                       <div 
                         key={t.id} 
                         onClick={() => setSelectedTicket(t)}
-                        className="pt-3 first:pt-0 flex justify-between items-center gap-4 hover:bg-slate-900/30 p-2 rounded-xl transition-all cursor-pointer group"
+                        className="pt-3 first:pt-0 flex justify-between items-center gap-4 hover:bg-slate-50 p-2 rounded-xl transition-all cursor-pointer group"
                       >
                         <div className="min-w-0">
-                          <span className="text-[9px] font-mono text-slate-500 font-bold block">{t.id}</span>
-                          <h4 className="text-xs font-bold text-white group-hover:text-portal-primary transition-colors truncate max-w-[200px]" title={t.subject}>
+                          <span className="text-[9px] font-mono text-slate-400 font-bold block">{t.id}</span>
+                          <h4 className="text-xs font-bold text-slate-850 group-hover:text-portal-primary transition-colors truncate max-w-[200px]" title={t.subject}>
                             {t.subject}
                           </h4>
-                          <span className="text-[9px] text-slate-600 block mt-0.5 flex items-center gap-1">
+                          <span className="text-[9px] text-slate-400 block mt-0.5 flex items-center gap-1">
                             <Clock className="w-3 h-3" />
                             <span>Updated {new Date(t.updatedAt).toLocaleDateString()}</span>
                           </span>
                         </div>
                         
                         <span className={`text-[9px] font-bold px-2.5 py-0.5 rounded-full ${
-                          t.status === "open" ? "bg-red-500/10 text-red-400 border border-red-500/20" :
-                          t.status === "in_progress" ? "bg-amber-500/10 text-amber-400 border border-amber-500/20" :
-                          "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
+                          t.status === "open" ? "bg-red-55 text-red-700 border border-red-200" :
+                          t.status === "in_progress" ? "bg-amber-55 text-amber-700 border border-amber-200" :
+                          "bg-emerald-55 text-emerald-755 border border-emerald-200"
                         }`}>
                           {t.status}
                         </span>
@@ -468,19 +468,19 @@ export default function SupportPage() {
       </div>
 
       {/* Extra contact links */}
-      <div className="p-6 rounded-2xl bg-slate-955/40 border border-portal-border/50 flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div className="p-6 rounded-2xl bg-slate-50 border border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-4">
         <div className="flex items-center gap-3">
-          <div className="p-2 bg-slate-900 border border-portal-border/60 rounded-xl text-portal-secondary">
+          <div className="p-2 bg-white border border-slate-200 rounded-xl text-portal-secondary shadow-sm">
             <Mail className="w-5 h-5" />
           </div>
           <div>
-            <h4 className="text-xs font-bold text-white">Direct Enterprise Support</h4>
-            <p className="text-[10px] text-portal-text-secondary mt-0.5">Need immediate assistance? Reach our plant management coordinators.</p>
+            <h4 className="text-xs font-bold text-slate-900">Direct Enterprise Support</h4>
+            <p className="text-[10px] text-slate-500 mt-0.5">Need immediate assistance? Reach our plant management coordinators.</p>
           </div>
         </div>
         <a
           href="mailto:support@nextgen-consulting.com"
-          className="px-5 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-850 border border-portal-border text-xs font-bold text-slate-200 hover:text-white transition-all"
+          className="px-5 py-2.5 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 text-xs font-bold text-slate-700 hover:text-slate-900 transition-all shadow-sm"
         >
           support@nextgen-consulting.com
         </a>

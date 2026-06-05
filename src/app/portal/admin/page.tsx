@@ -427,65 +427,60 @@ export default function AdminDashboardPage() {
 
   if (loading || !user || user.role !== "admin") {
     return (
-      <div className="min-h-[70vh] flex items-center justify-center bg-brand-dark">
+      <div className="min-h-[70vh] flex items-center justify-center bg-slate-50">
         <div className="text-center space-y-4">
-          <Loader2 className="w-12 h-12 border-4 border-brand-orange border-t-transparent rounded-full animate-spin mx-auto text-brand-orange" />
-          <p className="text-brand-text-muted text-sm tracking-wide">Authorizing admin access...</p>
+          <Loader2 className="w-12 h-12 animate-spin mx-auto text-portal-primary" />
+          <p className="text-portal-text-secondary text-sm tracking-wide">Authorizing admin access...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="relative min-h-[85vh] py-12 px-4 sm:px-6 lg:px-8 bg-brand-dark overflow-hidden text-slate-100">
-      {/* Background glow effects */}
-      <div className="absolute top-1/4 left-1/4 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-brand-orange/5 rounded-full blur-[120px] pointer-events-none"></div>
-      <div className="absolute bottom-1/4 right-1/4 translate-x-1/2 translate-y-1/2 w-[600px] h-[600px] bg-brand-blue/5 rounded-full blur-[140px] pointer-events-none"></div>
-
+    <div className="relative min-h-[85vh] py-8 px-4 sm:px-6 lg:px-8 bg-slate-50 overflow-hidden text-portal-text-primary">
       <div className="max-w-7xl mx-auto z-10 relative space-y-8 animate-fade-in">
-        
+
         {/* Header Block */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-800/80 pb-6">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-portal-border pb-6">
           <div className="space-y-2">
-            <Link 
+            <Link
               href="/portal/dashboard"
-              className="inline-flex items-center gap-1.5 text-xs font-semibold text-brand-text-muted hover:text-brand-orange transition-colors duration-200"
+              className="inline-flex items-center gap-1.5 text-xs font-semibold text-portal-text-secondary hover:text-portal-primary transition-colors duration-200"
             >
               <ArrowLeft className="w-3.5 h-3.5" />
               <span>Back to Dashboard</span>
             </Link>
-            <h1 className="text-3xl font-extrabold text-white tracking-tight sm:text-4xl flex items-center gap-3">
-              <Settings className="w-8 h-8 text-brand-orange animate-spin-slow" />
+            <h1 className="text-3xl font-extrabold text-portal-text-primary tracking-tight sm:text-4xl flex items-center gap-3">
+              <Settings className="w-8 h-8 text-portal-primary" />
               <span>Admin Console</span>
             </h1>
-            <p className="text-sm text-brand-text-muted">Manage system directories, user roles, catalog publications, and permissions.</p>
+            <p className="text-sm text-portal-text-secondary">Manage system directories, user roles, catalog publications, and permissions.</p>
           </div>
 
-          {/* Action indicator */}
-          <div className="flex items-center gap-2 bg-slate-900 border border-slate-800 rounded-full px-4 py-2 self-start md:self-center">
-            <div className="w-2.5 h-2.5 rounded-full bg-brand-blue animate-pulse"></div>
-            <span className="text-xs text-slate-300 font-medium">Console Online</span>
+          <div className="flex items-center gap-2 bg-white border border-portal-border rounded-full px-4 py-2 self-start md:self-center shadow-sm">
+            <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></div>
+            <span className="text-xs text-portal-text-secondary font-medium">Console Online</span>
           </div>
         </div>
 
         {/* Global Notifications */}
         {notification && (
           <div className={`flex gap-3 p-4 rounded-xl text-sm border z-50 animate-fade-in ${
-            notification.type === "success" 
-              ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-200" 
-              : "bg-red-500/10 border-red-500/20 text-red-200"
+            notification.type === "success"
+              ? "bg-emerald-50 border-emerald-200 text-emerald-800"
+              : "bg-red-50 border-red-200 text-red-800"
           }`}>
             {notification.type === "success" ? (
-              <CheckCircle2 className="w-5 h-5 text-emerald-500 flex-shrink-0" />
+              <CheckCircle2 className="w-5 h-5 text-emerald-600 flex-shrink-0" />
             ) : (
-              <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0" />
+              <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0" />
             )}
             <span>{notification.message}</span>
           </div>
         )}
 
         {/* Tab Controls */}
-        <div className="flex border-b border-slate-800">
+        <div className="flex border-b border-portal-border">
           {[
             { id: "overview", label: "Overview", icon: Activity },
             { id: "users", label: "User Management", icon: Users },
@@ -498,11 +493,11 @@ export default function AdminDashboardPage() {
                 onClick={() => setActiveTab(tab.id as any)}
                 className={`flex items-center gap-2 px-6 py-4 border-b-2 text-sm font-semibold transition-all duration-200 cursor-pointer ${
                   activeTab === tab.id
-                    ? "border-brand-orange text-brand-orange bg-slate-900/10"
-                    : "border-transparent text-slate-400 hover:text-slate-200 hover:border-slate-800"
+                    ? "border-portal-primary text-portal-primary bg-blue-50/40"
+                    : "border-transparent text-portal-text-secondary hover:text-portal-text-primary hover:border-slate-300"
                 }`}
               >
-                <Icon className="w-4.5 h-4.5" />
+                <Icon className="w-4 h-4" />
                 <span>{tab.label}</span>
               </button>
             );
@@ -512,282 +507,103 @@ export default function AdminDashboardPage() {
         {/* LOADING SKELETON */}
         {fetchLoading ? (
           <div className="py-12 text-center space-y-4">
-            <Loader2 className="w-8 h-8 border-4 border-brand-orange border-t-transparent rounded-full animate-spin mx-auto text-brand-orange" />
-            <p className="text-brand-text-muted text-sm">Syncing with Firestore database...</p>
+            <Loader2 className="w-8 h-8 animate-spin mx-auto text-portal-primary" />
+            <p className="text-portal-text-secondary text-sm">Syncing with Firestore database...</p>
           </div>
         ) : (
           <>
-            {/* ACTIVE TAB VIEWS */}
-
             {/* TAB 1: OVERVIEW */}
             {activeTab === "overview" && (
               <div className="space-y-8 animate-fade-in">
                 {/* Metrics Grid */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                  
-                  {/* Total Users */}
-                  <div className="p-6 rounded-2xl bg-slate-900/60 border border-white/5 shadow-2xl glass hover:border-brand-orange/20 transition-all duration-300">
-                    <div className="flex justify-between items-start">
-                      <div className="space-y-1">
-                        <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Total Users</p>
-                        <p className="text-3xl font-extrabold text-white">{totalUsersCount}</p>
-                      </div>
-                      <div className="p-2.5 rounded-xl bg-brand-orange/10 border border-brand-orange/20 text-brand-orange">
-                        <Users className="w-5 h-5" />
-                      </div>
-                    </div>
-                  </div>
 
-                  {/* Active Users */}
-                  <div className="p-6 rounded-2xl bg-slate-900/60 border border-white/5 shadow-2xl glass hover:border-emerald-500/20 transition-all duration-300">
-                    <div className="flex justify-between items-start">
-                      <div className="space-y-1">
-                        <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Active Users</p>
-                        <p className="text-3xl font-extrabold text-white">{activeUsersCount}</p>
+                  {[
+                    { label: "Total Users", value: totalUsersCount, icon: Users, color: "text-blue-600", bg: "bg-blue-50", border: "border-blue-100" },
+                    { label: "Active Users", value: activeUsersCount, icon: UserCheck, color: "text-emerald-600", bg: "bg-emerald-50", border: "border-emerald-100" },
+                    { label: "Total Revenue", value: `₹${revenueTotal}`, icon: CreditCard, color: "text-amber-600", bg: "bg-amber-50", border: "border-amber-100" },
+                    { label: "Active Premium", value: subscriptionsCount, icon: Award, color: "text-cyan-600", bg: "bg-cyan-50", border: "border-cyan-100" },
+                    { label: "Courses", value: coursesCount, icon: BookOpen, color: "text-purple-600", bg: "bg-purple-50", border: "border-purple-100" },
+                    { label: "Resources", value: resourcesCount, icon: FileText, color: "text-indigo-600", bg: "bg-indigo-50", border: "border-indigo-100" },
+                    { label: "Certificates", value: certificatesCount, icon: Award, color: "text-rose-600", bg: "bg-rose-50", border: "border-rose-100" },
+                    { label: "Support Tickets", value: ticketsCount, icon: MessageSquare, color: "text-sky-600", bg: "bg-sky-50", border: "border-sky-100" },
+                  ].map((card) => {
+                    const Icon = card.icon;
+                    return (
+                      <div key={card.label} className="p-6 rounded-2xl bg-white border border-portal-border shadow-sm hover:shadow-md hover:border-slate-300 transition-all duration-300">
+                        <div className="flex justify-between items-start">
+                          <div className="space-y-1">
+                            <p className="text-xs font-bold text-portal-text-secondary uppercase tracking-wider">{card.label}</p>
+                            <p className="text-3xl font-extrabold text-portal-text-primary">{card.value}</p>
+                          </div>
+                          <div className={`p-2.5 rounded-xl ${card.bg} border ${card.border} ${card.color}`}>
+                            <Icon className="w-5 h-5" />
+                          </div>
+                        </div>
                       </div>
-                      <div className="p-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400">
-                        <UserCheck className="w-5 h-5" />
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Revenue */}
-                  <div className="p-6 rounded-2xl bg-slate-900/60 border border-white/5 shadow-2xl glass hover:border-amber-500/20 transition-all duration-300">
-                    <div className="flex justify-between items-start">
-                      <div className="space-y-1">
-                        <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Total Revenue</p>
-                        <p className="text-3xl font-extrabold text-white">₹{revenueTotal}</p>
-                      </div>
-                      <div className="p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-400">
-                        <CreditCard className="w-5 h-5" />
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Subscriptions */}
-                  <div className="p-6 rounded-2xl bg-slate-900/60 border border-white/5 shadow-2xl glass hover:border-brand-blue/20 transition-all duration-300">
-                    <div className="flex justify-between items-start">
-                      <div className="space-y-1">
-                        <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Active Premium</p>
-                        <p className="text-3xl font-extrabold text-white">{subscriptionsCount}</p>
-                      </div>
-                      <div className="p-2.5 rounded-xl bg-brand-blue/10 border border-brand-blue/20 text-brand-blue">
-                        <Award className="w-5 h-5" />
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Courses */}
-                  <div className="p-6 rounded-2xl bg-slate-900/60 border border-white/5 shadow-2xl glass hover:border-purple-500/20 transition-all duration-300">
-                    <div className="flex justify-between items-start">
-                      <div className="space-y-1">
-                        <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Courses</p>
-                        <p className="text-3xl font-extrabold text-white">{coursesCount}</p>
-                      </div>
-                      <div className="p-2.5 rounded-xl bg-purple-500/10 border border-purple-500/20 text-purple-400">
-                        <BookOpen className="w-5 h-5" />
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Resources */}
-                  <div className="p-6 rounded-2xl bg-slate-900/60 border border-white/5 shadow-2xl glass hover:border-indigo-500/20 transition-all duration-300">
-                    <div className="flex justify-between items-start">
-                      <div className="space-y-1">
-                        <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Resources</p>
-                        <p className="text-3xl font-extrabold text-white">{resourcesCount}</p>
-                      </div>
-                      <div className="p-2.5 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-400">
-                        <FileText className="w-5 h-5" />
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Certificates */}
-                  <div className="p-6 rounded-2xl bg-slate-900/60 border border-white/5 shadow-2xl glass hover:border-rose-500/20 transition-all duration-300">
-                    <div className="flex justify-between items-start">
-                      <div className="space-y-1">
-                        <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Certificates</p>
-                        <p className="text-3xl font-extrabold text-white">{certificatesCount}</p>
-                      </div>
-                      <div className="p-2.5 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-400">
-                        <Award className="w-5 h-5" />
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Support Tickets */}
-                  <div className="p-6 rounded-2xl bg-slate-900/60 border border-white/5 shadow-2xl glass hover:border-sky-500/20 transition-all duration-300">
-                    <div className="flex justify-between items-start">
-                      <div className="space-y-1">
-                        <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Support Tickets</p>
-                        <p className="text-3xl font-extrabold text-white">{ticketsCount}</p>
-                      </div>
-                      <div className="p-2.5 rounded-xl bg-sky-500/10 border border-sky-500/20 text-sky-400">
-                        <MessageSquare className="w-5 h-5" />
-                      </div>
-                    </div>
-                  </div>
-
+                    );
+                  })}
                 </div>
 
-                {/* Management Operations Grid */}
+                {/* Administrative Consoles Grid */}
                 <div className="space-y-4">
-                  <h3 className="font-bold text-white text-lg tracking-tight">Administrative Consoles</h3>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                    {/* Payments Console */}
-                    <Link
-                      href="/portal/admin/payments"
-                      className="p-5 rounded-2xl bg-slate-900/60 border border-white/5 shadow-md flex items-center gap-4 hover:border-brand-orange/30 hover:bg-slate-900/80 transition-all duration-300 group"
-                    >
-                      <div className="p-3 rounded-xl bg-brand-orange/10 border border-brand-orange/20 text-brand-orange group-hover:scale-105 transition-transform">
-                        <CreditCard className="w-5 h-5" />
-                      </div>
-                      <div>
-                        <h4 className="font-bold text-white text-sm">Payments Ledger</h4>
-                        <p className="text-xs text-brand-text-muted mt-0.5">Refunds & ledger audit</p>
-                      </div>
-                    </Link>
-
-                    {/* Subscriptions Console */}
-                    <Link
-                      href="/portal/admin/subscriptions"
-                      className="p-5 rounded-2xl bg-slate-900/60 border border-white/5 shadow-md flex items-center gap-4 hover:border-brand-blue/30 hover:bg-slate-900/80 transition-all duration-300 group"
-                    >
-                      <div className="p-3 rounded-xl bg-brand-blue/10 border border-brand-blue/20 text-brand-blue group-hover:scale-105 transition-transform">
-                        <Award className="w-5 h-5" />
-                      </div>
-                      <div>
-                        <h4 className="font-bold text-white text-sm">Subscription Desk</h4>
-                        <p className="text-xs text-brand-text-muted mt-0.5">Adjust expiry & cancel</p>
-                      </div>
-                    </Link>
-
-                    {/* Business Intelligence */}
-                    <Link
-                      href="/portal/admin/analytics"
-                      className="p-5 rounded-2xl bg-slate-900/60 border border-white/5 shadow-md flex items-center gap-4 hover:border-purple-500/30 hover:bg-slate-900/80 transition-all duration-300 group"
-                    >
-                      <div className="p-3 rounded-xl bg-purple-500/10 border border-purple-500/20 text-purple-400 group-hover:scale-105 transition-transform">
-                        <Activity className="w-5 h-5" />
-                      </div>
-                      <div>
-                        <h4 className="font-bold text-white text-sm">Analytics Panel</h4>
-                        <p className="text-xs text-brand-text-muted mt-0.5">Real-time KPI reports</p>
-                      </div>
-                    </Link>
-
-                    {/* Advanced Resources */}
-                    <Link
-                      href="/portal/admin/resources"
-                      className="p-5 rounded-2xl bg-slate-900/60 border border-white/5 shadow-md flex items-center gap-4 hover:border-emerald-500/30 hover:bg-slate-900/80 transition-all duration-300 group"
-                    >
-                      <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 group-hover:scale-105 transition-transform">
-                        <FileText className="w-5 h-5" />
-                      </div>
-                      <div>
-                        <h4 className="font-bold text-white text-sm">Resource Manager</h4>
-                        <p className="text-xs text-brand-text-muted mt-0.5">Publish & tag uploads</p>
-                      </div>
-                    </Link>
-
-                    {/* Support Desk */}
-                    <Link
-                      href="/portal/admin/support"
-                      className="p-5 rounded-2xl bg-slate-900/60 border border-white/5 shadow-md flex items-center gap-4 hover:border-sky-500/30 hover:bg-slate-900/80 transition-all duration-300 group"
-                    >
-                      <div className="p-3 rounded-xl bg-sky-500/10 border border-sky-500/20 text-sky-400 group-hover:scale-105 transition-transform">
-                        <MessageSquare className="w-5 h-5" />
-                      </div>
-                      <div>
-                        <h4 className="font-bold text-white text-sm">Support Desk</h4>
-                        <p className="text-xs text-brand-text-muted mt-0.5">Ticketing & messaging</p>
-                      </div>
-                    </Link>
-
-                    {/* Community Desk */}
-                    <Link
-                      href="/portal/admin/community"
-                      className="p-5 rounded-2xl bg-slate-900/60 border border-white/5 shadow-md flex items-center gap-4 hover:border-rose-500/30 hover:bg-slate-900/80 transition-all duration-300 group"
-                    >
-                      <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-400 group-hover:scale-105 transition-transform">
-                        <Users className="w-5 h-5" />
-                      </div>
-                      <div>
-                        <h4 className="font-bold text-white text-sm">Community Moderator</h4>
-                        <p className="text-xs text-brand-text-muted mt-0.5">Review reported posts</p>
-                      </div>
-                    </Link>
-
-                    {/* Settings & Logs */}
-                    <Link
-                      href="/portal/admin/settings"
-                      className="p-5 rounded-2xl bg-slate-900/60 border border-white/5 shadow-md flex items-center gap-4 hover:border-yellow-500/30 hover:bg-slate-900/80 transition-all duration-300 group"
-                    >
-                      <div className="p-3 rounded-xl bg-yellow-500/10 border border-yellow-500/20 text-yellow-400 group-hover:scale-105 transition-transform">
-                        <Settings className="w-5 h-5" />
-                      </div>
-                      <div>
-                        <h4 className="font-bold text-white text-sm">System Settings</h4>
-                        <p className="text-xs text-brand-text-muted mt-0.5">Platform flags & settings</p>
-                      </div>
-                    </Link>
-
-                    {/* Backup Center */}
-                    <Link
-                      href="/portal/admin/backups"
-                      className="p-5 rounded-2xl bg-slate-900/60 border border-white/5 shadow-md flex items-center gap-4 hover:border-teal-500/30 hover:bg-slate-900/80 transition-all duration-300 group"
-                    >
-                      <div className="p-3 rounded-xl bg-teal-500/10 border border-teal-500/20 text-teal-400 group-hover:scale-105 transition-transform">
-                        <Database className="w-5 h-5" />
-                      </div>
-                      <div>
-                        <h4 className="font-bold text-white text-sm">Backup Center</h4>
-                        <p className="text-xs text-brand-text-muted mt-0.5">CSV Database exports</p>
-                      </div>
-                    </Link>
-
-                    {/* Communications Center */}
-                    <Link
-                      href="/portal/admin/communications"
-                      className="p-5 rounded-2xl bg-slate-900/60 border border-white/5 shadow-md flex items-center gap-4 hover:border-indigo-500/30 hover:bg-slate-900/80 transition-all duration-300 group"
-                    >
-                      <div className="p-3 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 group-hover:scale-105 transition-transform">
-                        <Mail className="w-5 h-5" />
-                      </div>
-                      <div>
-                        <h4 className="font-bold text-white text-sm">Communications</h4>
-                        <p className="text-xs text-brand-text-muted mt-0.5">Role targeted broadcasts</p>
-                      </div>
-                    </Link>
-
+                  <h3 className="font-bold text-portal-text-primary text-lg tracking-tight">Administrative Consoles</h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+                    {[
+                      { href: "/portal/admin/payments", label: "Payments Ledger", desc: "Refunds & ledger audit", icon: CreditCard, color: "text-blue-600", bg: "bg-blue-50", border: "border-blue-100", hover: "hover:border-blue-200" },
+                      { href: "/portal/admin/subscriptions", label: "Subscription Desk", desc: "Adjust expiry & cancel", icon: Award, color: "text-cyan-600", bg: "bg-cyan-50", border: "border-cyan-100", hover: "hover:border-cyan-200" },
+                      { href: "/portal/admin/analytics", label: "Analytics Panel", desc: "Real-time KPI reports", icon: Activity, color: "text-purple-600", bg: "bg-purple-50", border: "border-purple-100", hover: "hover:border-purple-200" },
+                      { href: "/portal/admin/resources", label: "Resource Manager", desc: "Publish & tag uploads", icon: FileText, color: "text-emerald-600", bg: "bg-emerald-50", border: "border-emerald-100", hover: "hover:border-emerald-200" },
+                      { href: "/portal/admin/support", label: "Support Desk", desc: "Ticketing & messaging", icon: MessageSquare, color: "text-sky-600", bg: "bg-sky-50", border: "border-sky-100", hover: "hover:border-sky-200" },
+                      { href: "/portal/admin/community", label: "Community Moderator", desc: "Review reported posts", icon: Users, color: "text-rose-600", bg: "bg-rose-50", border: "border-rose-100", hover: "hover:border-rose-200" },
+                      { href: "/portal/admin/settings", label: "System Settings", desc: "Platform flags & settings", icon: Settings, color: "text-amber-600", bg: "bg-amber-50", border: "border-amber-100", hover: "hover:border-amber-200" },
+                      { href: "/portal/admin/backups", label: "Backup Center", desc: "CSV Database exports", icon: Database, color: "text-teal-600", bg: "bg-teal-50", border: "border-teal-100", hover: "hover:border-teal-200" },
+                      { href: "/portal/admin/communications", label: "Communications", desc: "Role targeted broadcasts", icon: Mail, color: "text-indigo-600", bg: "bg-indigo-50", border: "border-indigo-100", hover: "hover:border-indigo-200" },
+                    ].map((item) => {
+                      const Icon = item.icon;
+                      return (
+                        <Link
+                          key={item.href}
+                          href={item.href}
+                          className={`p-5 rounded-2xl bg-white border border-portal-border shadow-sm flex items-center gap-4 ${item.hover} hover:shadow-md transition-all duration-300 group`}
+                        >
+                          <div className={`p-3 rounded-xl ${item.bg} border ${item.border} ${item.color} group-hover:scale-105 transition-transform`}>
+                            <Icon className="w-5 h-5" />
+                          </div>
+                          <div>
+                            <h4 className="font-bold text-portal-text-primary text-sm">{item.label}</h4>
+                            <p className="text-xs text-portal-text-secondary mt-0.5">{item.desc}</p>
+                          </div>
+                        </Link>
+                      );
+                    })}
                   </div>
                 </div>
 
-                {/* Recent activity timeline / Audit logs */}
-                <div className="p-6 rounded-2xl bg-slate-900/40 border border-slate-800 space-y-4">
-                  <div className="flex justify-between items-center border-b border-slate-800/80 pb-3">
-                    <h3 className="font-bold text-white text-lg tracking-tight flex items-center gap-2">
-                      <Shield className="w-5 h-5 text-brand-orange animate-pulse" />
+                {/* Recent Audit Logs */}
+                <div className="p-6 rounded-2xl bg-white border border-portal-border shadow-sm space-y-4">
+                  <div className="flex justify-between items-center border-b border-portal-border pb-3">
+                    <h3 className="font-bold text-portal-text-primary text-lg tracking-tight flex items-center gap-2">
+                      <Shield className="w-5 h-5 text-portal-primary" />
                       <span>Recent System Activity Trail</span>
                     </h3>
-                    <span className="text-xs text-slate-500 font-semibold">Total Logs: {logsCount}</span>
+                    <span className="text-xs text-portal-text-secondary font-semibold">Total Logs: {logsCount}</span>
                   </div>
-                  
-                  <div className="divide-y divide-slate-850 max-h-72 overflow-y-auto pr-2">
+
+                  <div className="divide-y divide-slate-100 max-h-72 overflow-y-auto pr-2">
                     {recentLogs.length === 0 ? (
-                      <p className="p-8 text-xs text-brand-text-muted italic text-center">No system operations recorded in database.</p>
+                      <p className="p-8 text-xs text-portal-text-secondary italic text-center">No system operations recorded in database.</p>
                     ) : (
                       recentLogs.map((log: any) => (
                         <div key={log.id} className="py-3 flex justify-between items-start gap-4 text-xs">
                           <div>
-                            <span className="px-2 py-0.5 rounded text-[8px] font-bold uppercase bg-slate-950 border border-slate-800 text-brand-orange">
+                            <span className="px-2 py-0.5 rounded text-[8px] font-bold uppercase bg-blue-50 border border-blue-100 text-blue-700">
                               {log.action}
                             </span>
-                            <p className="text-slate-300 mt-1">{log.details}</p>
-                            <span className="text-[10px] text-slate-500 font-mono">@{log.adminEmail || "SYSTEM"}</span>
+                            <p className="text-portal-text-primary mt-1">{log.details}</p>
+                            <span className="text-[10px] text-portal-text-secondary font-mono">@{log.adminEmail || "SYSTEM"}</span>
                           </div>
-                          <span className="text-[10px] text-slate-500 whitespace-nowrap">
+                          <span className="text-[10px] text-portal-text-secondary whitespace-nowrap">
                             {new Date(log.timestamp).toLocaleString()}
                           </span>
                         </div>
@@ -801,13 +617,10 @@ export default function AdminDashboardPage() {
             {/* TAB 2: USER MANAGEMENT */}
             {activeTab === "users" && (
               <div className="space-y-6 animate-fade-in">
-                
                 {/* Search / Filter Toolbar */}
-                <div className="flex flex-col md:flex-row gap-4 items-stretch md:items-center justify-between bg-slate-900/40 p-4 border border-slate-850 rounded-2xl">
-                  
-                  {/* Search Bar */}
+                <div className="flex flex-col md:flex-row gap-4 items-stretch md:items-center justify-between bg-white p-4 border border-portal-border rounded-2xl shadow-sm">
                   <div className="relative flex-grow max-w-md">
-                    <span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-500">
+                    <span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
                       <Search className="w-4 h-4" />
                     </span>
                     <input
@@ -815,16 +628,14 @@ export default function AdminDashboardPage() {
                       placeholder="Search users by name, email, or username..."
                       value={userSearch}
                       onChange={(e) => setUserSearch(e.target.value)}
-                      className="w-full pl-9 pr-4 py-2.5 rounded-xl bg-slate-950/60 border border-slate-800 text-white placeholder-slate-500 focus:outline-none focus:border-brand-orange focus:ring-1 focus:ring-brand-orange text-sm"
+                      className="w-full pl-9 pr-4 py-2.5 rounded-xl bg-slate-50 border border-portal-border text-portal-text-primary placeholder-slate-400 focus:outline-none focus:border-portal-primary focus:ring-1 focus:ring-portal-primary/20 text-sm"
                     />
                   </div>
-
-                  {/* Role selector dropdown */}
                   <div className="w-full md:w-48">
                     <select
                       value={userRoleFilter}
                       onChange={(e) => setUserRoleFilter(e.target.value)}
-                      className="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-slate-300 focus:outline-none focus:border-brand-orange focus:ring-1 focus:ring-brand-orange text-sm"
+                      className="w-full px-4 py-2.5 rounded-xl bg-slate-50 border border-portal-border text-portal-text-primary focus:outline-none focus:border-portal-primary focus:ring-1 focus:ring-portal-primary/20 text-sm cursor-pointer"
                     >
                       <option value="all">All Roles</option>
                       <option value="free">Free Users</option>
@@ -834,18 +645,18 @@ export default function AdminDashboardPage() {
                   </div>
                 </div>
 
-                {/* Users List Table */}
-                <div className="overflow-x-auto bg-slate-900/60 border border-white/5 shadow-2xl rounded-2xl glass">
+                {/* Users Table */}
+                <div className="overflow-x-auto bg-white border border-portal-border shadow-sm rounded-2xl">
                   {filteredUsers.length === 0 ? (
-                    <div className="p-12 text-center text-brand-text-muted space-y-2">
-                      <UserX className="w-12 h-12 text-slate-600 mx-auto" />
-                      <p className="font-bold text-white">No Users Found</p>
+                    <div className="p-12 text-center text-portal-text-secondary space-y-2">
+                      <UserX className="w-12 h-12 text-slate-300 mx-auto" />
+                      <p className="font-bold text-portal-text-primary">No Users Found</p>
                       <p className="text-sm">We couldn&apos;t find any users matching your query filter.</p>
                     </div>
                   ) : (
                     <table className="w-full text-left border-collapse text-sm">
                       <thead>
-                        <tr className="border-b border-slate-800 text-xs font-bold text-slate-400 uppercase tracking-wider bg-slate-950/40">
+                        <tr className="border-b border-portal-border text-xs font-bold text-portal-text-secondary uppercase tracking-wider bg-slate-50">
                           <th className="p-4 pl-6">Full Name</th>
                           <th className="p-4">Username</th>
                           <th className="p-4">Email</th>
@@ -854,66 +665,52 @@ export default function AdminDashboardPage() {
                           <th className="p-4 pr-6 text-right">Actions</th>
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-slate-850">
+                      <tbody className="divide-y divide-slate-100">
                         {filteredUsers.map((u) => {
                           const isSelf = u.uid === user?.uid;
-                          const roleColor = 
-                            u.role === "admin" 
-                              ? "bg-brand-blue/10 border-brand-blue/20 text-brand-blue" 
-                              : u.role === "paid" 
-                              ? "bg-amber-500/10 border-amber-500/20 text-amber-400" 
-                              : "bg-emerald-500/10 border-emerald-500/20 text-emerald-400";
+                          const roleColor =
+                            u.role === "admin"
+                              ? "bg-blue-50 border-blue-200 text-blue-700"
+                              : u.role === "paid"
+                              ? "bg-amber-50 border-amber-200 text-amber-700"
+                              : "bg-emerald-50 border-emerald-200 text-emerald-700";
 
                           return (
-                            <tr key={u.uid} className={`hover:bg-slate-900/35 transition-colors duration-150 ${isSelf ? "bg-brand-orange/5" : ""}`}>
-                              {/* Full Name */}
-                              <td className="p-4 pl-6 font-bold text-white flex items-center gap-2">
+                            <tr key={u.uid} className={`hover:bg-slate-50/70 transition-colors duration-150 ${isSelf ? "bg-blue-50/30" : ""}`}>
+                              <td className="p-4 pl-6 font-bold text-portal-text-primary flex items-center gap-2">
                                 <span>{u.fullName}</span>
                                 {isSelf && (
-                                  <span className="text-[10px] font-bold uppercase px-2 py-0.5 rounded bg-brand-orange/20 text-brand-orange border border-brand-orange/30">
+                                  <span className="text-[10px] font-bold uppercase px-2 py-0.5 rounded bg-blue-50 text-blue-700 border border-blue-200">
                                     You
                                   </span>
                                 )}
                               </td>
-
-                              {/* Username */}
-                              <td className="p-4 text-slate-300">@{u.username}</td>
-
-                              {/* Email */}
-                              <td className="p-4 text-brand-text-muted">{u.email}</td>
-
-                              {/* Role */}
+                              <td className="p-4 text-portal-text-secondary">@{u.username}</td>
+                              <td className="p-4 text-portal-text-secondary">{u.email}</td>
                               <td className="p-4">
                                 <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full border text-xs font-semibold ${roleColor}`}>
                                   {u.role === "admin" ? <Shield className="w-3.5 h-3.5" /> : u.role === "paid" ? <UserCheck className="w-3.5 h-3.5" /> : <Unlock className="w-3.5 h-3.5" />}
                                   <span>{u.role.toUpperCase()}</span>
                                 </span>
                               </td>
-
-                              {/* Date */}
-                              <td className="p-4 text-brand-text-muted">
+                              <td className="p-4 text-portal-text-secondary">
                                 {new Date(u.createdAt).toLocaleDateString()}
                               </td>
-
-                              {/* Actions */}
                               <td className="p-4 pr-6 text-right space-x-2">
-                                {/* Promote/Demote Dropdown */}
                                 <select
                                   value={u.role}
                                   disabled={isSelf}
                                   onChange={(e) => handleUpdateRole(u.uid, e.target.value)}
-                                  className="px-3 py-1.5 rounded-lg bg-slate-950 border border-slate-800 text-slate-300 focus:outline-none focus:border-brand-orange text-xs cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                                  className="px-3 py-1.5 rounded-lg bg-slate-50 border border-portal-border text-portal-text-primary focus:outline-none focus:border-portal-primary text-xs cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                                 >
                                   <option value="free">Free Tier</option>
                                   <option value="paid">Paid Tier</option>
                                   <option value="admin">Administrator</option>
                                 </select>
-
-                                {/* Delete User Button */}
                                 <button
                                   onClick={() => setUserToDelete(u)}
                                   disabled={isSelf}
-                                  className="inline-flex p-2 rounded-lg bg-slate-950 border border-slate-800 text-red-400 hover:text-white hover:bg-red-500 hover:border-red-500 transition-all duration-200 cursor-pointer disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:border-slate-800 disabled:hover:text-red-400 disabled:cursor-not-allowed"
+                                  className="inline-flex p-2 rounded-lg bg-white border border-portal-border text-red-400 hover:text-white hover:bg-red-500 hover:border-red-500 transition-all duration-200 cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
                                   title={isSelf ? "Accidental Lockout Protection" : "Delete User"}
                                 >
                                   <Trash2 className="w-4 h-4" />
@@ -932,13 +729,10 @@ export default function AdminDashboardPage() {
             {/* TAB 3: RESOURCE CATALOG */}
             {activeTab === "resources" && (
               <div className="space-y-6 animate-fade-in">
-                
-                {/* Add Catalog Toolbar */}
-                <div className="flex flex-col md:flex-row gap-4 items-stretch md:items-center justify-between bg-slate-900/40 p-4 border border-slate-850 rounded-2xl">
-                  
-                  {/* Search Bar */}
+                {/* Toolbar */}
+                <div className="flex flex-col md:flex-row gap-4 items-stretch md:items-center justify-between bg-white p-4 border border-portal-border rounded-2xl shadow-sm">
                   <div className="relative flex-grow max-w-md">
-                    <span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-500">
+                    <span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
                       <Search className="w-4 h-4" />
                     </span>
                     <input
@@ -946,42 +740,32 @@ export default function AdminDashboardPage() {
                       placeholder="Search resources by title..."
                       value={resourceSearch}
                       onChange={(e) => setResourceSearch(e.target.value)}
-                      className="w-full pl-9 pr-4 py-2.5 rounded-xl bg-slate-950/60 border border-slate-800 text-white placeholder-slate-500 focus:outline-none focus:border-brand-orange focus:ring-1 focus:ring-brand-orange text-sm"
+                      className="w-full pl-9 pr-4 py-2.5 rounded-xl bg-slate-50 border border-portal-border text-portal-text-primary placeholder-slate-400 focus:outline-none focus:border-portal-primary focus:ring-1 focus:ring-portal-primary/20 text-sm"
                     />
                   </div>
-
-                  {/* Filter Selectors */}
                   <div className="flex flex-col sm:flex-row gap-3 items-stretch">
-                    {/* Category Selector */}
                     <select
                       value={resourceCategoryFilter}
                       onChange={(e) => setResourceCategoryFilter(e.target.value)}
-                      className="px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-slate-300 focus:outline-none focus:border-brand-orange focus:ring-1 focus:ring-brand-orange text-sm capitalize"
+                      className="px-4 py-2.5 rounded-xl bg-slate-50 border border-portal-border text-portal-text-primary focus:outline-none focus:border-portal-primary text-sm capitalize cursor-pointer"
                     >
                       <option value="all">All Categories</option>
                       {resourceCategories.filter(cat => cat !== "all").map(cat => (
                         <option key={cat} value={cat}>{cat}</option>
                       ))}
                     </select>
-
-                    {/* Access level Selector */}
                     <select
                       value={resourceAccessFilter}
                       onChange={(e) => setResourceAccessFilter(e.target.value)}
-                      className="px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-slate-300 focus:outline-none focus:border-brand-orange focus:ring-1 focus:ring-brand-orange text-sm"
+                      className="px-4 py-2.5 rounded-xl bg-slate-50 border border-portal-border text-portal-text-primary focus:outline-none focus:border-portal-primary text-sm cursor-pointer"
                     >
-                      <option value="all">All Access levels</option>
-                      <option value="free">Free level</option>
-                      <option value="paid">Paid level</option>
+                      <option value="all">All Access Levels</option>
+                      <option value="free">Free Level</option>
+                      <option value="paid">Paid Level</option>
                     </select>
-
-                    {/* Add Resource Trigger Button */}
                     <button
-                      onClick={() => {
-                        setFormError(null);
-                        setIsAddResourceOpen(true);
-                      }}
-                      className="px-5 py-2.5 rounded-xl bg-brand-orange hover:bg-brand-orange-hover text-white font-semibold transition-all duration-300 hover:scale-[1.02] shadow-lg shadow-brand-orange/20 flex items-center justify-center gap-2 cursor-pointer text-sm"
+                      onClick={() => { setFormError(null); setIsAddResourceOpen(true); }}
+                      className="px-5 py-2.5 rounded-xl bg-portal-primary hover:bg-portal-primary/90 text-white font-semibold transition-all duration-300 hover:scale-[1.02] shadow-sm flex items-center justify-center gap-2 cursor-pointer text-sm"
                     >
                       <Plus className="w-4 h-4" />
                       <span>Add Resource</span>
@@ -989,18 +773,18 @@ export default function AdminDashboardPage() {
                   </div>
                 </div>
 
-                {/* Resources Catalog Table */}
-                <div className="overflow-x-auto bg-slate-900/60 border border-white/5 shadow-2xl rounded-2xl glass">
+                {/* Resources Table */}
+                <div className="overflow-x-auto bg-white border border-portal-border shadow-sm rounded-2xl">
                   {filteredResources.length === 0 ? (
-                    <div className="p-12 text-center text-brand-text-muted space-y-2">
-                      <FileText className="w-12 h-12 text-slate-600 mx-auto" />
-                      <p className="font-bold text-white">No Resources Published</p>
+                    <div className="p-12 text-center text-portal-text-secondary space-y-2">
+                      <FileText className="w-12 h-12 text-slate-300 mx-auto" />
+                      <p className="font-bold text-portal-text-primary">No Resources Published</p>
                       <p className="text-sm">We couldn&apos;t find any resources matching your search selection.</p>
                     </div>
                   ) : (
                     <table className="w-full text-left border-collapse text-sm">
                       <thead>
-                        <tr className="border-b border-slate-800 text-xs font-bold text-slate-400 uppercase tracking-wider bg-slate-950/40">
+                        <tr className="border-b border-portal-border text-xs font-bold text-portal-text-secondary uppercase tracking-wider bg-slate-50">
                           <th className="p-4 pl-6">Title</th>
                           <th className="p-4">Category</th>
                           <th className="p-4">Access Level</th>
@@ -1008,53 +792,43 @@ export default function AdminDashboardPage() {
                           <th className="p-4 pr-6 text-right">Actions</th>
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-slate-850">
+                      <tbody className="divide-y divide-slate-100">
                         {filteredResources.map((res) => {
-                          const levelColor = 
-                            res.accessLevel.toLowerCase() === "free" 
-                              ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-400" 
-                              : "bg-amber-500/10 border-amber-500/20 text-amber-400";
-
+                          const levelColor =
+                            res.accessLevel.toLowerCase() === "free"
+                              ? "bg-emerald-50 border-emerald-200 text-emerald-700"
+                              : "bg-amber-50 border-amber-200 text-amber-700";
                           return (
-                            <tr key={res.id} className="hover:bg-slate-900/35 transition-colors duration-155">
-                              {/* Title */}
-                              <td className="p-4 pl-6 font-bold text-white flex items-center gap-3">
-                                <div className="w-8 h-8 rounded bg-slate-950 border border-slate-850 flex items-center justify-center text-brand-orange">
-                                  <FileText className="w-4 h-4" />
+                            <tr key={res.id} className="hover:bg-slate-50/70 transition-colors duration-150">
+                              <td className="p-4 pl-6 font-bold text-portal-text-primary">
+                                <div className="flex items-center gap-3">
+                                  <div className="w-8 h-8 rounded bg-blue-50 border border-blue-100 flex items-center justify-center text-portal-primary">
+                                    <FileText className="w-4 h-4" />
+                                  </div>
+                                  <span className="line-clamp-1 truncate max-w-xs sm:max-w-md" title={res.title}>{res.title}</span>
                                 </div>
-                                <span className="line-clamp-1 truncate max-w-xs sm:max-w-md" title={res.title}>
-                                  {res.title}
-                                </span>
                               </td>
-
-                              {/* Category */}
-                              <td className="p-4 text-brand-text-light capitalize">{res.category}</td>
-
-                              {/* Access badge */}
+                              <td className="p-4 text-portal-text-secondary capitalize">{res.category}</td>
                               <td className="p-4">
                                 <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full border text-xs font-semibold ${levelColor}`}>
                                   {res.accessLevel.toLowerCase() === "free" ? <Unlock className="w-3 h-3" /> : <Lock className="w-3 h-3" />}
                                   <span>{res.accessLevel.toUpperCase()}</span>
                                 </span>
                               </td>
-
-                              {/* Created date */}
-                              <td className="p-4 text-brand-text-muted">
+                              <td className="p-4 text-portal-text-secondary">
                                 {new Date(res.createdAt).toLocaleDateString()}
                               </td>
-
-                              {/* Edit & Delete Action Row */}
                               <td className="p-4 pr-6 text-right space-x-2">
                                 <button
                                   onClick={() => openEditResource(res)}
-                                  className="inline-flex p-2 rounded-lg bg-slate-950 border border-slate-800 text-brand-blue hover:text-white hover:bg-brand-blue hover:border-brand-blue transition-all duration-200 cursor-pointer"
+                                  className="inline-flex p-2 rounded-lg bg-white border border-portal-border text-portal-secondary hover:text-white hover:bg-portal-secondary hover:border-portal-secondary transition-all duration-200 cursor-pointer"
                                   title="Edit Resource"
                                 >
                                   <Edit3 className="w-4 h-4" />
                                 </button>
                                 <button
                                   onClick={() => setResourceToDelete(res)}
-                                  className="inline-flex p-2 rounded-lg bg-slate-950 border border-slate-800 text-red-400 hover:text-white hover:bg-red-500 hover:border-red-500 transition-all duration-200 cursor-pointer"
+                                  className="inline-flex p-2 rounded-lg bg-white border border-portal-border text-red-400 hover:text-white hover:bg-red-500 hover:border-red-500 transition-all duration-200 cursor-pointer"
                                   title="Delete Resource"
                                 >
                                   <Trash2 className="w-4 h-4" />
@@ -1071,316 +845,162 @@ export default function AdminDashboardPage() {
             )}
           </>
         )}
-
       </div>
 
-      {/* ========================================== */}
-      {/* 1. DELETE USER CONFIRMATION MODAL */}
-      {/* ========================================== */}
+      {/* DELETE USER MODAL */}
       {userToDelete && (
-        <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4 z-50 animate-fade-in">
-          <div className="w-full max-w-md bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-2xl glass space-y-6">
-            
+        <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-fade-in">
+          <div className="w-full max-w-md bg-white border border-portal-border rounded-3xl p-6 shadow-2xl space-y-6">
             <div className="flex gap-4 items-start">
-              <div className="p-3 rounded-2xl bg-red-500/10 border border-red-500/20 text-red-400">
+              <div className="p-3 rounded-2xl bg-red-50 border border-red-200 text-red-600">
                 <UserX className="w-6 h-6" />
               </div>
               <div className="space-y-1">
-                <h3 className="text-xl font-bold text-white">Delete User Profile</h3>
-                <p className="text-sm text-brand-text-muted">
-                  Are you sure you want to delete <span className="text-white font-semibold">{userToDelete.fullName}</span> (<code>@{userToDelete.username}</code>)?
+                <h3 className="text-xl font-bold text-portal-text-primary">Delete User Profile</h3>
+                <p className="text-sm text-portal-text-secondary">
+                  Are you sure you want to delete <span className="text-portal-text-primary font-semibold">{userToDelete.fullName}</span> (<code>@{userToDelete.username}</code>)?
                 </p>
               </div>
             </div>
-
-            <div className="p-4 rounded-xl bg-red-500/5 border border-red-500/10 flex items-start gap-3 text-xs text-red-200/80 leading-relaxed">
-              <AlertCircle className="w-5 h-5 text-red-400 flex-shrink-0" />
+            <div className="p-4 rounded-xl bg-red-50 border border-red-200 flex items-start gap-3 text-xs text-red-700 leading-relaxed">
+              <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0" />
               <span>Warning: This deletes their database profile and revokes all portal access. The user will be locked out immediately.</span>
             </div>
-
             <div className="flex gap-3 justify-end pt-2">
-              <button
-                onClick={() => setUserToDelete(null)}
-                className="px-5 py-2.5 rounded-xl border border-slate-700 hover:border-slate-500 bg-transparent text-sm font-semibold text-slate-300 hover:text-white transition-colors cursor-pointer"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleDeleteUser}
-                className="px-5 py-2.5 rounded-xl bg-red-500 hover:bg-red-650 text-white text-sm font-semibold transition-colors shadow-lg shadow-red-500/10 cursor-pointer"
-              >
-                Confirm Delete
-              </button>
+              <button onClick={() => setUserToDelete(null)} className="px-5 py-2.5 rounded-xl border border-portal-border hover:bg-slate-50 text-sm font-semibold text-portal-text-secondary hover:text-portal-text-primary transition-colors cursor-pointer">Cancel</button>
+              <button onClick={handleDeleteUser} className="px-5 py-2.5 rounded-xl bg-red-500 hover:bg-red-600 text-white text-sm font-semibold transition-colors shadow-sm cursor-pointer">Confirm Delete</button>
             </div>
-
           </div>
         </div>
       )}
 
-      {/* ========================================== */}
-      {/* 2. DELETE RESOURCE CONFIRMATION MODAL */}
-      {/* ========================================== */}
+      {/* DELETE RESOURCE MODAL */}
       {resourceToDelete && (
-        <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4 z-50 animate-fade-in">
-          <div className="w-full max-w-md bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-2xl glass space-y-6">
-            
+        <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-fade-in">
+          <div className="w-full max-w-md bg-white border border-portal-border rounded-3xl p-6 shadow-2xl space-y-6">
             <div className="flex gap-4 items-start">
-              <div className="p-3 rounded-2xl bg-red-500/10 border border-red-500/20 text-red-400">
+              <div className="p-3 rounded-2xl bg-red-50 border border-red-200 text-red-600">
                 <Trash2 className="w-6 h-6" />
               </div>
               <div className="space-y-1">
-                <h3 className="text-xl font-bold text-white">Delete Catalog Resource</h3>
-                <p className="text-sm text-brand-text-muted">
-                   Are you sure you want to remove <span className="text-white font-semibold">&quot;{resourceToDelete.title}&quot;</span>?
-                </p>
+                <h3 className="text-xl font-bold text-portal-text-primary">Delete Catalog Resource</h3>
+                <p className="text-sm text-portal-text-secondary">Are you sure you want to remove <span className="text-portal-text-primary font-semibold">&quot;{resourceToDelete.title}&quot;</span>?</p>
               </div>
             </div>
-
-            <p className="text-xs text-brand-text-muted leading-relaxed">
-              This will remove the publication link from the portal directory catalog. Users will no longer be able to access it.
-            </p>
-
+            <p className="text-xs text-portal-text-secondary leading-relaxed">This will remove the publication link from the portal directory catalog. Users will no longer be able to access it.</p>
             <div className="flex gap-3 justify-end pt-2">
-              <button
-                onClick={() => setResourceToDelete(null)}
-                className="px-5 py-2.5 rounded-xl border border-slate-700 hover:border-slate-500 bg-transparent text-sm font-semibold text-slate-300 hover:text-white transition-colors cursor-pointer"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleDeleteResource}
-                className="px-5 py-2.5 rounded-xl bg-red-500 hover:bg-red-650 text-white text-sm font-semibold transition-colors shadow-lg shadow-red-500/10 cursor-pointer"
-              >
-                Confirm Delete
-              </button>
+              <button onClick={() => setResourceToDelete(null)} className="px-5 py-2.5 rounded-xl border border-portal-border hover:bg-slate-50 text-sm font-semibold text-portal-text-secondary hover:text-portal-text-primary transition-colors cursor-pointer">Cancel</button>
+              <button onClick={handleDeleteResource} className="px-5 py-2.5 rounded-xl bg-red-500 hover:bg-red-600 text-white text-sm font-semibold transition-colors shadow-sm cursor-pointer">Confirm Delete</button>
             </div>
-
           </div>
         </div>
       )}
 
-      {/* ========================================== */}
-      {/* 3. ADD RESOURCE MODAL FORM */}
-      {/* ========================================== */}
+      {/* ADD RESOURCE MODAL */}
       {isAddResourceOpen && (
-        <div className="fixed inset-0 bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-4 z-50 animate-fade-in">
-          <div className="w-full max-w-lg bg-slate-900 border border-slate-800 rounded-3xl p-8 shadow-2xl glass space-y-6 max-h-[90vh] overflow-y-auto">
-            
-            <div className="flex justify-between items-center border-b border-slate-800 pb-4">
-              <h3 className="text-2xl font-bold text-white flex items-center gap-2">
-                <Plus className="w-6 h-6 text-brand-orange" />
+        <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-fade-in">
+          <div className="w-full max-w-lg bg-white border border-portal-border rounded-3xl p-8 shadow-2xl space-y-6 max-h-[90vh] overflow-y-auto">
+            <div className="flex justify-between items-center border-b border-portal-border pb-4">
+              <h3 className="text-2xl font-bold text-portal-text-primary flex items-center gap-2">
+                <Plus className="w-6 h-6 text-portal-primary" />
                 <span>Add Resource</span>
               </h3>
-              <button 
-                onClick={() => setIsAddResourceOpen(false)}
-                className="p-1.5 rounded-lg bg-slate-950 border border-slate-850 hover:border-brand-orange text-slate-400 hover:text-white transition-all cursor-pointer"
-              >
+              <button onClick={() => setIsAddResourceOpen(false)} className="p-1.5 rounded-lg border border-portal-border hover:bg-slate-50 text-portal-text-secondary hover:text-portal-text-primary transition-all cursor-pointer">
                 <X className="w-4 h-4" />
               </button>
             </div>
-
             {formError && (
-              <div className="flex gap-3 p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-200 text-sm">
-                <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0" />
+              <div className="flex gap-3 p-4 rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm">
+                <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0" />
                 <span>{formError}</span>
               </div>
             )}
-
             <form onSubmit={handleAddResource} className="space-y-4">
-              {/* Title */}
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-slate-300 uppercase tracking-wide">Resource Title</label>
-                <input
-                  type="text"
-                  placeholder="e.g. CXO Interview Prep Kit"
-                  value={newTitle}
-                  onChange={(e) => setNewTitle(e.target.value)}
-                  className="w-full px-4 py-3 rounded-xl bg-slate-950/60 border border-slate-850 text-white placeholder-slate-500 focus:outline-none focus:border-brand-orange focus:ring-1 focus:ring-brand-orange text-sm"
-                />
+                <label className="text-xs font-semibold text-portal-text-secondary uppercase tracking-wide">Resource Title</label>
+                <input type="text" placeholder="e.g. CXO Interview Prep Kit" value={newTitle} onChange={(e) => setNewTitle(e.target.value)} className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-portal-border text-portal-text-primary placeholder-slate-400 focus:outline-none focus:border-portal-primary focus:ring-1 focus:ring-portal-primary/20 text-sm" />
               </div>
-
-              {/* Description */}
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-slate-300 uppercase tracking-wide">Description</label>
-                <textarea
-                  placeholder="Briefly describe what this file or tool covers..."
-                  value={newDescription}
-                  onChange={(e) => setNewDescription(e.target.value)}
-                  rows={3}
-                  className="w-full px-4 py-3 rounded-xl bg-slate-950/60 border border-slate-850 text-white placeholder-slate-500 focus:outline-none focus:border-brand-orange focus:ring-1 focus:ring-brand-orange text-sm resize-none"
-                />
+                <label className="text-xs font-semibold text-portal-text-secondary uppercase tracking-wide">Description</label>
+                <textarea placeholder="Briefly describe what this file or tool covers..." value={newDescription} onChange={(e) => setNewDescription(e.target.value)} rows={3} className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-portal-border text-portal-text-primary placeholder-slate-400 focus:outline-none focus:border-portal-primary focus:ring-1 focus:ring-portal-primary/20 text-sm resize-none" />
               </div>
-
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {/* Category */}
                 <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-slate-300 uppercase tracking-wide">Category</label>
-                  <input
-                    type="text"
-                    placeholder="e.g. Assessment"
-                    value={newCategory}
-                    onChange={(e) => setNewCategory(e.target.value)}
-                    className="w-full px-4 py-3 rounded-xl bg-slate-950/60 border border-slate-850 text-white placeholder-slate-500 focus:outline-none focus:border-brand-orange focus:ring-1 focus:ring-brand-orange text-sm"
-                  />
+                  <label className="text-xs font-semibold text-portal-text-secondary uppercase tracking-wide">Category</label>
+                  <input type="text" placeholder="e.g. Assessment" value={newCategory} onChange={(e) => setNewCategory(e.target.value)} className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-portal-border text-portal-text-primary placeholder-slate-400 focus:outline-none focus:border-portal-primary focus:ring-1 focus:ring-portal-primary/20 text-sm" />
                 </div>
-
-                {/* Access Level */}
                 <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-slate-300 uppercase tracking-wide">Access Level</label>
-                  <select
-                    value={newAccessLevel}
-                    onChange={(e) => setNewAccessLevel(e.target.value)}
-                    className="w-full px-4 py-3 rounded-xl bg-slate-950 border border-slate-850 text-slate-300 focus:outline-none focus:border-brand-orange focus:ring-1 focus:ring-brand-orange text-sm"
-                  >
-                    <option value="free">Free level</option>
-                    <option value="paid">Paid level</option>
+                  <label className="text-xs font-semibold text-portal-text-secondary uppercase tracking-wide">Access Level</label>
+                  <select value={newAccessLevel} onChange={(e) => setNewAccessLevel(e.target.value)} className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-portal-border text-portal-text-primary focus:outline-none focus:border-portal-primary text-sm cursor-pointer">
+                    <option value="free">Free Level</option>
+                    <option value="paid">Paid Level</option>
                   </select>
                 </div>
               </div>
-
-              {/* Drive Link */}
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-slate-300 uppercase tracking-wide">Google Drive Link</label>
-                <input
-                  type="text"
-                  placeholder="https://drive.google.com/..."
-                  value={newDriveLink}
-                  onChange={(e) => setNewDriveLink(e.target.value)}
-                  className="w-full px-4 py-3 rounded-xl bg-slate-950/60 border border-slate-850 text-white placeholder-slate-500 focus:outline-none focus:border-brand-orange focus:ring-1 focus:ring-brand-orange text-sm"
-                />
+                <label className="text-xs font-semibold text-portal-text-secondary uppercase tracking-wide">Google Drive Link</label>
+                <input type="text" placeholder="https://drive.google.com/..." value={newDriveLink} onChange={(e) => setNewDriveLink(e.target.value)} className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-portal-border text-portal-text-primary placeholder-slate-400 focus:outline-none focus:border-portal-primary focus:ring-1 focus:ring-portal-primary/20 text-sm" />
               </div>
-
-              <button
-                type="submit"
-                disabled={submittingForm}
-                className="w-full mt-4 py-3.5 rounded-xl bg-brand-orange hover:bg-brand-orange-hover text-white font-semibold transition-all duration-300 hover:scale-[1.02] shadow-lg shadow-brand-orange/20 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {submittingForm ? (
-                  <>
-                    <Loader2 className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                    <span>Adding Publication...</span>
-                  </>
-                ) : (
-                  <span>Publish Resource</span>
-                )}
+              <button type="submit" disabled={submittingForm} className="w-full mt-4 py-3.5 rounded-xl bg-portal-primary hover:bg-portal-primary/90 text-white font-semibold transition-all duration-300 hover:scale-[1.02] shadow-sm flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed">
+                {submittingForm ? (<><Loader2 className="w-5 h-5 animate-spin" /><span>Adding Publication...</span></>) : (<span>Publish Resource</span>)}
               </button>
             </form>
-
           </div>
         </div>
       )}
 
-      {/* ========================================== */}
-      {/* 4. EDIT RESOURCE MODAL FORM */}
-      {/* ========================================== */}
+      {/* EDIT RESOURCE MODAL */}
       {resourceToEdit && (
-        <div className="fixed inset-0 bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-4 z-50 animate-fade-in">
-          <div className="w-full max-w-lg bg-slate-900 border border-slate-800 rounded-3xl p-8 shadow-2xl glass space-y-6 max-h-[90vh] overflow-y-auto">
-            
-            <div className="flex justify-between items-center border-b border-slate-800 pb-4">
-              <h3 className="text-2xl font-bold text-white flex items-center gap-2">
-                <Edit3 className="w-6 h-6 text-brand-blue" />
+        <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-fade-in">
+          <div className="w-full max-w-lg bg-white border border-portal-border rounded-3xl p-8 shadow-2xl space-y-6 max-h-[90vh] overflow-y-auto">
+            <div className="flex justify-between items-center border-b border-portal-border pb-4">
+              <h3 className="text-2xl font-bold text-portal-text-primary flex items-center gap-2">
+                <Edit3 className="w-6 h-6 text-portal-secondary" />
                 <span>Edit Resource</span>
               </h3>
-              <button 
-                onClick={() => setResourceToEdit(null)}
-                className="p-1.5 rounded-lg bg-slate-950 border border-slate-850 hover:border-brand-blue text-slate-400 hover:text-white transition-all cursor-pointer"
-              >
+              <button onClick={() => setResourceToEdit(null)} className="p-1.5 rounded-lg border border-portal-border hover:bg-slate-50 text-portal-text-secondary hover:text-portal-text-primary transition-all cursor-pointer">
                 <X className="w-4 h-4" />
               </button>
             </div>
-
             {formError && (
-              <div className="flex gap-3 p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-200 text-sm">
-                <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0" />
+              <div className="flex gap-3 p-4 rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm">
+                <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0" />
                 <span>{formError}</span>
               </div>
             )}
-
             <form onSubmit={handleEditResourceSubmit} className="space-y-4">
-              {/* Title */}
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-slate-300 uppercase tracking-wide">Resource Title</label>
-                <input
-                  type="text"
-                  placeholder="e.g. CXO Interview Prep Kit"
-                  value={editTitle}
-                  onChange={(e) => setEditTitle(e.target.value)}
-                  className="w-full px-4 py-3 rounded-xl bg-slate-950/60 border border-slate-850 text-white placeholder-slate-500 focus:outline-none focus:border-brand-blue focus:ring-1 focus:ring-brand-blue text-sm"
-                />
+                <label className="text-xs font-semibold text-portal-text-secondary uppercase tracking-wide">Resource Title</label>
+                <input type="text" placeholder="e.g. CXO Interview Prep Kit" value={editTitle} onChange={(e) => setEditTitle(e.target.value)} className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-portal-border text-portal-text-primary placeholder-slate-400 focus:outline-none focus:border-portal-secondary focus:ring-1 focus:ring-portal-secondary/20 text-sm" />
               </div>
-
-              {/* Description */}
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-slate-300 uppercase tracking-wide">Description</label>
-                <textarea
-                  placeholder="Briefly describe what this file or tool covers..."
-                  value={editDescription}
-                  onChange={(e) => setEditDescription(e.target.value)}
-                  rows={3}
-                  className="w-full px-4 py-3 rounded-xl bg-slate-950/60 border border-slate-850 text-white placeholder-slate-500 focus:outline-none focus:border-brand-blue focus:ring-1 focus:ring-brand-blue text-sm resize-none"
-                />
+                <label className="text-xs font-semibold text-portal-text-secondary uppercase tracking-wide">Description</label>
+                <textarea placeholder="Briefly describe what this file or tool covers..." value={editDescription} onChange={(e) => setEditDescription(e.target.value)} rows={3} className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-portal-border text-portal-text-primary placeholder-slate-400 focus:outline-none focus:border-portal-secondary focus:ring-1 focus:ring-portal-secondary/20 text-sm resize-none" />
               </div>
-
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {/* Category */}
                 <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-slate-300 uppercase tracking-wide">Category</label>
-                  <input
-                    type="text"
-                    placeholder="e.g. Assessment"
-                    value={editCategory}
-                    onChange={(e) => setEditCategory(e.target.value)}
-                    className="w-full px-4 py-3 rounded-xl bg-slate-950/60 border border-slate-850 text-white placeholder-slate-500 focus:outline-none focus:border-brand-blue focus:ring-1 focus:ring-brand-blue text-sm"
-                  />
+                  <label className="text-xs font-semibold text-portal-text-secondary uppercase tracking-wide">Category</label>
+                  <input type="text" placeholder="e.g. Assessment" value={editCategory} onChange={(e) => setEditCategory(e.target.value)} className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-portal-border text-portal-text-primary placeholder-slate-400 focus:outline-none focus:border-portal-secondary focus:ring-1 focus:ring-portal-secondary/20 text-sm" />
                 </div>
-
-                {/* Access Level */}
                 <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-slate-300 uppercase tracking-wide">Access Level</label>
-                  <select
-                    value={editAccessLevel}
-                    onChange={(e) => setEditAccessLevel(e.target.value)}
-                    className="w-full px-4 py-3 rounded-xl bg-slate-950 border border-slate-850 text-slate-300 focus:outline-none focus:border-brand-blue focus:ring-1 focus:ring-brand-blue text-sm"
-                  >
-                    <option value="free">Free level</option>
-                    <option value="paid">Paid level</option>
+                  <label className="text-xs font-semibold text-portal-text-secondary uppercase tracking-wide">Access Level</label>
+                  <select value={editAccessLevel} onChange={(e) => setEditAccessLevel(e.target.value)} className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-portal-border text-portal-text-primary focus:outline-none focus:border-portal-secondary text-sm cursor-pointer">
+                    <option value="free">Free Level</option>
+                    <option value="paid">Paid Level</option>
                   </select>
                 </div>
               </div>
-
-              {/* Drive Link */}
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-slate-300 uppercase tracking-wide">Google Drive Link</label>
-                <input
-                  type="text"
-                  placeholder="https://drive.google.com/..."
-                  value={editDriveLink}
-                  onChange={(e) => setEditDriveLink(e.target.value)}
-                  className="w-full px-4 py-3 rounded-xl bg-slate-950/60 border border-slate-850 text-white placeholder-slate-500 focus:outline-none focus:border-brand-blue focus:ring-1 focus:ring-brand-blue text-sm"
-                />
+                <label className="text-xs font-semibold text-portal-text-secondary uppercase tracking-wide">Google Drive Link</label>
+                <input type="text" placeholder="https://drive.google.com/..." value={editDriveLink} onChange={(e) => setEditDriveLink(e.target.value)} className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-portal-border text-portal-text-primary placeholder-slate-400 focus:outline-none focus:border-portal-secondary focus:ring-1 focus:ring-portal-secondary/20 text-sm" />
               </div>
-
-              <button
-                type="submit"
-                disabled={submittingForm}
-                className="w-full mt-4 py-3.5 rounded-xl bg-brand-blue hover:bg-brand-blue-hover text-white font-semibold transition-all duration-300 hover:scale-[1.02] shadow-lg shadow-brand-blue/20 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {submittingForm ? (
-                  <>
-                    <Loader2 className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                    <span>Saving Changes...</span>
-                  </>
-                ) : (
-                  <span>Save Changes</span>
-                )}
+              <button type="submit" disabled={submittingForm} className="w-full mt-4 py-3.5 rounded-xl bg-portal-secondary hover:bg-portal-secondary/90 text-white font-semibold transition-all duration-300 hover:scale-[1.02] shadow-sm flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed">
+                {submittingForm ? (<><Loader2 className="w-5 h-5 animate-spin" /><span>Saving Changes...</span></>) : (<span>Save Changes</span>)}
               </button>
             </form>
-
           </div>
         </div>
       )}
-
     </div>
   );
 }

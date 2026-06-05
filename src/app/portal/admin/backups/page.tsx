@@ -258,7 +258,7 @@ export default function BackupCenterPage() {
   ];
 
   return (
-    <div className="space-y-6 animate-fade-in text-slate-100">
+    <div className="space-y-6 animate-fade-in text-portal-text-primary">
       {/* Back Link */}
       <div>
         <Link
@@ -271,9 +271,9 @@ export default function BackupCenterPage() {
       </div>
 
       {/* Header */}
-      <div className="border-b border-portal-border/60 pb-6 flex justify-between items-center">
+      <div className="border-b border-portal-border pb-6 flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-extrabold text-white tracking-tight sm:text-4xl flex items-center gap-2">
+          <h1 className="text-3xl font-extrabold text-portal-text-primary tracking-tight sm:text-4xl flex items-center gap-2">
             <Database className="w-8 h-8 text-portal-primary" />
             <span>Database Backup Center</span>
           </h1>
@@ -288,8 +288,8 @@ export default function BackupCenterPage() {
         <div
           className={`fixed top-4 right-4 z-50 flex gap-3 p-4 rounded-xl text-sm border shadow-lg animate-fade-in ${
             toast.type === "success"
-              ? "bg-portal-success/10 border-portal-success/20 text-portal-success"
-              : "bg-red-500/10 border-red-500/20 text-red-200"
+              ? "bg-emerald-50 border-emerald-200 text-emerald-800"
+              : "bg-red-50 border-red-200 text-red-800"
           }`}
         >
           {toast.type === "success" ? (
@@ -302,10 +302,10 @@ export default function BackupCenterPage() {
       )}
 
       {/* Warning Box */}
-      <div className="p-4 bg-yellow-500/5 border border-yellow-500/10 rounded-2xl flex gap-3 text-xs text-yellow-200/80 leading-normal max-w-3xl">
-        <ShieldAlert className="w-5 h-5 text-yellow-500 flex-shrink-0" />
+      <div className="p-4 bg-amber-50 border border-amber-200 rounded-2xl flex gap-3 text-xs text-amber-800 leading-normal max-w-3xl">
+        <ShieldAlert className="w-5 h-5 text-amber-600 flex-shrink-0" />
         <div>
-          <p className="font-bold text-white uppercase text-[10px] tracking-wider mb-0.5">Sensitive Data Handling Policy</p>
+          <p className="font-bold text-amber-900 uppercase text-[10px] tracking-wider mb-0.5">Sensitive Data Handling Policy</p>
           <p>
             Exports contain personally identifiable information (PII) and system settings credentials. 
             Ensure exported files are kept strictly confidential and shared only via encrypted platform channels.
@@ -322,13 +322,13 @@ export default function BackupCenterPage() {
           return (
             <div
               key={card.id}
-              className="bg-portal-card border border-portal-border/60 rounded-3xl p-6 flex flex-col justify-between hover:border-portal-primary/30 transition-all duration-300 shadow-lg relative overflow-hidden group"
+              className="bg-white border border-portal-border rounded-3xl p-6 flex flex-col justify-between hover:border-slate-300 hover:shadow-md transition-all duration-300 shadow-sm relative overflow-hidden group"
             >
               <div className="space-y-3">
                 <div className={`p-3 rounded-xl inline-block border ${card.color}`}>
                   <Icon className="w-5 h-5" />
                 </div>
-                <h3 className="text-base font-bold text-white group-hover:text-portal-primary transition-colors">
+                <h3 className="text-base font-bold text-portal-text-primary group-hover:text-portal-primary transition-colors">
                   {card.title}
                 </h3>
                 <p className="text-xs text-portal-text-secondary leading-relaxed">
@@ -336,11 +336,11 @@ export default function BackupCenterPage() {
                 </p>
               </div>
 
-              <div className="pt-6 mt-6 border-t border-portal-border/40">
+              <div className="pt-6 mt-6 border-t border-portal-border">
                 <button
                   onClick={() => handleExportCollection(card.id)}
                   disabled={!!isExporting}
-                  className="w-full py-2.5 rounded-xl bg-slate-900 border border-portal-border hover:border-portal-primary text-xs font-bold text-slate-200 hover:text-white transition-all cursor-pointer flex items-center justify-center gap-1.5 disabled:opacity-50"
+                  className="w-full py-2.5 rounded-xl bg-slate-50 border border-portal-border hover:border-portal-primary hover:bg-blue-50 text-xs font-bold text-portal-text-secondary hover:text-portal-primary transition-all cursor-pointer flex items-center justify-center gap-1.5 disabled:opacity-50"
                 >
                   {exporting ? (
                     <>
