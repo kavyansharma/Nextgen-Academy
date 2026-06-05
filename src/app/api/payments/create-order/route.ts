@@ -18,8 +18,9 @@ export async function POST(req: NextRequest) {
   // ── Diagnostics (safe — no secret values logged) ──────────────────────────
   const keyId = process.env.RAZORPAY_KEY_ID;
   const secretExists = !!(process.env.RAZORPAY_KEY_SECRET);
+  console.log("[create-order] Is RAZORPAY_KEY_ID present:", !!keyId);
+  console.log("[create-order] Is RAZORPAY_KEY_SECRET present:", secretExists);
   console.log("[create-order] RAZORPAY_KEY_ID:", keyId ?? "MISSING");
-  console.log("[create-order] RAZORPAY_KEY_SECRET exists:", secretExists);
   console.log("[create-order] uid:", uid);
 
   try {
@@ -35,7 +36,8 @@ export async function POST(req: NextRequest) {
     // ── Parse body ────────────────────────────────────────────────────────
     const body = await req.json();
     const { amount, currency = "INR" } = body;
-    console.log("[create-order] body received:", { amount, currency });
+    console.log("[create-order] Request body received:", JSON.stringify(body, null, 2));
+    console.log("[create-order] Amount received:", amount);
 
     if (!amount || isNaN(Number(amount)) || Number(amount) <= 0) {
       return NextResponse.json({ error: "Invalid payment amount." }, { status: 400 });
@@ -60,10 +62,12 @@ export async function POST(req: NextRequest) {
 
     console.log("[create-order] Creating Razorpay order with options:", options);
     const order = await razorpay.orders.create(options);
-    console.log("[create-order] Order created successfully:", order.id, "status:", order.status);
+    console.log("[create-order] Razorpay API response:", JSON.stringify(order, null, 2));
 
     return NextResponse.json({
-      id: order.id,
+      success: true,
+      id: order.id, // Keep for backward compatibility with frontend
+      order_id: order.id,
       amount: order.amount,
       currency: order.currency,
       receipt: order.receipt,
@@ -75,12 +79,11 @@ export async function POST(req: NextRequest) {
     const razorpayError = err?.error;
     const statusCode = err?.statusCode ?? 500;
 
-    console.error("[create-order] EXCEPTION:", {
-      statusCode,
-      message: err?.message,
-      razorpayError,
-      stack: err?.stack?.split("\n").slice(0, 4).join("\n"),
-    });
+    console.error("[create-order] Order creation failed:");
+    console.error("[create-order] Status Code:", statusCode);
+    console.error("[create-order] Message:", err?.message);
+    console.error("[create-order] Razorpay error response:", JSON.stringify(razorpayError || err, null, 2));
+    console.error("[create-order] Full caught error:", err);
 
     // Surface the Razorpay API error description if available
     const userMessage = razorpayError?.description
