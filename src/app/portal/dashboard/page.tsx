@@ -38,7 +38,8 @@ interface Resource {
   title: string;
   description: string;
   category: string;
-  type: "free" | "paid";
+  type?: "free" | "paid";
+  accessLevel?: "free" | "paid";
   slug: string;
 }
 
@@ -115,25 +116,36 @@ export default function DashboardPage() {
       try {
         setLoading(true);
 
-        const courseConstraints = (user.role === "admin" || user.role === "paid")
+        const userRole = user?.role || "free";
+        const courseConstraints = (userRole === "admin" || userRole === "paid")
           ? []
           : [where("type", "==", "free")];
 
-        const resourceConstraints = (user.role === "admin" || user.role === "paid")
+        const resourceConstraints = (userRole === "admin" || userRole === "paid")
           ? []
           : [where("accessLevel", "==", "free")];
 
         // Fetch user activity from activityService
         const { getUserActivity } = await import("@/lib/services/activityService");
 
+        // Helper to query firestore safely, catching errors individually
+        const safeQuery = async <T,>(queryFn: () => Promise<T>, fallback: T, name: string): Promise<T> => {
+          try {
+            return await queryFn();
+          } catch (e) {
+            console.warn(`Dashboard load warning: failed to fetch ${name}. Using fallback.`, e);
+            return fallback;
+          }
+        };
+
         // 1. Fetch main catalog lists and activity data
         const [dbCourses, dbResources, dbProgress, dbCerts, dbNotifications, activityData] = await Promise.all([
-          queryDocuments("courses", ...courseConstraints) as Promise<Course[]>,
-          queryDocuments("resources", ...resourceConstraints) as Promise<Resource[]>,
-          queryDocuments("course_progress", where("userId", "==", user.uid)) as Promise<CourseProgressDoc[]>,
-          queryDocuments("certificates", where("userId", "==", user.uid)) as Promise<Certificate[]>,
-          queryDocuments("notifications", where("userId", "==", user.uid)) as Promise<NotificationDoc[]>,
-          getUserActivity(user.uid)
+          safeQuery(() => queryDocuments("courses", ...courseConstraints) as Promise<Course[]>, [], "courses"),
+          safeQuery(() => queryDocuments("resources", ...resourceConstraints) as Promise<Resource[]>, [], "resources"),
+          safeQuery(() => queryDocuments("course_progress", where("userId", "==", user.uid)) as Promise<CourseProgressDoc[]>, [], "course_progress"),
+          safeQuery(() => queryDocuments("certificates", where("userId", "==", user.uid)) as Promise<Certificate[]>, [], "certificates"),
+          safeQuery(() => queryDocuments("notifications", where("userId", "==", user.uid)) as Promise<NotificationDoc[]>, [], "notifications"),
+          safeQuery(() => getUserActivity(user.uid), null, "user activity")
         ]);
         setResourcesList(dbResources);
         setCertificatesCount(dbCerts.length);
@@ -146,10 +158,11 @@ export default function DashboardPage() {
         // 3. Group completions by courseId for progress bar
         const progressByCourse: Record<string, string[]> = {};
         myCompletions.forEach(p => {
+          if (!p.courseId) return;
           if (!progressByCourse[p.courseId]) {
             progressByCourse[p.courseId] = [];
           }
-          if (!progressByCourse[p.courseId].includes(p.lessonId)) {
+          if (p.lessonId && !progressByCourse[p.courseId].includes(p.lessonId)) {
             progressByCourse[p.courseId].push(p.lessonId);
           }
         });
@@ -162,8 +175,13 @@ export default function DashboardPage() {
           const courseItem = dbCourses.find(c => c.id === courseId);
           if (!courseItem) continue;
 
-          // Query lessons in subcollection courses/{courseId}/lessons
-          const courseLessons = await queryDocuments(`courses/${courseId}/lessons`);
+          // Query lessons in subcollection courses/{courseId}/lessons safely
+          let courseLessons: any[] = [];
+          try {
+            courseLessons = await queryDocuments(`courses/${courseId}/lessons`);
+          } catch (e) {
+            console.warn(`Dashboard load warning: failed to fetch lessons for course ${courseId}`, e);
+          }
           const totalLessonsCount = courseLessons.length;
           
           if (totalLessonsCount > 0) {
@@ -214,7 +232,12 @@ export default function DashboardPage() {
             let lessonTitle = "Introduction";
             let progressPercent = 0;
             
-            const lessonsList = await queryDocuments(`courses/${activityData.lastCourseViewed}/lessons`);
+            let lessonsList: any[] = [];
+            try {
+              lessonsList = await queryDocuments(`courses/${activityData.lastCourseViewed}/lessons`);
+            } catch (e) {
+              console.warn(`Dashboard load warning: failed to fetch lessons for last viewed course ${activityData.lastCourseViewed}`, e);
+            }
             if (lessonsList.length > 0) {
               const matchedLesson = lessonsList.find(l => l.id === activityData.lastLessonViewed);
               if (matchedLesson) {
@@ -295,8 +318,8 @@ export default function DashboardPage() {
 
   if (!user) return null;
 
-  const formattedRole = user.role.charAt(0).toUpperCase() + user.role.slice(1);
-  const subscriptionLabel = user.role === "admin" ? "Enterprise Administrator" : user.role === "paid" ? "Paid Premium Member" : "Free Learning Tier";
+  const formattedRole = (user?.role || "free").charAt(0).toUpperCase() + (user?.role || "free").slice(1);
+  const subscriptionLabel = user?.role === "admin" ? "Enterprise Administrator" : user?.role === "paid" ? "Paid Premium Member" : "Free Learning Tier";
 
   return (
     <div className="space-y-8 animate-fade-in text-slate-100 font-sans">
@@ -308,15 +331,15 @@ export default function DashboardPage() {
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="flex items-center gap-5">
             <div className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-portal-primary to-portal-secondary flex items-center justify-center text-white text-2xl font-bold shadow-lg shadow-portal-primary/25 border border-portal-border/40">
-              {user.fullName.charAt(0).toUpperCase()}
+              {(user?.fullName || "U").charAt(0).toUpperCase()}
             </div>
             <div>
               <div className="flex items-center gap-2.5">
-                <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">Welcome, {user.fullName}</h1>
+                <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">Welcome, {user?.fullName || "User"}</h1>
                 <Sparkles className="w-5.5 h-5.5 text-portal-warning animate-pulse" />
               </div>
               <div className="flex flex-wrap items-center gap-x-4 gap-y-2 mt-1.5 text-xs text-portal-text-secondary">
-                <span className="font-semibold text-slate-300">@{user.username}</span>
+                <span className="font-semibold text-slate-300">@{user?.username || "user"}</span>
                 <span className="w-1.5 h-1.5 rounded-full bg-slate-700"></span>
                 <span>System Role: <span className="font-semibold text-portal-secondary">{formattedRole}</span></span>
                 <span className="w-1.5 h-1.5 rounded-full bg-slate-700"></span>
@@ -714,7 +737,7 @@ export default function DashboardPage() {
                 <div key={res.id} className="p-4 rounded-xl bg-portal-card border border-portal-border/50 hover:border-slate-700 transition-colors flex items-center justify-between gap-4">
                   <div className="min-w-0">
                     <h4 className="text-xs font-bold text-white truncate" title={res.title}>{res.title}</h4>
-                    <p className="text-[10px] text-portal-text-secondary mt-0.5">{res.category} &bull; {res.type.toUpperCase()}</p>
+                    <p className="text-[10px] text-portal-text-secondary mt-0.5">{res.category} &bull; {(res.type || res.accessLevel || "free").toUpperCase()}</p>
                   </div>
                   <Link
                     href={`/resources/${res.slug}`}
