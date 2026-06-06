@@ -318,15 +318,13 @@ export default function DashboardPage() {
 
   if (!user) return null;
 
-  const formattedRole = user.role === "resource_access" ? "Resource Access" : user.role.charAt(0).toUpperCase() + user.role.slice(1);
+  const formattedRole = user.role.charAt(0).toUpperCase() + user.role.slice(1);
   const subscriptionLabel = 
     user.role === "admin" 
       ? "Enterprise Administrator" 
       : user.role === "paid" 
         ? "Paid Premium Member" 
-        : user.role === "resource_access"
-          ? "Resource Access Member"
-          : "Free Learning Tier";
+        : "Free Learning Tier";
 
   return (
     <div className="space-y-8 animate-fade-in text-slate-800 font-sans">

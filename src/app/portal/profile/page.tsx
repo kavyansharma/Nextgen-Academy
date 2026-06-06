@@ -41,9 +41,6 @@ export default function ProfilePage() {
   if (user.role === "admin") {
     subLabel = "ADMIN ACCESS";
     badgeColor = "bg-blue-50 border-blue-200 text-blue-700";
-  } else if (user.role === "resource_access" || subPlan === "resource_access") {
-    subLabel = "RESOURCE ACCESS";
-    badgeColor = "bg-blue-50 border-blue-200 text-blue-700";
   } else if (user.role === "paid" || subPlan) {
     if (subPlan === "premium_monthly") {
       subLabel = "PREMIUM MONTHLY";

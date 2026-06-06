@@ -35,7 +35,7 @@ export async function POST(req: NextRequest) {
 
     // ── Parse body ────────────────────────────────────────────────────────
     const body = await req.json();
-    const { amount, currency = "INR", receipt } = body;
+    const { amount, currency = "INR" } = body;
     console.log("[create-order] Request body received:", JSON.stringify(body, null, 2));
     console.log("[create-order] Amount received:", amount);
 
@@ -56,7 +56,7 @@ export async function POST(req: NextRequest) {
     const options = {
       amount: amountInSubunits,
       currency,
-      receipt: receipt || `rcpt_${Date.now()}_${uid.substring(0, 5)}`,
+      receipt: `rcpt_${Date.now()}_${uid.substring(0, 5)}`,
       notes: { userId: uid },
     };
 
