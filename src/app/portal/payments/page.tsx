@@ -24,7 +24,7 @@ import {
 
 interface Subscription {
   userId: string;
-  plan: "free" | "premium_monthly" | "premium_yearly" | "corporate" | "premium";
+  plan: "free" | "premium_monthly" | "premium_yearly" | "corporate" | "premium" | "resource_access";
   status: "active" | "expired" | "cancelled" | "refunded";
   startDate: string;
   expiryDate: string;
@@ -189,23 +189,28 @@ export default function PaymentDetailsPage() {
   }, [payments, searchQuery, sortField, sortOrder]);
 
   // Razorpay Upgrade Trigger
-  const handleUpgrade = async (planId: "premium_monthly" | "premium_yearly", price: number) => {
+  const handleUpgrade = async (planId: "premium_monthly" | "premium_yearly" | "resource_access", price: number) => {
     if (!firebaseUser || !user) return;
     setIsCheckoutProcessing(true);
     try {
       const idToken = await firebaseUser.getIdToken();
       
       // Initialize order on server
+      const payload: any = {
+        amount: price,
+        currency: "INR"
+      };
+      if (planId === "resource_access") {
+        payload.receipt = `resource_access_${Date.now()}`;
+      }
+
       const res = await fetch("/api/payments/create-order", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${idToken}`
         },
-        body: JSON.stringify({
-          amount: price,
-          currency: "INR"
-        })
+        body: JSON.stringify(payload)
       });
 
       if (!res.ok) {
@@ -444,6 +449,13 @@ export default function PaymentDetailsPage() {
     }
     
     const plan = subscription?.plan;
+    if (user.role === "resource_access" || plan === "resource_access") {
+      return {
+        label: "RESOURCE ACCESS",
+        badge: "bg-blue-50 border-blue-200 text-blue-700 shadow-sm",
+        desc: "Premium Resource Library Access"
+      };
+    }
     if (user.role === "paid" || (subscription && subscription.status === "active")) {
       if (plan === "premium_monthly") {
         return {
@@ -479,7 +491,7 @@ export default function PaymentDetailsPage() {
   };
 
   const planDetails = getPlanDetails();
-  const isPremiumUser = user.role === "admin" || user.role === "paid" || (subscription && subscription.status === "active");
+  const isPremiumUser = user.role === "admin" || user.role === "paid" || user.role === "resource_access" || (subscription && subscription.status === "active");
 
   return (
     <div className="space-y-6 animate-fade-in text-slate-900 font-sans">
@@ -683,7 +695,57 @@ export default function PaymentDetailsPage() {
               <span>Available Upgrade Plans</span>
             </h2>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {/* Resource Access */}
+              <div className="p-6 rounded-3xl bg-white border border-slate-200 shadow-sm flex flex-col justify-between hover:border-portal-primary/30 hover:scale-[1.01] transition-all duration-300 relative group overflow-hidden">
+                <div className="absolute top-0 right-0 w-24 h-24 bg-blue-100/50 rounded-full blur-xl pointer-events-none"></div>
+                <div className="space-y-4">
+                  <div className="flex justify-between items-start">
+                    <h3 className="font-bold text-slate-900 text-lg">Resource Access</h3>
+                    <span className="px-2 py-0.5 rounded text-[8px] font-bold uppercase border bg-blue-50 border-blue-200 text-blue-700">
+                      One-time
+                    </span>
+                  </div>
+                  <div>
+                    <span className="text-3xl font-extrabold text-slate-900">₹50</span>
+                    <span className="text-xs text-slate-500"> / one-time</span>
+                    <p className="text-[10px] text-blue-650 font-bold mt-1">Best for Resource Library Users</p>
+                  </div>
+
+                  <ul className="space-y-2.5 text-xs text-slate-600 pt-4 border-t border-slate-100">
+                    <li className="flex items-center gap-2">
+                      <CheckCircle2 className="w-4 h-4 text-blue-600 flex-shrink-0" />
+                      <span>Unlock Premium Library</span>
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <CheckCircle2 className="w-4 h-4 text-blue-600 flex-shrink-0" />
+                      <span>Downloadable PDF Guides</span>
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <CheckCircle2 className="w-4 h-4 text-blue-600 flex-shrink-0" />
+                      <span>Lifetime Access</span>
+                    </li>
+                  </ul>
+                </div>
+
+                <div className="pt-6">
+                  <button
+                    onClick={() => handleUpgrade("resource_access", 50)}
+                    disabled={isCheckoutProcessing}
+                    className="w-full py-3 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-500 hover:opacity-95 text-white font-bold text-xs shadow-md transition-all flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50"
+                  >
+                    {isCheckoutProcessing ? (
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    ) : (
+                      <>
+                        <span>Get Resource Access</span>
+                        <ArrowRight className="w-3.5 h-3.5" />
+                      </>
+                    )}
+                  </button>
+                </div>
+              </div>
+
               {/* Premium Monthly */}
               <div className="p-6 rounded-3xl bg-white border border-slate-200 shadow-sm flex flex-col justify-between hover:border-portal-primary/30 hover:scale-[1.01] transition-all duration-300 relative group">
                 <div className="space-y-4">

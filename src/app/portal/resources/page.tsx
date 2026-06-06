@@ -109,7 +109,7 @@ export default function ResourcesPage() {
     if (!user) return;
     try {
       setLoadingDocs(true);
-      const constraints = (user.role === "admin" || user.role === "paid")
+      const constraints = (user.role === "admin" || user.role === "paid" || user.role === "resource_access")
         ? []
         : [where("accessLevel", "==", "free")];
       const list = await queryDocuments("resources", ...constraints) as ResourceDoc[];
@@ -135,7 +135,7 @@ export default function ResourcesPage() {
         } else {
           // Fallback to static data for non-admin users so they see values immediately
           const filteredStatic = staticResources.filter(res => {
-            if (user.role === "paid") return true;
+            if (user.role === "paid" || user.role === "resource_access") return true;
             return res.type === "free";
           });
           setResources(filteredStatic.map(res => ({
@@ -173,7 +173,7 @@ export default function ResourcesPage() {
     if (!user) return false;
     const cleanType = type.toLowerCase().trim();
     if (user.role === "admin") return true;
-    if (user.role === "paid") return cleanType === "free" || cleanType === "paid";
+    if (user.role === "paid" || user.role === "resource_access") return cleanType === "free" || cleanType === "paid";
     return cleanType === "free";
   };
 

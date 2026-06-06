@@ -277,6 +277,10 @@ export default function PortalLayout({ children }: { children: React.ReactNode }
     subLabel = "ADMIN ACCESS";
     badgeColor = "bg-blue-50 border-blue-200 text-blue-700";
     subDesc = "Admin Access";
+  } else if (userRole === "resource_access" || subPlan === "resource_access") {
+    subLabel = "RESOURCE ACCESS MEMBER";
+    badgeColor = "bg-blue-50 border-blue-200 text-blue-700";
+    subDesc = "Resource Access Member";
   } else if (userRole === "paid" || subPlan) {
     if (subPlan === "premium_monthly") {
       subLabel = "PREMIUM MONTHLY";

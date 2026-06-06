@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import crypto from "crypto";
 import { db } from "@/lib/firebase";
-import { doc, getDoc, setDoc, updateDoc, collection, addDoc } from "firebase/firestore";
+import { doc, getDoc, setDoc, updateDoc, collection, addDoc, serverTimestamp } from "firebase/firestore";
 import { verifyFirebaseToken } from "@/utils/auth";
 
 export async function POST(req: NextRequest) {
@@ -49,46 +49,74 @@ export async function POST(req: NextRequest) {
     }
     const userData = userSnap.data();
 
-    // 3. Store Payment Document
-    const paymentId = `PAY-${Date.now()}-${Math.random().toString(36).substring(2, 7).toUpperCase()}`;
-    const paymentDoc = {
-      paymentId,
-      razorpayOrderId,
-      razorpayPaymentId,
-      userId: uid,
-      amount: Number(amount) || 0,
-      currency,
-      status: "success",
-      createdAt: new Date().toISOString(),
-    };
-    await setDoc(doc(db, "payments", paymentId), paymentDoc);
-
-    // 4. Store Subscription Document based on plan
-    const startDate = new Date();
-    const expiryDate = new Date();
+    // 3 & 4. Store Payment & Subscription Documents
+    let subscriptionDoc: any;
+    let paymentId: string;
+    let newRole = "paid";
     const chosenPlan = body.plan || "premium_yearly";
 
-    if (chosenPlan === "premium_monthly") {
-      expiryDate.setMonth(startDate.getMonth() + 1);
-    } else {
-      // Default to 1 year
-      expiryDate.setFullYear(startDate.getFullYear() + 1);
-    }
+    if (chosenPlan === "resource_access") {
+      paymentId = razorpayPaymentId;
+      const paymentDoc = {
+        planName: "Resource Access",
+        amount: 50,
+        status: "success",
+        paymentId: razorpayPaymentId,
+        orderId: razorpayOrderId,
+        createdAt: serverTimestamp(),
+        userId: uid,
+        currency: "INR"
+      };
+      await setDoc(doc(db, "payments", paymentId), paymentDoc);
 
-    const subscriptionDoc = {
-      userId: uid,
-      plan: chosenPlan,
-      status: "active",
-      startDate: startDate.toISOString(),
-      expiryDate: expiryDate.toISOString(),
-      paymentId,
-    };
-    // Use userId as the document ID for single-subscription structure
-    await setDoc(doc(db, "subscriptions", uid), subscriptionDoc);
+      subscriptionDoc = {
+        plan: "resource_access",
+        status: "active",
+        amount: 50,
+        createdAt: serverTimestamp(),
+        accessType: "resources",
+        userId: uid,
+        paymentId
+      };
+      await setDoc(doc(db, "subscriptions", uid), subscriptionDoc);
+      newRole = "resource_access";
+    } else {
+      paymentId = `PAY-${Date.now()}-${Math.random().toString(36).substring(2, 7).toUpperCase()}`;
+      const paymentDoc = {
+        paymentId,
+        razorpayOrderId,
+        razorpayPaymentId,
+        userId: uid,
+        amount: Number(amount) || 0,
+        currency,
+        status: "success",
+        createdAt: new Date().toISOString(),
+      };
+      await setDoc(doc(db, "payments", paymentId), paymentDoc);
+
+      const startDate = new Date();
+      const expiryDate = new Date();
+      if (chosenPlan === "premium_monthly") {
+        expiryDate.setMonth(startDate.getMonth() + 1);
+      } else {
+        expiryDate.setFullYear(startDate.getFullYear() + 1);
+      }
+
+      subscriptionDoc = {
+        userId: uid,
+        plan: chosenPlan,
+        status: "active",
+        startDate: startDate.toISOString(),
+        expiryDate: expiryDate.toISOString(),
+        paymentId,
+      };
+      await setDoc(doc(db, "subscriptions", uid), subscriptionDoc);
+      newRole = "paid";
+    }
 
     // 5. Update user role in Firestore
     await updateDoc(userDocRef, {
-      role: "paid",
+      role: newRole,
       updatedAt: new Date().toISOString()
     });
 
@@ -105,8 +133,10 @@ export async function POST(req: NextRequest) {
     // 7. Trigger User Notification
     const notificationDoc = {
       userId: uid,
-      title: "Membership Upgraded",
-      message: "Welcome to Premium! You now have full access to all premium courses, engineering resources, and professional certificates.",
+      title: chosenPlan === "resource_access" ? "Resource Access Activated" : "Membership Upgraded",
+      message: chosenPlan === "resource_access"
+        ? "Your premium resources access is active! You can now download and view all professional engineering documents and PDFs."
+        : "Welcome to Premium! You now have full access to all premium courses, engineering resources, and professional certificates.",
       type: "subscription",
       read: false,
       createdAt: new Date().toISOString()

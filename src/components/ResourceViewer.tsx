@@ -97,7 +97,7 @@ export default function ResourceViewer({ resource, fallbackSlug }: ResourceViewe
   // Free users can only view free resources.
   const hasAccess =
     activeResource
-      ? activeResource.type === "free" || user?.role === "admin" || user?.role === "paid"
+      ? activeResource.type === "free" || user?.role === "admin" || user?.role === "paid" || user?.role === "resource_access"
       : false;
 
   // Fetch Paid PDF as Blob URL & Cleanup
