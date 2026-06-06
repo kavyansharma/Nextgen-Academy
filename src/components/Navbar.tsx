@@ -10,11 +10,15 @@ import {
   Briefcase, 
   UserCheck, 
   GraduationCap, 
-  Calendar 
+  Calendar,
+  Sun,
+  Moon
 } from "lucide-react";
+import { useTheme } from "@/lib/context/ThemeContext";
 
 export default function Navbar() {
   const pathname = usePathname();
+  const { theme, toggleTheme } = useTheme();
 
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -164,6 +168,15 @@ export default function Navbar() {
                 </div>
               )}
             </div>
+
+            {/* Theme Toggle */}
+            <button
+              onClick={toggleTheme}
+              className="p-2.5 rounded-full border border-slate-200 bg-slate-50 text-slate-750 hover:text-brand-orange cursor-pointer transition-all shadow-sm"
+              title="Toggle Light/Dark Theme"
+            >
+              {theme === "dark" ? <Sun className="w-4.5 h-4.5 text-amber-500" /> : <Moon className="w-4.5 h-4.5 text-slate-650" />}
+            </button>
           </div>
 
           {/* Mobile Menu Button */}
@@ -197,6 +210,29 @@ export default function Navbar() {
                 </Link>
               );
             })}
+
+            {/* Mobile Theme Toggle */}
+            <div className="border-t border-slate-200 my-2 pt-2">
+              <div className="px-3 pb-2 flex items-center justify-between text-xs font-semibold text-slate-505 uppercase tracking-wider">
+                <span>Theme Mode</span>
+                <button
+                  onClick={toggleTheme}
+                  className="p-1.5 rounded-lg border border-slate-200 bg-slate-50 text-slate-700 cursor-pointer flex items-center gap-1.5"
+                >
+                  {theme === "dark" ? (
+                    <>
+                      <Sun className="w-3.5 h-3.5 text-amber-500" />
+                      <span className="text-[10px] font-bold">Light</span>
+                    </>
+                  ) : (
+                    <>
+                      <Moon className="w-3.5 h-3.5 text-slate-650" />
+                      <span className="text-[10px] font-bold">Dark</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
 
             {/* Mobile Dropdown Options Title */}
             <div className="border-t border-slate-200 my-2 pt-2">

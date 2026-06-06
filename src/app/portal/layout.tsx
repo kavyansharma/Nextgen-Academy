@@ -30,8 +30,11 @@ import {
   Bell,
   Mail,
   Database,
-  CreditCard
+  CreditCard,
+  Sun,
+  Moon
 } from "lucide-react";
+import { useTheme } from "@/lib/context/ThemeContext";
 
 interface NotificationItem {
   id: string;
@@ -62,6 +65,7 @@ function getNotificationDate(createdAt: unknown): string {
 
 export default function PortalLayout({ children }: { children: React.ReactNode }) {
   const { user, loading, logout } = useAuth();
+  const { theme, toggleTheme } = useTheme();
   const router = useRouter();
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -512,6 +516,14 @@ export default function PortalLayout({ children }: { children: React.ReactNode }
         </div>
         
         <div className="flex items-center gap-2">
+          <button
+            onClick={toggleTheme}
+            className="p-2 rounded-lg text-slate-650 hover:text-slate-900 cursor-pointer"
+            title="Toggle Light/Dark Theme"
+          >
+            {theme === "dark" ? <Sun className="w-5 h-5 text-amber-500" /> : <Moon className="w-5 h-5 text-slate-605" />}
+          </button>
+          
           <div className="relative">
             <button
               onClick={() => setShowNotifications(!showNotifications)}
@@ -559,6 +571,14 @@ export default function PortalLayout({ children }: { children: React.ReactNode }
           </div>
           
           <div className="flex items-center gap-4">
+            <button
+              onClick={toggleTheme}
+              className="p-2.5 rounded-xl bg-white border border-slate-200 text-slate-600 hover:text-slate-900 hover:border-slate-350 transition-all cursor-pointer relative shadow-sm animate-fade-in"
+              title="Toggle Light/Dark Theme"
+            >
+              {theme === "dark" ? <Sun className="w-4.5 h-4.5 text-amber-500" /> : <Moon className="w-4.5 h-4.5 text-slate-650" />}
+            </button>
+
             <div className="relative">
               <button
                 onClick={() => setShowNotifications(!showNotifications)}

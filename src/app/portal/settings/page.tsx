@@ -7,10 +7,11 @@ import {
   CheckCircle2,
   Palette
 } from "lucide-react";
+import { useTheme } from "@/lib/context/ThemeContext";
 
 export default function SettingsPage() {
   const [isSaved, setIsSaved] = useState(false);
-  const [theme, setTheme] = useState("slate");
+  const { theme, setTheme } = useTheme();
 
   const [toggles, setToggles] = useState({
     courseAlerts: true,
@@ -151,15 +152,14 @@ export default function SettingsPage() {
             <span>Visual Theme Workspace</span>
           </h3>
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {[
-              { id: "slate", label: "Enterprise Slate", desc: "Slate 900 background with active professional blue accents." },
-              { id: "coal", label: "Midnight Obsidian", desc: "Deep dark backgrounds optimized for low light reading." },
-              { id: "indigo", label: "Cosmic Indigo", desc: "Sleek dark violet palettes matching consulting interfaces." }
+              { id: "light", label: "Light Theme (Sage Green)", desc: "Soft sage green background optimized to reduce eye strain." },
+              { id: "dark", label: "Dark Theme (Professional Slate)", desc: "Deep slate backgrounds optimized for dark mode interfaces." }
             ].map((t) => (
               <div
                 key={t.id}
-                onClick={() => setTheme(t.id)}
+                onClick={() => setTheme(t.id as "light" | "dark")}
                 className={`p-4.5 rounded-2xl border transition-all cursor-pointer ${
                   theme === t.id
                     ? "border-portal-primary bg-blue-50/50"
@@ -167,7 +167,7 @@ export default function SettingsPage() {
                 }`}
               >
                 <h4 className="text-xs font-bold text-slate-900">{t.label}</h4>
-                <p className="text-[10px] text-slate-500 mt-1 leading-relaxed">{t.desc}</p>
+                <p className="text-[10px] text-slate-505 mt-1 leading-relaxed">{t.desc}</p>
               </div>
             ))}
           </div>

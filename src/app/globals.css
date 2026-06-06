@@ -1,42 +1,44 @@
 @import "tailwindcss";
 
 @theme {
-  --color-brand-orange: #2563EB;
-  --color-brand-orange-hover: #1D4ED8;
+  --color-brand-orange: var(--accent-primary);
+  --color-brand-orange-hover: var(--accent-primary-hover);
   --color-brand-blue: #0EA5E9;
   --color-brand-blue-hover: #0284c7;
-  --color-portal-bg: #DCE4DD;
-  --color-portal-sidebar: #CCD7CF;
-  --color-portal-card: #F3F7F4;
-  --color-portal-border: #C4D0C7;
-  --color-portal-primary: #2563EB;
-  --color-portal-secondary: #0EA5E9;
-  --color-portal-success: #059669;
-  --color-portal-warning: #D97706;
-  --color-portal-error: #DC2626;
-  --color-portal-text-primary: #1F2937;
-  --color-portal-text-secondary: #4B5563;
-
-  --color-brand-dark: #DCE4DD;
-  --color-brand-dark-light: #F3F7F4;
-  --color-brand-border: #C4D0C7;
-  --color-brand-text-muted: #6B7280;
-  --color-brand-text-light: #1F2937;
-
-  --color-white: #F3F7F4;
-  --color-slate-50: #DCE4DD;
-  --color-slate-100: #CCD7CF;
-  --color-slate-200: #C4D0C7;
-  --color-slate-500: #6B7280;
-  --color-slate-600: #4B5563;
-  --color-slate-700: #4B5563;
-  --color-slate-900: #1F2937;
   
-  --shadow-sm: 0 2px 8px rgba(0,0,0,0.05);
-  --shadow-md: 0 2px 8px rgba(0,0,0,0.05);
-  --shadow-lg: 0 2px 8px rgba(0,0,0,0.05);
-  --shadow-xl: 0 2px 8px rgba(0,0,0,0.05);
-  --shadow: 0 2px 8px rgba(0,0,0,0.05);
+  --color-portal-bg: var(--bg-primary);
+  --color-portal-sidebar: var(--bg-secondary);
+  --color-portal-card: var(--bg-card);
+  --color-portal-border: var(--border-primary);
+  --color-portal-primary: var(--accent-primary);
+  --color-portal-secondary: #0EA5E9;
+  --color-portal-success: var(--success-theme);
+  --color-portal-warning: var(--warning-theme);
+  --color-portal-error: var(--error-theme);
+  --color-portal-text-primary: var(--text-primary);
+  --color-portal-text-secondary: var(--text-secondary);
+
+  --color-brand-dark: var(--bg-primary);
+  --color-brand-dark-light: var(--bg-card);
+  --color-brand-border: var(--border-primary);
+  --color-brand-text-muted: var(--text-muted);
+  --color-brand-text-light: var(--text-primary);
+
+  --color-white: var(--bg-card);
+  --color-slate-50: var(--bg-primary);
+  --color-slate-100: var(--bg-secondary);
+  --color-slate-200: var(--border-primary);
+  --color-slate-500: var(--text-muted);
+  --color-slate-650: var(--text-secondary);
+  --color-slate-600: var(--text-secondary);
+  --color-slate-700: var(--text-secondary);
+  --color-slate-900: var(--text-primary);
+  
+  --shadow-sm: var(--shadow-theme);
+  --shadow-md: var(--shadow-theme);
+  --shadow-lg: var(--shadow-theme);
+  --shadow-xl: var(--shadow-theme);
+  --shadow: var(--shadow-theme);
 
   --animate-fade-in-up: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
   --animate-fade-in: fadeIn 0.4s ease-out forwards;
@@ -73,32 +75,75 @@
 }
 
 :root {
-  --background: #DCE4DD;
-  --foreground: #1F2937;
-  --card-bg: #F3F7F4;
-  --card-border: #C4D0C7;
+  --bg-primary: #CFD8D1;
+  --bg-secondary: #D8E0DA;
+  --bg-card: #EDF2EE;
+  --border-primary: #BCC7BF;
+  --text-primary: #1F2937;
+  --text-secondary: #4B5563;
+  --text-muted: #6B7280;
+  --accent-primary: #2563EB;
+  --accent-primary-hover: #1D4ED8;
+
+  --success-theme: #059669;
+  --warning-theme: #D97706;
+  --error-theme: #DC2626;
+
+  --bg-input: #F7FAF8;
+  --border-input: #C7D2CC;
+  --focus-border-input: #2563EB;
+
+  --bg-table-header: #E4EBE6;
+  --bg-table-row-hover: #EEF4F0;
+
+  --shadow-theme: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.dark {
+  --bg-primary: #0F172A;
+  --bg-secondary: #1E293B;
+  --bg-card: #273449;
+  --border-primary: #334155;
+  --text-primary: #F8FAFC;
+  --text-secondary: #CBD5E1;
+  --text-muted: #94A3B8;
+  --accent-primary: #3B82F6;
+  --accent-primary-hover: #2563EB;
+
+  --success-theme: #059669;
+  --warning-theme: #D97706;
+  --error-theme: #DC2626;
+
+  --bg-input: #1E293B;
+  --border-input: #334155;
+  --focus-border-input: #3B82F6;
+
+  --bg-table-header: #1E293B;
+  --bg-table-row-hover: #273449;
+
+  --shadow-theme: 0 2px 8px rgba(0,0,0,0.25);
 }
 
 body {
-  background-color: var(--background);
-  color: var(--foreground);
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
   font-family: var(--font-geist-sans), system-ui, sans-serif;
   overflow-x: hidden;
 }
 
-/* Custom scrollbar matching Sage theme */
+/* Custom scrollbars matching theme */
 ::-webkit-scrollbar {
   width: 8px;
 }
 ::-webkit-scrollbar-track {
-  background: #DCE4DD;
+  background: var(--bg-primary);
 }
 ::-webkit-scrollbar-thumb {
-  background: #C4D0C7;
+  background: var(--border-primary);
   border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #CCD7CF;
+  background: var(--text-muted);
 }
 
 /* Utility Animations */
@@ -115,27 +160,34 @@ body {
   animation-delay: 400ms;
 }
 
-/* Glassmorphism class - solid card background in light theme */
+/* Solid card background in current theme */
 .glass {
-  background: #F3F7F4;
-  border: 1px solid #C4D0C7;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  background: var(--bg-card);
+  border: 1px solid var(--border-primary);
+  box-shadow: var(--shadow-theme);
 }
 
 /* Centralized input focus / background styles */
 input[type="text"], input[type="email"], input[type="password"], input[type="number"], input[type="tel"], input[type="url"], input[type="search"], select, textarea {
-  background-color: #F7FAF8 !important;
-  border-color: #C7D2CC !important;
+  background-color: var(--bg-input) !important;
+  border-color: var(--border-input) !important;
+  color: var(--text-primary) !important;
 }
 input[type="text"]:focus, input[type="email"]:focus, input[type="password"]:focus, input[type="number"]:focus, input[type="tel"]:focus, input[type="url"]:focus, input[type="search"]:focus, select:focus, textarea:focus {
-  border-color: #2563EB !important;
+  border-color: var(--focus-border-input) !important;
   outline: none;
 }
 
 /* Global table overrides */
 thead tr {
-  background-color: #E4EBE6 !important;
+  background-color: var(--bg-table-header) !important;
+  color: var(--text-primary) !important;
 }
 tbody tr:hover {
-  background-color: #EEF4F0 !important;
+  background-color: var(--bg-table-row-hover) !important;
+}
+
+/* Global smooth transition for theme change */
+body, header, aside, nav, .glass, button, input, select, textarea, table, thead, tbody, tr, th, td, a, span, p, h1, h2, h3, h4, h5, h6 {
+  transition: background-color 0.25s ease, border-color 0.25s ease, color 0.25s ease, box-shadow 0.25s ease;
 }
