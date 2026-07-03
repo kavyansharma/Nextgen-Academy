@@ -23,6 +23,11 @@ export const metadata: Metadata = {
   description: "A premier corporate consulting firm specializing in Executive Search, Talent Advisory, Performance Academy, and Expert Strategic Solutions for the Industrial and Manufacturing sectors.",
   keywords: ["Executive Search", "Talent Advisory", "Industrial Consulting", "Manufacturing Consulting", "Performance Academy", "Skill Training", "CXO Recruitment"],
   authors: [{ name: "NextGen Consulting" }],
+  icons: {
+    icon: "/favicon.ico",
+    shortcut: "/favicon.ico",
+    apple: "/apple-icon.png",
+  },
   openGraph: {
     title: "NextGen Academy & Consulting",
     description: "Premium recruitment, talent advisory, and performance consulting for industrial & manufacturing leaders.",
