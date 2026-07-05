@@ -24,9 +24,13 @@ export const metadata: Metadata = {
   keywords: ["Executive Search", "Talent Advisory", "Industrial Consulting", "Manufacturing Consulting", "Performance Academy", "Skill Training", "CXO Recruitment"],
   authors: [{ name: "NextGen Consulting" }],
   icons: {
-    icon: "/favicon.ico",
+    icon: [
+      { url: "/favicon.ico" },
+      { url: "/favicon-16x16.png", sizes: "16x16", type: "image/png" },
+      { url: "/favicon-32x32.png", sizes: "32x32", type: "image/png" },
+    ],
     shortcut: "/favicon.ico",
-    apple: "/apple-icon.png",
+    apple: "/apple-touch-icon.png",
   },
   openGraph: {
     title: "NextGen Academy & Consulting",
